@@ -102,7 +102,7 @@ src/
 ## 작업 규칙 (필수)
 
 **코드를 변경하는 모든 기능 작업은 `feature-development` 스킬 절차를 따른다.**
-즉: ① `main` pull로 최신화 → ② `feature/<요약>` 브랜치 생성 → ③ 작업 → ④ 커밋·푸시 → ⑤ main 대상 PR 생성(`gh pr create`). main에 직접 커밋하지 않는다(사용자가 명시 요청 시만 예외). 상세는 `.claude/skills/feature-development/SKILL.md`.
+빠른 프로토타이핑 단계라 **main에서 직접 작업한다(A안, 2026-05-31 결정)**: ① `git pull origin main`로 최신화 → ② main에서 직접 작업(작은 단위) → ③ `git add/commit` → ④ `git push origin main`. **피처 브랜치·PR 없음.** 상세는 `.claude/skills/feature-development/SKILL.md`.
 
 ## 진행 로그
 
