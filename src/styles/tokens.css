@@ -43,16 +43,15 @@
     linear-gradient(180deg, #2d2f6b 0%, #6f5694 42%, #c98aa0 74%, #e6a585 100%);
 }
 
-/* 밤 — 짙은 남색에 은은한 달무리 + 옅은 별빛 */
+/* 밤 — 채도 낮춘 뮤트 파스텔(은은한 페리윙클 → 라벤더), 부드러운 달무리 + 옅은 별빛 */
 [data-tod='night'] {
-  --on-bg: #e7e4f2;
+  --on-bg: #f2eef8;
   --bg:
-    radial-gradient(2px 2px at 26% 22%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%),
-    radial-gradient(2px 2px at 72% 17%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 100%),
-    radial-gradient(1.5px 1.5px at 60% 31%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%),
-    radial-gradient(1.5px 1.5px at 38% 12%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 100%),
-    radial-gradient(70% 48% at 50% 48%, rgba(150, 165, 230, 0.2) 0%, rgba(150, 165, 230, 0) 60%),
-    linear-gradient(180deg, #0c1130 0%, #181d46 55%, #242953 100%);
+    radial-gradient(1.8px 1.8px at 28% 24%, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(1.5px 1.5px at 70% 18%, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(1.4px 1.4px at 58% 30%, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(78% 52% at 50% 46%, rgba(226, 218, 244, 0.3) 0%, rgba(226, 218, 244, 0) 62%),
+    linear-gradient(180deg, #5b6090 0%, #807caa 52%, #b1a8cc 100%);
 }
 
 /* 새벽(여명) — 진한 파랑에서 아래쪽 분홍 여명으로 */
