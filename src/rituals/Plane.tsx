@@ -1,35 +1,48 @@
 import { motion } from 'framer-motion'
 import type { RitualProps } from './index'
 
-const DURATION = 2.6
+const D = 3.4
+const MOTES = 6
 
-// 비행기 접어 날리기:
-//  STEP1 종이(글) → STEP2 반으로 접히며 비행기로 변함(텍스트 fade, 비행기 등장)
-//  STEP3 비행기가 사선으로 하늘로 날아가 사라짐(감정이 떠나가는 느낌)
+// 날리기 — 종이가 비행기로 접힌 뒤, 빛 꼬리를 끌며 완만한 곡선으로 하늘로 멀어진다.
+//  감정이 천천히, 아쉬움 없이 떠나가는 느낌. 사라지는 자리에 반짝임 + 주변엔 떠다니는 빛 입자.
 export default function Plane({ text, onDone }: RitualProps) {
   return (
-    <motion.div
-      style={{ position: 'relative', width: 200, height: 260 }}
-      initial={{ x: 0, y: 0, rotate: 0, scale: 1, opacity: 1 }}
-      animate={{
-        x: [0, 0, 340],
-        y: [0, 0, -300],
-        rotate: [0, -4, -24],
-        scale: [1, 0.95, 0.32],
-        opacity: [1, 1, 0],
-      }}
-      transition={{ duration: DURATION, times: [0, 0.5, 1], ease: 'easeIn' }}
-      onAnimationComplete={onDone}
-    >
-      {/* 종이(글) — 접히듯 좁아지며 사라짐 */}
+    <div style={{ position: 'relative', width: 240, height: 320 }}>
+      {/* 떠다니는 빛 입자 — 몽환적인 하늘 분위기 (전체 동안 은은히) */}
+      {Array.from({ length: MOTES }).map((_, i) => {
+        const left = 18 + ((i * 47) % 200)
+        const top = 40 + ((i * 83) % 220)
+        return (
+          <motion.span
+            key={i}
+            style={{
+              position: 'absolute',
+              left,
+              top,
+              width: 5,
+              height: 5,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.9)',
+              boxShadow: '0 0 8px 2px rgba(255,228,160,0.7)',
+              pointerEvents: 'none',
+            }}
+            initial={{ opacity: 0, y: 0 }}
+            animate={{ opacity: [0, 0.8, 0], y: [0, -26, -52] }}
+            transition={{ duration: 3, delay: (i % 3) * 0.7, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        )
+      })}
+
+      {/* 종이(글) — 부드럽게 반으로 접히며 사라짐 */}
       <motion.div
         style={{
           position: 'absolute',
           inset: 0,
           padding: '24px 20px',
           borderRadius: 6,
-          background: 'var(--paper)',
-          boxShadow: '0 12px 36px rgba(0,0,0,0.25)',
+          background: 'var(--paper, #fbf7f4)',
+          boxShadow: '0 12px 36px rgba(0,0,0,0.18)',
           fontFamily: 'var(--batang)',
           fontSize: 14,
           lineHeight: 1.8,
@@ -41,13 +54,13 @@ export default function Plane({ text, onDone }: RitualProps) {
           transformOrigin: 'center',
         }}
         initial={{ scaleX: 1, opacity: 1 }}
-        animate={{ scaleX: [1, 0.2, 0.2], opacity: [1, 0, 0] }}
-        transition={{ duration: DURATION, times: [0, 0.45, 1], ease: 'easeIn' }}
+        animate={{ scaleX: [1, 0.5, 0.18], opacity: [1, 0.5, 0] }}
+        transition={{ duration: D, times: [0, 0.28, 0.4], ease: 'easeInOut' }}
       >
         {text}
       </motion.div>
 
-      {/* 종이비행기 — 접히는 시점에 등장 */}
+      {/* 비행기 — 빛 꼬리를 달고 완만한 곡선으로 하늘로 */}
       <motion.div
         style={{
           position: 'absolute',
@@ -57,17 +70,71 @@ export default function Plane({ text, onDone }: RitualProps) {
           justifyContent: 'center',
           pointerEvents: 'none',
         }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 0, 1] }}
-        transition={{ duration: DURATION, times: [0, 0.42, 0.6], ease: 'easeOut' }}
+        initial={{ x: 0, y: 0, rotate: 0, scale: 1, opacity: 0 }}
+        animate={{
+          x: [0, 0, 44, 150, 300],
+          y: [0, 0, -52, -150, -286],
+          rotate: [0, -8, -16, -20, -24],
+          scale: [0.9, 0.95, 0.72, 0.46, 0.22],
+          opacity: [0, 1, 1, 1, 0],
+        }}
+        transition={{ duration: D, times: [0, 0.4, 0.58, 0.8, 1], ease: 'easeInOut' }}
+        onAnimationComplete={onDone}
       >
-        <svg width={120} height={90} viewBox="0 0 120 90" aria-hidden>
-          {/* 아래 날개(밝은 면) */}
-          <polygon points="10,82 112,8 60,56" fill="#fbf7f4" />
-          {/* 몸체/접힘선(어두운 면) */}
-          <polygon points="112,8 60,56 80,82" fill="#e3dad2" />
-        </svg>
+        <div style={{ position: 'relative' }}>
+          {/* 부드러운 후광 */}
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              width: 120,
+              height: 120,
+              transform: 'translate(-50%,-50%)',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(255,236,180,0.55) 0%, rgba(255,236,180,0) 70%)',
+            }}
+          />
+          {/* 빛 꼬리(혜성 트레일) — 비행 반대쪽(좌하)으로 길게 */}
+          <div
+            style={{
+              position: 'absolute',
+              right: 6,
+              top: 52,
+              width: 150,
+              height: 10,
+              transformOrigin: 'right center',
+              transform: 'rotate(24deg)',
+              borderRadius: 5,
+              background: 'linear-gradient(270deg, rgba(255,250,235,0.85) 0%, rgba(255,236,180,0.4) 35%, rgba(255,236,180,0) 100%)',
+              filter: 'blur(2px)',
+            }}
+          />
+          {/* 종이비행기 */}
+          <svg width={120} height={90} viewBox="0 0 120 90" aria-hidden style={{ position: 'relative' }}>
+            <polygon points="10,82 112,8 60,56" fill="#ffffff" />
+            <polygon points="112,8 60,56 80,82" fill="#efe7dd" />
+          </svg>
+        </div>
       </motion.div>
-    </motion.div>
+
+      {/* 사라지는 자리의 반짝임 */}
+      <motion.div
+        style={{
+          position: 'absolute',
+          right: -30,
+          top: 0,
+          width: 16,
+          height: 16,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, #fff 0%, rgba(255,236,180,0) 70%)',
+          boxShadow: '0 0 16px 5px rgba(255,236,180,0.9)',
+          pointerEvents: 'none',
+        }}
+        initial={{ opacity: 0, scale: 0.4 }}
+        animate={{ opacity: [0, 0, 1, 0], scale: [0.4, 0.4, 1.3, 0.6] }}
+        transition={{ duration: D, times: [0, 0.82, 0.92, 1], ease: 'easeOut' }}
+      />
+    </div>
   )
 }
