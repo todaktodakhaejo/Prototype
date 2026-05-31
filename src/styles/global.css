@@ -28,8 +28,12 @@ body {
   max-height: 932px;
   margin: 0 auto;
   overflow: hidden;
-  background: var(--bg, #2e2a52);
-  transition: background 1.2s ease;
+  background-color: #1a1730; /* 다층 그라데이션 로드 전/여백 폴백 */
+  background-image: var(--bg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: background-image 1.2s ease;
 }
 
 /* 각 화면은 프레임을 가득 채우는 절대 레이어 (전환 cross-fade용) */
