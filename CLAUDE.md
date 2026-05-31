@@ -102,7 +102,7 @@ src/
 ## 작업 규칙 (필수)
 
 **코드를 변경하는 모든 기능 작업은 `feature-development` 스킬 절차를 따른다.**
-빠른 프로토타이핑 단계라 **main에서 직접 작업한다(A안, 2026-05-31 결정)**: ① `git pull origin main`로 최신화 → ② main에서 직접 작업(작은 단위) → ③ `git add/commit` → ④ `git push origin main`. **피처 브랜치·PR 없음.** 상세는 `.claude/skills/feature-development/SKILL.md`.
+빠른 프로토타이핑 단계라 **main에서 직접 작업한다(A안, 2026-05-31 결정)**: ① `git pull origin main`로 최신화 → ② main에서 직접 작업(작은 단위) → ③ `git add/commit` → ④ `git push origin main`. **피처 브랜치·PR 없음.** **🚨 충돌이 나면 임의로 해결하지 말고, 어떤 파일이 어떻게 충돌했는지 먼저 사용자에게 자세히 보고하고 결정을 받는다.** 상세는 `.claude/skills/feature-development/SKILL.md`.
 
 ## 진행 로그
 
