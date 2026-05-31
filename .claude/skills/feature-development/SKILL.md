@@ -54,8 +54,9 @@ gh pr create --base main --head feature/<작업-요약> \
 🤖 Generated with [Claude Code](https://claude.com/claude-code)"
 ```
 
-- `gh`가 인증 안 돼 있으면 그 사실과 함께 수동 PR 링크
-  (`https://github.com/todaktodakhaejo/Prototype/compare/main...feature/<브랜치>`)를 안내한다.
+- **이 환경엔 `gh` CLI가 설치돼 있지 않다.** 그러므로 `gh pr create`를 시도하지 말고,
+  push 후 GitHub가 출력하는 PR 링크(`https://github.com/todaktodakhaejo/Prototype/pull/new/<브랜치>`)를
+  사용자에게 안내해 직접 PR을 열게 한다. (gh가 설치되면 위 명령으로 자동화 가능)
 - PR 생성 후 PR URL을 사용자에게 보고한다.
 - **머지는 사용자가 한다.** 에이전트가 PR을 머지하지 않는다.
 
