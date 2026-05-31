@@ -24,10 +24,7 @@ function readCount(): number {
 // 라운드 시작점(KPI 모드면 기분 pre부터, 아니면 홈) 결정
 function entryStep(): Step {
   if (!readBool(LS_ONBOARDED)) return 'ONBOARDING'
-  if (KPI_ENABLED) {
-    kpi.startRound()
-    return 'MOOD_PRE'
-  }
+  if (KPI_ENABLED) kpi.startRound()
   return 'HOME'
 }
 
@@ -92,22 +89,27 @@ export const useStore = create<AppState>((set, get) => {
         /* noop */
       }
       if (KPI_ENABLED) kpi.startRound()
-      set({ onboarded: true, step: KPI_ENABLED ? 'MOOD_PRE' : 'HOME' })
+      set({ onboarded: true, step: 'HOME' })
     },
 
+    // 기분 pre는 '리츄얼까지' 선택 후 글쓰기 직전에 물음 → 응답하면 글쓰기로
     submitMoodPre: (value) => {
       kpi.setMoodPre(value)
-      set({ step: 'HOME' })
+      set({ step: 'WRITE' })
     },
 
     // 공놀이를 마치고 다음으로 — KPI면 분기 팝업, 아니면 곧장 글쓰기
     proceedFromHome: () => set({ step: KPI_ENABLED ? 'RITUAL_PROMPT' : 'WRITE' }),
 
-    // 팝업: 리츄얼까지 → 글쓰기·의식 진행 (이후 RELEASED → 기분 post)
-    chooseRitual: () => set({ step: 'WRITE' }),
+    // 팝업: 리츄얼까지 → (기분 pre) → 글쓰기·의식 진행
+    chooseRitual: () => set({ step: KPI_ENABLED ? 'MOOD_PRE' : 'WRITE' }),
 
-    // 팝업: 오늘은 여기까지 → 공놀이만 한 라운드로 바로 기분 post
-    chooseEndNow: () => set({ step: 'MOOD_POST', postRoundType: 'ball_only' }),
+    // 팝업: 오늘은 여기까지 → 기분 질문 없이 라운드 종료(공놀이만 기록) → 홈(초기화면)
+    chooseEndNow: () => {
+      kpi.endRound('ball_only')
+      if (KPI_ENABLED) kpi.startRound()
+      set({ step: 'HOME', draftText: '', selectedRitual: null, postRoundType: null })
+    },
 
     setDraft: (text) => set({ draftText: text }),
 
@@ -155,15 +157,10 @@ export const useStore = create<AppState>((set, get) => {
       set({ step: 'ENDED' })
     },
 
-    // 종료 화면에서 사용자가 명시적으로 다시 시작할 때만 새 라운드(기분 pre부터)
+    // 종료 화면에서 사용자가 명시적으로 다시 시작할 때만 새 라운드 → 홈(초기화면)
     startNewRound: () => {
       if (KPI_ENABLED) kpi.startRound()
-      set({
-        step: KPI_ENABLED ? 'MOOD_PRE' : 'HOME',
-        draftText: '',
-        selectedRitual: null,
-        postRoundType: null,
-      })
+      set({ step: 'HOME', draftText: '', selectedRitual: null, postRoundType: null })
     },
 
     resetHome: () => resetForNext(true),
