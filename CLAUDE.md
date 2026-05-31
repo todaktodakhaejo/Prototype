@@ -86,7 +86,7 @@ src/
 ### 동작하는 것
 - 온보딩 3슬라이드(최초 1회, localStorage `heulim.onboarded`)
 - 홈: 시간대 배경 + 날짜 + 위로 멘트 fade + 공 2단계 탭 + 카운터
-- 글쓰기 textarea → 의식 선택(5종 그리드: 태우기·구기기·찢기·비행기·보석함) → 의식 애니메이션(STEP1→2→3) → 잔상 → 완료 → 홈 리셋(카운터 +1, `heulim.releaseCount`)
+- 글쓰기 textarea → 의식 선택(4종 그리드: 태우기·파쇄기·날리기·보석함) → 의식 애니메이션(STEP1→2→3) → 잔상 → 완료 → 홈 리셋(카운터 +1, `heulim.releaseCount`)
 - 감정 텍스트는 `resetHome()`에서 폐기(미저장)
 
 ### 아직 안 한 것 (다음 후보)
@@ -107,6 +107,7 @@ src/
 | 2026-05-31 | **3단계 제스처 인터랙션(GST-01~04)** 최소 구현 | `components/JellyBall.tsx` | 홈 공에 굴리기/당겼다놓기/튕기기/터치파장. Framer `drag`+`dragSnapToOrigin`+ripple, Pointer 이벤트로 마우스·터치 동시 지원. **未실행 검증** |
 | 2026-05-31 | **글쓰기 진입 = 탭 → 롱프레스(800ms)로 변경** | `JellyBall.tsx`, `Home.tsx`, `constants.ts` | 공을 `LONG_PRESS_MS`(800ms) 이상 누르면 글쓰기 진입. 누르는 동안 원형 SVG 게이지 차오름 + 공 살짝 눌림(scale 0.9). 800ms 전 떼면 리셋·원상복귀. 드래그 시작 시 `onDragStart`로 롱프레스 취소(굴리기/튕기기와 공존). 멘트는 pointerdown(`onPressStart`)에 사라짐. `onTap` 내비게이션 제거. **未실행 검증** |
 | 2026-05-31 | **의식 2종 추가: 비행기(RIT-09)·보석함(RIT-10)** → 총 5종 | `rituals/Plane.tsx`, `rituals/Jewelbox.tsx`, `types.ts`, `constants.ts`, `rituals/index.ts` | 비행기=종이 접힘→사선 비행 사라짐. 보석함=종이 투입→뚜껑 닫힘→후광+빛입자(12개) 확산. 보석함은 *시각 연출만*이고 텍스트 저장(아카이브)은 하지 않음(컨셉 유지). 레지스트리에 등록만 하면 선택 그리드 자동 노출. **未실행 검증** |
+| 2026-05-31 | **의식 개편: 구기기·찢기 제거, 파쇄기(RIT-04) 추가, "비행기"→"날리기"** → 총 4종 | `rituals/Shred.tsx`(신규), `Crumple.tsx`·`Tear.tsx`(삭제), `types.ts`, `constants.ts`, `rituals/index.ts` | 파쇄기=종이가 투입구로 빨려들어가며 본체 진동→파쇄 조각이 폭죽처럼 사방 확산(confetti 18개, 색상 팔레트). 최종 의식: 태우기·파쇄기·날리기·보석함. **未실행 검증** |
 
 > 제스처 매핑: 굴리기=드래그 추종 / 당겼다놓기=탄성 복귀 / 튕기기=release 속도가 스프링에 실려 큰 복귀 / 터치파장=누른 지점 ripple. 4종이 *하나의 탄성 드래그 공*으로 통합 표현됨(최소 구현). 튕기기를 "날아가서 머무는" 물리로 분리하려면 dragEnd 속도 분기 추가 필요(후속).
 

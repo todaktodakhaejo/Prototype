@@ -9,9 +9,9 @@ export type Step =
   | 'RELEASED'
 
 // 의식 종류 — 흘려보내기(소멸형) + 보내기/보관형 연출
-//   burn/crumple/tear/plane : 흘려보내기(감정이 떠나감)
-//   jewelbox                : 보관형 연출(시각적으로만 — 텍스트는 저장하지 않음)
-export type RitualId = 'burn' | 'crumple' | 'tear' | 'plane' | 'jewelbox'
+//   burn/shred/plane : 흘려보내기(감정이 떠나감)
+//   jewelbox         : 보관형 연출(시각적으로만 — 텍스트는 저장하지 않음)
+export type RitualId = 'burn' | 'shred' | 'plane' | 'jewelbox'
 
 export interface RitualMeta {
   id: RitualId
