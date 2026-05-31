@@ -158,7 +158,7 @@ export default function JellyBall({ onLongPress, onPressStart, onPlayActive, fai
       dragSnapToOrigin
       dragElastic={0.75}
       dragTransition={{ bounceStiffness: 200, bounceDamping: 12 }}
-      onDragStart={endPress}
+      onDragStart={endPress} // 드래그로 판정되면 롱프레스(게이지)만 취소 — 활성 시간은 계속 누적
       whileDrag={interactive ? { cursor: 'grabbing' } : undefined}
       onPointerDown={handlePointerDown}
       onPointerUp={endPressAndActive}
