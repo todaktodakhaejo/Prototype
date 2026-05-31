@@ -2,19 +2,17 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '../store'
 import { formatToday } from '../hooks/useTimeOfDay'
-import { COMFORT_MESSAGES, KPI_DONE_LABEL } from '../constants'
+import { COMFORT_MESSAGES } from '../constants'
 import JellyBall from '../components/JellyBall'
-import { addBallActive, KPI_ENABLED } from '../analytics'
+import { addBallActive } from '../analytics'
 
-// HOME 2단계 탭:
+// HOME:
 //  1차 터치 → 위로 멘트·날짜 fade-out (공만 남음)
-//  2차 터치(롱프레스) → WRITE 진입
+//  지그시 누르기(롱프레스) → 다음으로 (KPI 모드: 분기 팝업 / 아니면 글쓰기)
 export default function Home() {
-  const enterWrite = useStore((s) => s.enterWrite)
-  const finishBallOnly = useStore((s) => s.finishBallOnly)
+  const proceedFromHome = useStore((s) => s.proceedFromHome)
   const releaseCount = useStore((s) => s.releaseCount)
   const [cleared, setCleared] = useState(false)
-  const [played, setPlayed] = useState(false) // 공놀이 1회라도 했는지 (마침 버튼 노출 조건)
   // 멘트는 진입 시 1개 고정 (releaseCount로 순환 — 매번 같지 않게)
   const message = COMFORT_MESSAGES[releaseCount % COMFORT_MESSAGES.length]
 
@@ -52,11 +50,8 @@ export default function Home() {
       </AnimatePresence>
 
       <JellyBall
-        onPressStart={() => {
-          setCleared(true)
-          setPlayed(true)
-        }}
-        onLongPress={enterWrite}
+        onPressStart={() => setCleared(true)}
+        onLongPress={proceedFromHome}
         onPlayActive={(ms) => addBallActive(ms)}
       />
 
@@ -68,25 +63,8 @@ export default function Home() {
             transition={{ duration: 1.2, delay: 0.4 }}
             style={{ position: 'absolute', bottom: 120, color: 'var(--on-bg)', fontSize: 13 }}
           >
-            공을 지그시 누르면, 마음을 적어요
+            공을 지그시 누르면, 다음으로 넘어가요
           </motion.p>
-        )}
-      </AnimatePresence>
-
-      {/* KPI 모드: 공놀이만 한 라운드도 기분(post)을 받기 위한 중립 마침 버튼 */}
-      <AnimatePresence>
-        {KPI_ENABLED && played && (
-          <motion.button
-            className="btn"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.85 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            onClick={finishBallOnly}
-            style={{ position: 'absolute', bottom: 72, fontSize: 13, padding: '10px 22px' }}
-          >
-            {KPI_DONE_LABEL}
-          </motion.button>
         )}
       </AnimatePresence>
 

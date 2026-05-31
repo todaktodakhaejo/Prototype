@@ -9,13 +9,19 @@ export const LONG_PRESS_MS = 800
 
 // ── KPI 모드(프로토타입 한정) 기분 측정 ──
 export const MOOD_MAX = 10 // 0~10 척도
-// 공놀이만 한 라운드도 기분(post)을 받기 위한 홈의 마침 버튼.
-// 종료를 유도하지 않는 중립 멘트로 둔다.
-export const KPI_DONE_LABEL = '기분 남기기'
 export const MOOD_PRE_TITLE = '지금 마음의 무게는 어느 정도인가요?'
 export const MOOD_POST_TITLE = '지금 마음의 무게는 어느 정도인가요?'
 export const MOOD_LOW_LABEL = '가벼움'
 export const MOOD_HIGH_LABEL = '무거움'
+
+// 공놀이 후 분기 팝업 (종이/리츄얼 진입 전)
+export const RITUAL_PROMPT_TITLE = '감정을 기록하고 리츄얼과 함께 해소해볼까요?'
+export const RITUAL_PROMPT_YES = '리츄얼까지 해볼래요'
+export const RITUAL_PROMPT_NO = '오늘은 여기까지 할래요'
+
+// 기분 post 응답 후 종료 화면
+export const ENDED_MESSAGE = '오늘도 고생했어요'
+export const ENDED_RESTART_LABEL = '다시 시작하기'
 
 // 홈 위로 멘트 후보
 export const COMFORT_MESSAGES = [

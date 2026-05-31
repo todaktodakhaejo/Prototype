@@ -4,24 +4,28 @@ import { useTimeOfDay } from './hooks/useTimeOfDay'
 import Onboarding from './screens/Onboarding'
 import MoodPre from './screens/MoodPre'
 import Home from './screens/Home'
+import RitualPrompt from './screens/RitualPrompt'
 import Write from './screens/Write'
 import RitualPick from './screens/RitualPick'
 import RitualAct from './screens/RitualAct'
 import Afterglow from './screens/Afterglow'
 import Released from './screens/Released'
 import MoodPost from './screens/MoodPost'
+import Ended from './screens/Ended'
 import type { Step } from './types'
 
 const SCREENS: Record<Step, () => JSX.Element | null> = {
   ONBOARDING: Onboarding,
   MOOD_PRE: MoodPre,
   HOME: Home,
+  RITUAL_PROMPT: RitualPrompt,
   WRITE: Write,
   RITUAL_PICK: RitualPick,
   RITUAL_ACT: RitualAct,
   AFTERGLOW: Afterglow,
   RELEASED: Released,
   MOOD_POST: MoodPost,
+  ENDED: Ended,
 }
 
 export default function App() {

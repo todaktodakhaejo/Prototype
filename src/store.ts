@@ -42,15 +42,17 @@ interface AppState {
   // FSM 전환 액션 (단방향)
   completeOnboarding: () => void
   submitMoodPre: (value: number) => void
-  enterWrite: () => void
+  proceedFromHome: () => void // 공놀이 후: KPI면 분기 팝업, 아니면 바로 글쓰기
+  chooseRitual: () => void // 팝업 '리츄얼까지 해볼래요' → 글쓰기·의식 진행
+  chooseEndNow: () => void // 팝업 '오늘은 여기까지 할래요' → 바로 기분 post
   setDraft: (text: string) => void
   goPickRitual: () => void
   pickRitual: (id: RitualId) => void
   finishRitual: () => void
   goReleased: () => void
   afterReleased: () => void // Released 여운 종료 후 (KPI: 기분 post / 아니면 홈 리셋)
-  finishBallOnly: () => void // 홈 마침 버튼 — 공놀이만 한 라운드 종료
-  submitMoodPost: (value: number) => void
+  submitMoodPost: (value: number) => void // 응답 후 종료(ENDED)
+  startNewRound: () => void // 종료 화면에서 다시 시작 (새 라운드)
   resetHome: () => void
 }
 
@@ -98,7 +100,15 @@ export const useStore = create<AppState>((set, get) => {
       set({ step: 'HOME' })
     },
 
-    enterWrite: () => set({ step: 'WRITE' }),
+    // 공놀이를 마치고 다음으로 — KPI면 분기 팝업, 아니면 곧장 글쓰기
+    proceedFromHome: () => set({ step: KPI_ENABLED ? 'RITUAL_PROMPT' : 'WRITE' }),
+
+    // 팝업: 리츄얼까지 → 글쓰기·의식 진행 (이후 RELEASED → 기분 post)
+    chooseRitual: () => set({ step: 'WRITE' }),
+
+    // 팝업: 오늘은 여기까지 → 공놀이만 한 라운드로 바로 기분 post
+    chooseEndNow: () => set({ step: 'MOOD_POST', postRoundType: 'ball_only' }),
+
     setDraft: (text) => set({ draftText: text }),
 
     goPickRitual: () => {
@@ -127,17 +137,33 @@ export const useStore = create<AppState>((set, get) => {
       }
     },
 
-    finishBallOnly: () => {
-      // 공놀이만 한 라운드 — 의식 없이 기분 post로
-      set({ step: 'MOOD_POST', postRoundType: 'ball_only' })
-    },
-
     submitMoodPost: (value) => {
       kpi.setMoodPost(value)
       const rt = get().postRoundType ?? 'full'
       kpi.endRound(rt)
       // 의식까지 완료(full)한 라운드만 '흘려보낸 마음' 카운트 +1
-      resetForNext(rt === 'full')
+      if (rt === 'full') {
+        const next = get().releaseCount + 1
+        try {
+          localStorage.setItem(LS_COUNT, String(next))
+        } catch {
+          /* noop */
+        }
+        set({ releaseCount: next })
+      }
+      // 응답 후 종료 — 같은 질문이 곧바로 또 뜨지 않도록 다음 라운드 자동 시작 안 함
+      set({ step: 'ENDED' })
+    },
+
+    // 종료 화면에서 사용자가 명시적으로 다시 시작할 때만 새 라운드(기분 pre부터)
+    startNewRound: () => {
+      if (KPI_ENABLED) kpi.startRound()
+      set({
+        step: KPI_ENABLED ? 'MOOD_PRE' : 'HOME',
+        draftText: '',
+        selectedRitual: null,
+        postRoundType: null,
+      })
     },
 
     resetHome: () => resetForNext(true),

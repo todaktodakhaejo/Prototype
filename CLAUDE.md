@@ -117,6 +117,7 @@ src/
 | 2026-05-31 | **오브제 → 슬라임/젤리 물성으로 개편** | `components/JellyBall.tsx` | `useVelocity`+`useSpring`+`useTransform`로 드래그 속도를 읽어 진행 축 늘림+트레일 skew(끈적함). 누름은 비대칭 찌그러짐(scaleX1.12/scaleY0.82)+손가락 자리 딤플 음영+딤플 방향 이동. 떼면 스프링 복원(탄성 오버슈트). idle은 유기적 borderRadius 모핑(액체 출렁임)+젤 inset 음영. 3중 변형 레이어(속도/누름/모핑) 분리 합성. 게이지·ripple 유지. **未실행 검증** |
 | 2026-05-31 | **온보딩 멘트 8종 자동 순환** | `screens/Onboarding.tsx` | 3슬라이드(제목+본문) → 말랑이 소개 멘트 8개를 3.8초마다 페이드 순환. 하단 순환 점 8개 + "시작하기" 상시 노출. **未실행 검증** |
 | 2026-05-31 | **KPI 수집 기능 통합** (feature/kpi-collection → main 머지) | `analytics.ts`(신규), `screens/MoodPre.tsx`·`MoodPost.tsx`(신규), `components/MoodScale.tsx`(신규), `store.ts`, `App.tsx`, `Home.tsx`, `Released.tsx`, `JellyBall.tsx`, `types.ts`, `constants.ts` | 라운드(MOOD_PRE→…→MOOD_POST) 단위 KPI: 기분 pre/post·delta, 공놀이 활성시간, 의식별 시간/횟수, 글 작성. localStorage(`heulim.kpi.rounds`) 적재 + `window.__heulimKPI` 콘솔 API + (옵션)HTTP 전송. `VITE_KPI_ENABLED`/`VITE_KPI_ENDPOINT` env. JellyBall은 **슬라임 물성 + onPlayActive 계측**으로 통합. **未실행 검증** |
+| 2026-05-31 | **기분 질문 중복 수정 + 의식 분기 팝업** | `screens/RitualPrompt.tsx`·`Ended.tsx`(신규), `store.ts`, `Home.tsx`, `App.tsx`, `types.ts`, `constants.ts` | 의식 후 기분질문이 (post + 다음 라운드 pre)로 연달아 2번 뜨던 문제 해결. 공놀이 후 **RITUAL_PROMPT 팝업**(리츄얼까지/오늘은 여기까지) → 각 경로 끝에 기분 post 1회 → **ENDED(종료)**. 응답 후 자동으로 새 라운드(MOOD_PRE) 시작 안 함(중복 제거); 다시 시작은 ENDED의 버튼으로만. `tsc -b && vite build` **검증 통과** |
 
 > 제스처 매핑: 굴리기=드래그 추종 / 당겼다놓기=탄성 복귀 / 튕기기=release 속도가 스프링에 실려 큰 복귀 / 터치파장=누른 지점 ripple. 4종이 *하나의 탄성 드래그 공*으로 통합 표현됨(최소 구현). 튕기기를 "날아가서 머무는" 물리로 분리하려면 dragEnd 속도 분기 추가 필요(후속).
 
