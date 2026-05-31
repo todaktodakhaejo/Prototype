@@ -1,0 +1,71 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--batang);
+  color: var(--ink);
+  background: #15131a;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* 앱은 모바일 세로 화면을 가정 — 중앙 정렬된 프레임 */
+.app-frame {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  height: 100dvh;
+  max-height: 932px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--bg, #2e2a52);
+  transition: background 1.2s ease;
+}
+
+/* 각 화면은 프레임을 가득 채우는 절대 레이어 (전환 cross-fade용) */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.serif {
+  font-family: var(--serif);
+  font-style: italic;
+}
+
+.btn {
+  font-family: var(--batang);
+  font-size: 15px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.78);
+  border: none;
+  border-radius: 999px;
+  padding: 12px 28px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.btn:active {
+  transform: scale(0.96);
+}
+
+.muted {
+  color: var(--ink-mute);
+  font-size: 12px;
+}

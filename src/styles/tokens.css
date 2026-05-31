@@ -1,0 +1,38 @@
+:root {
+  --ink: #2a2530;
+  --ink-soft: #5a4f5a;
+  --ink-mute: #908090;
+  --jelly-pink: #f4b8c7;
+  --paper: #fbf7f4;
+
+  --serif: 'Instrument Serif', serif;
+  --batang: 'Gowun Batang', serif;
+
+  /* 시간대별 배경 그라데이션 (data-tod 속성으로 전환) */
+  --bg-dawn: linear-gradient(180deg, #a9c7e8 0%, #f3d3d8 100%);
+  --bg-day: linear-gradient(180deg, #fde8ec 0%, #f6dfe6 100%);
+  --bg-dusk: linear-gradient(180deg, #3b3a6b 0%, #d98aa0 100%);
+  --bg-night: linear-gradient(180deg, #1b2350 0%, #2e2a52 100%);
+  --bg-pre-dawn: linear-gradient(180deg, #243b8a 0%, #4a5a9e 100%);
+}
+
+[data-tod='dawn'] {
+  --bg: var(--bg-dawn);
+  --on-bg: #3a3340;
+}
+[data-tod='day'] {
+  --bg: var(--bg-day);
+  --on-bg: #5a4f5a;
+}
+[data-tod='dusk'] {
+  --bg: var(--bg-dusk);
+  --on-bg: #f3e6ea;
+}
+[data-tod='night'] {
+  --bg: var(--bg-night);
+  --on-bg: #e6e3f0;
+}
+[data-tod='pre-dawn'] {
+  --bg: var(--bg-pre-dawn);
+  --on-bg: #eef1ff;
+}
