@@ -11,7 +11,6 @@ import RitualAct from './screens/RitualAct'
 import Afterglow from './screens/Afterglow'
 import Released from './screens/Released'
 import MoodPost from './screens/MoodPost'
-import Ended from './screens/Ended'
 import type { Step } from './types'
 
 const SCREENS: Record<Step, () => JSX.Element | null> = {
@@ -25,7 +24,6 @@ const SCREENS: Record<Step, () => JSX.Element | null> = {
   AFTERGLOW: Afterglow,
   RELEASED: Released,
   MOOD_POST: MoodPost,
-  ENDED: Ended,
 }
 
 export default function App() {

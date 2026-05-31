@@ -48,8 +48,7 @@ interface AppState {
   finishRitual: () => void
   goReleased: () => void
   afterReleased: () => void // Released 여운 종료 후 (KPI: 기분 post / 아니면 홈 리셋)
-  submitMoodPost: (value: number) => void // 응답 후 종료(ENDED)
-  startNewRound: () => void // 종료 화면에서 다시 시작 (새 라운드)
+  submitMoodPost: (value: number) => void // 기분 post 응답 후 새 라운드 + 홈(시작)으로
   resetHome: () => void
 }
 
@@ -104,12 +103,8 @@ export const useStore = create<AppState>((set, get) => {
     // 팝업: 리츄얼까지 → (기분 pre) → 글쓰기·의식 진행
     chooseRitual: () => set({ step: KPI_ENABLED ? 'MOOD_PRE' : 'WRITE' }),
 
-    // 팝업: 오늘은 여기까지 → 기분 질문 없이 라운드 종료(공놀이만 기록) → 홈(초기화면)
-    chooseEndNow: () => {
-      kpi.endRound('ball_only')
-      if (KPI_ENABLED) kpi.startRound()
-      set({ step: 'HOME', draftText: '', selectedRitual: null, postRoundType: null })
-    },
+    // 팝업: 오늘은 여기까지 → 공놀이만 한 라운드의 기분 post(KPI) → 응답 시 홈으로
+    chooseEndNow: () => set({ step: 'MOOD_POST', postRoundType: 'ball_only' }),
 
     setDraft: (text) => set({ draftText: text }),
 
@@ -153,12 +148,7 @@ export const useStore = create<AppState>((set, get) => {
         }
         set({ releaseCount: next })
       }
-      // 응답 후 종료 — 같은 질문이 곧바로 또 뜨지 않도록 다음 라운드 자동 시작 안 함
-      set({ step: 'ENDED' })
-    },
-
-    // 종료 화면에서 사용자가 명시적으로 다시 시작할 때만 새 라운드 → 홈(초기화면)
-    startNewRound: () => {
+      // 응답 후 새 라운드를 시작하며 홈(시작)으로 복귀 — 기분 질문이 곧바로 또 뜨지 않음
       if (KPI_ENABLED) kpi.startRound()
       set({ step: 'HOME', draftText: '', selectedRitual: null, postRoundType: null })
     },

@@ -11,7 +11,6 @@ export type Step =
   | 'AFTERGLOW'
   | 'RELEASED'
   | 'MOOD_POST'
-  | 'ENDED' // 기분 post 응답 후 종료 화면 — KPI 모드
 
 // 의식 종류 — 흘려보내기(소멸형) + 보내기/보관형 연출
 //   burn/shred/plane : 흘려보내기(감정이 떠나감)

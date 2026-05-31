@@ -24,7 +24,11 @@ export default function RitualPrompt() {
         <button className="btn" style={{ width: '100%' }} onClick={chooseRitual}>
           {RITUAL_PROMPT_YES}
         </button>
-        <button className="btn-ghost" style={{ width: '100%' }} onClick={chooseEndNow}>
+        <button
+          className="btn"
+          style={{ width: '100%', background: 'rgba(255,255,255,0.18)', color: 'var(--on-bg)' }}
+          onClick={chooseEndNow}
+        >
           {RITUAL_PROMPT_NO}
         </button>
       </div>
