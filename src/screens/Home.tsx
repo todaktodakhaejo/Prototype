@@ -42,7 +42,15 @@ export default function Home() {
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 1 }}
             className="serif"
-            style={{ color: 'var(--on-bg)', fontSize: 22, marginBottom: 48 }}
+            style={{
+              color: 'var(--on-bg)',
+              fontSize: 18,
+              lineHeight: 1.8,
+              marginBottom: 48,
+              whiteSpace: 'pre-line',
+              maxWidth: 300,
+              textAlign: 'center',
+            }}
           >
             {message}
           </motion.p>
