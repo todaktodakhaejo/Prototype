@@ -1,64 +1,21 @@
 :root {
-  --ink: #2a2530;
-  --ink-soft: #5a4f5a;
-  --ink-mute: #908090;
+  --ink: #4a4220; /* 본문/버튼 텍스트 — 노란 배경 위 따뜻한 다크 */
+  --ink-soft: #6f6536;
+  --ink-mute: #a99f6e;
   --jelly-pink: #f4b8c7;
-  --paper: #fbf7f4;
+  --paper: #fffdf4;
 
   --serif: 'Instrument Serif', serif;
   --batang: 'Gowun Batang', serif;
-}
 
-/*
-  시간대별 배경 (data-tod 속성으로 전환).
-  깊이감을 위해 3개 레이어를 겹친다 — CSS는 앞에 적은 레이어가 위에 그려진다:
-    1) vignette : 가장자리를 살짝 어둡게 감싸 "감정을 안전하게 내려놓는 공간" 느낌
-    2) glow     : 부드러운 광원(떠오르는 해 / 지는 해 / 달빛 / 여명) → 몽환적 깊이
-    3) base sky : 위→아래 하늘 그라데이션 (단색 아님)
-  팔레트는 채도를 낮춰 게임 같거나 화려하지 않게, 차분하게 유지.
-*/
-
-/* 일출 — 차가운 윗하늘에서 따뜻한 지평선 빛이 떠오름 */
-[data-tod='dawn'] {
-  --on-bg: #3a3340;
+  /*
+    밝고 연한 파스텔 노란 배경 — 전 시간대 공통.
+    부드러운 깊이를 위해 3레이어: 위쪽 흰 채광 glow + 아래쪽 따뜻한 노란 기운 + 노란 하늘 베이스.
+    (data-tod 속성은 남아있지만 색에는 더 이상 영향 주지 않음)
+  */
+  --on-bg: #6b5f2a; /* 배경 위 텍스트 */
   --bg:
-    radial-gradient(135% 95% at 50% 42%, rgba(0, 0, 0, 0) 58%, rgba(48, 36, 64, 0.24) 100%),
-    radial-gradient(105% 60% at 50% 106%, rgba(255, 213, 178, 0.6) 0%, rgba(255, 213, 178, 0) 64%),
-    linear-gradient(180deg, #aebadf 0%, #d6c1da 46%, #f5d7c2 100%);
-}
-
-/* 낮 — 부드러운 분홍빛, 위에서 은은히 스며드는 채광 */
-[data-tod='day'] {
-  --on-bg: #5a4f5a;
-  --bg:
-    radial-gradient(135% 100% at 50% 44%, rgba(0, 0, 0, 0) 64%, rgba(120, 92, 112, 0.14) 100%),
-    radial-gradient(95% 65% at 50% 4%, rgba(255, 251, 246, 0.65) 0%, rgba(255, 251, 246, 0) 62%),
-    linear-gradient(180deg, #f7e7ed 0%, #f3dde4 52%, #f6dad7 100%);
-}
-
-/* 노을(일몰) — 짙은 남보라 윗하늘에서 따뜻한 코랄 지평선으로 */
-[data-tod='dusk'] {
-  --on-bg: #f4e7ec;
-  --bg:
-    radial-gradient(135% 95% at 50% 42%, rgba(0, 0, 0, 0) 54%, rgba(18, 10, 34, 0.32) 100%),
-    radial-gradient(120% 58% at 50% 104%, rgba(255, 176, 136, 0.62) 0%, rgba(255, 176, 136, 0) 64%),
-    linear-gradient(180deg, #32346a 0%, #785b90 46%, #d99a86 100%);
-}
-
-/* 밤 — 깊은 남보라, 한쪽의 은은한 달빛 (별·과한 연출은 배제) */
-[data-tod='night'] {
-  --on-bg: #e6e3f0;
-  --bg:
-    radial-gradient(135% 95% at 50% 42%, rgba(0, 0, 0, 0) 48%, rgba(0, 0, 12, 0.45) 100%),
-    radial-gradient(58% 42% at 70% 16%, rgba(206, 215, 255, 0.22) 0%, rgba(206, 215, 255, 0) 62%),
-    linear-gradient(180deg, #0f1436 0%, #1d2150 56%, #2b2658 100%);
-}
-
-/* 새벽(여명) — 진한 파랑이 들리며 아래쪽에 옅은 빛의 기운 */
-[data-tod='pre-dawn'] {
-  --on-bg: #eef1ff;
-  --bg:
-    radial-gradient(135% 95% at 50% 42%, rgba(0, 0, 0, 0) 52%, rgba(4, 9, 30, 0.4) 100%),
-    radial-gradient(105% 56% at 50% 105%, rgba(188, 198, 236, 0.32) 0%, rgba(188, 198, 236, 0) 66%),
-    linear-gradient(180deg, #182a5e 0%, #2f3f7e 56%, #51618f 100%);
+    radial-gradient(120% 78% at 50% 6%, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0) 58%),
+    radial-gradient(125% 85% at 50% 102%, rgba(250, 226, 150, 0.55) 0%, rgba(250, 226, 150, 0) 60%),
+    linear-gradient(180deg, #fffdf0 0%, #fdf4c6 56%, #fbeaa8 100%);
 }

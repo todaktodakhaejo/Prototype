@@ -17,11 +17,7 @@ export default function Ended() {
       <h1 className="serif" style={{ fontSize: 28 }}>
         {ENDED_MESSAGE}
       </h1>
-      <button
-        className="btn"
-        style={{ background: 'rgba(255,255,255,0.18)', color: 'var(--on-bg)', fontSize: 14 }}
-        onClick={startNewRound}
-      >
+      <button className="btn-ghost" style={{ fontSize: 14 }} onClick={startNewRound}>
         {ENDED_RESTART_LABEL}
       </button>
     </motion.div>

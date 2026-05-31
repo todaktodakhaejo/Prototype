@@ -32,11 +32,12 @@ export default function MoodScale({ title, onSubmit }: Props) {
               width: 44,
               height: 44,
               borderRadius: '50%',
-              border: '1px solid rgba(255,255,255,0.4)',
-              background: 'rgba(255,255,255,0.12)',
-              color: 'var(--on-bg)',
+              border: '1px solid rgba(120,100,40,0.28)',
+              background: 'rgba(255,255,255,0.85)',
+              color: 'var(--ink)',
               fontSize: 15,
               cursor: 'pointer',
+              boxShadow: '0 3px 10px rgba(180,150,60,0.16)',
             }}
           >
             {v}

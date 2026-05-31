@@ -14,7 +14,7 @@ body,
 body {
   font-family: var(--batang);
   color: var(--ink);
-  background: #15131a;
+  background: #fdf4c6;
   overflow: hidden;
   user-select: none;
 }
@@ -28,7 +28,7 @@ body {
   max-height: 932px;
   margin: 0 auto;
   overflow: hidden;
-  background-color: #1a1730; /* 다층 그라데이션 로드 전/여백 폴백 */
+  background-color: #fdf4c6; /* 다층 그라데이션 로드 전/여백 폴백 */
   background-image: var(--bg);
   background-size: cover;
   background-repeat: no-repeat;
@@ -57,15 +57,31 @@ body {
   font-family: var(--batang);
   font-size: 15px;
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.78);
+  background: #ffffff;
   border: none;
   border-radius: 999px;
   padding: 12px 28px;
   cursor: pointer;
-  backdrop-filter: blur(4px);
+  box-shadow: 0 6px 18px rgba(180, 150, 60, 0.22);
   transition: transform 0.15s ease, background 0.15s ease;
 }
 .btn:active {
+  transform: scale(0.96);
+}
+
+/* 보조(서브) 버튼 — 밝은 배경 위 윤곽선형 */
+.btn-ghost {
+  font-family: var(--batang);
+  font-size: 15px;
+  color: var(--ink-soft);
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(120, 100, 40, 0.32);
+  border-radius: 999px;
+  padding: 12px 28px;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.btn-ghost:active {
   transform: scale(0.96);
 }
 
