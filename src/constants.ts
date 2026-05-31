@@ -14,9 +14,11 @@ export const COMFORT_MESSAGES = [
   '뭐든 괜찮아요',
 ]
 
-// MVP 의식 3종
+// 의식 목록 (선택 그리드 노출 순서)
 export const RITUALS: RitualMeta[] = [
   { id: 'burn', label: '태우기', emoji: '🔥', hint: '태워서 흘려보내요' },
   { id: 'crumple', label: '구기기', emoji: '🌀', hint: '구겨서 날려보내요' },
   { id: 'tear', label: '찢기', emoji: '🌸', hint: '찢어서 흩날려요' },
+  { id: 'plane', label: '비행기', emoji: '✈️', hint: '접어서 날려보내요' },
+  { id: 'jewelbox', label: '보석함', emoji: '💎', hint: '보석함에 간직해요' },
 ]
