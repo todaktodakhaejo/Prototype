@@ -1,0 +1,2360 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>흘림 · Wireframe Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Gowun+Batang:wght@400;700&family=Nanum+Pen+Script&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #2A2530;
+    --ink-soft: #5A4F5A;
+    --ink-mute: #908090;
+    --jelly-pink: #F4B8C7;
+    --bg: #F8F5F2;
+  }
+
+  body {
+    font-family: 'Gowun Batang', serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    padding: 3rem 2rem 5rem;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* ============ HEADER ============ */
+  .doc-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(90,79,90,0.15);
+  }
+  .doc-title {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 48px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .doc-subtitle {
+    font-family: 'Gowun Batang', serif;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  .doc-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--ink-mute);
+    margin-top: 12px;
+  }
+
+  /* ============ SECTION ============ */
+  .section {
+    margin-bottom: 4rem;
+  }
+  .section-title {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 28px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .section-sub {
+    font-family: 'Gowun Batang', serif;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 1.75rem;
+  }
+
+  .scroll-area {
+    overflow-x: auto;
+    padding: 1.75rem 0.25rem 2rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  .screens-row {
+    display: flex;
+    gap: 64px;
+    align-items: flex-start;
+    min-width: max-content;
+  }
+  .screens-row.tight { gap: 40px; }
+
+  .h-col {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    position: relative;
+  }
+  .h-step {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.3em;
+    color: var(--ink-mute);
+  }
+  .h-name {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 15px; color: var(--ink);
+  }
+  .h-note {
+    font-family: 'Gowun Batang', serif;
+    font-size: 11px; color: var(--ink-soft);
+    max-width: 210px; text-align: center; line-height: 1.6;
+  }
+
+  /* ============ PHONE FRAME ============ */
+  .h-phone {
+    width: 220px; height: 440px;
+    border-radius: 36px;
+    border: 1px solid rgba(90,79,90,0.18);
+    background: #FAFAFA;
+    position: relative; overflow: hidden;
+    box-shadow: 0 8px 32px rgba(42,37,48,0.08);
+  }
+  .h-phone.small {
+    width: 140px; height: 280px;
+    border-radius: 24px;
+  }
+  .h-phone .notch {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    width: 70px; height: 6px;
+    background: rgba(42,37,48,0.5); border-radius: 4px;
+    z-index: 100;
+  }
+  .h-phone.small .notch {
+    top: 6px; width: 44px; height: 4px;
+  }
+  .h-help {
+    position: absolute; top: 22px; right: 14px;
+    width: 24px; height: 24px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 50%;
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 12px; color: var(--ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 60;
+  }
+
+  /* ============ ARROWS ============ */
+  .h-arrow {
+    position: absolute; right: -48px; top: 215px;
+    width: 32px; height: 1px;
+    background: rgba(90,79,90,0.3);
+  }
+  .h-arrow::after {
+    content: ''; position: absolute; right: -1px; top: -3px;
+    border-left: 6px solid rgba(90,79,90,0.4);
+    border-top: 3.5px solid transparent;
+    border-bottom: 3.5px solid transparent;
+  }
+  .h-arrow-label {
+    position: absolute; right: -58px; top: 188px;
+    font-family: 'Gowun Batang', serif;
+    font-size: 10px; color: var(--ink-mute);
+    width: 52px; text-align: center; line-height: 1.4;
+  }
+  .h-arrow-label.long { top: 175px; }
+  .h-loop-arrow {
+    position: absolute; right: -56px; top: 200px;
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 12px; color: var(--ink-mute);
+  }
+
+  /* ============ JELLY (공통) ============ */
+  .jelly {
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 28%, rgba(255,255,255,0.95) 0%, rgba(255,235,240,0.6) 15%, rgba(244,184,199,0.7) 40%, rgba(220,140,170,0.7) 80%);
+    box-shadow:
+      inset -12px -16px 26px rgba(180,100,130,0.3),
+      inset 10px 13px 20px rgba(255,255,255,0.7),
+      0 14px 38px rgba(244,184,199,0.5);
+    position: relative;
+    animation: jelly-breathe 5s ease-in-out infinite;
+  }
+  .jelly::before {
+    content: ''; position: absolute;
+    top: 18%; left: 25%; width: 30%; height: 18%;
+    background: rgba(255,255,255,0.85);
+    border-radius: 50%; filter: blur(3px);
+  }
+  .jelly::after {
+    content: ''; position: absolute;
+    top: 38%; left: 22%; width: 8%; height: 8%;
+    background: rgba(255,255,255,0.6);
+    border-radius: 50%;
+  }
+  .jelly.faint {
+    background: radial-gradient(circle at 30% 28%, rgba(255,255,255,0.4) 0%, rgba(244,184,199,0.25) 40%, rgba(220,140,170,0.18) 80%);
+    box-shadow: 0 8px 24px rgba(244,184,199,0.2);
+    opacity: 0.55;
+  }
+  .jelly.faint::before { opacity: 0.4; }
+  .jelly.faint::after { opacity: 0.3; }
+
+  @keyframes jelly-breathe {
+    0%, 100% { border-radius: 50%; transform: scale(1); }
+    25% { border-radius: 48% 52% 50% 50%; transform: scale(1.04, 0.96); }
+    50% { border-radius: 50%; transform: scale(1.06); }
+    75% { border-radius: 52% 48% 50% 50%; transform: scale(0.96, 1.04); }
+  }
+
+  /* ============ TIME-OF-DAY BACKGROUNDS ============ */
+  .scr-bg { position: absolute; inset: 0; }
+
+  .bg-dawn {
+    background: linear-gradient(180deg, #A8C8E8 0%, #C5D5E8 35%, #F5C8A8 58%, #FFD8B8 68%, #E8D5C5 82%, #D8C8C0 100%);
+  }
+  .bg-dawn::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 60%, rgba(255,210,150,0.5) 0%, transparent 35%),
+      radial-gradient(circle at 25% 18%, rgba(255,200,180,0.25) 0%, transparent 30%);
+  }
+  .bg-day { background: linear-gradient(180deg, #FFE8E4 0%, #F2D8E2 35%, #D8C5DD 70%, #B8C5D9 100%); }
+  .bg-day::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 75% 20%, rgba(255,255,255,0.5) 0%, transparent 30%),
+      radial-gradient(circle at 20% 80%, rgba(255,255,255,0.3) 0%, transparent 35%);
+  }
+  .bg-dusk {
+    background: linear-gradient(180deg, #2A3A6B 0%, #4A4878 20%, #8B6890 45%, #E89888 65%, #F5A878 82%, #F8C898 100%);
+  }
+  .bg-dusk::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 60% 55%, rgba(255,150,140,0.45) 0%, transparent 40%),
+      radial-gradient(ellipse at 30% 75%, rgba(255,180,140,0.4) 0%, transparent 35%),
+      radial-gradient(circle at 50% 30%, rgba(220,180,180,0.2) 0%, transparent 25%);
+  }
+  .bg-night {
+    background: linear-gradient(180deg, #050811 0%, #0A1530 35%, #102448 65%, #1A3868 100%);
+  }
+  .bg-night::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 55% 50%, rgba(80,130,200,0.18) 0%, transparent 45%),
+      radial-gradient(2px 2px at 18% 22%, rgba(255,255,235,0.9), transparent 50%),
+      radial-gradient(1.5px 1.5px at 32% 14%, rgba(255,250,210,0.85), transparent 50%),
+      radial-gradient(1px 1px at 65% 18%, rgba(255,255,250,0.7), transparent 50%),
+      radial-gradient(2px 2px at 78% 28%, rgba(255,245,200,0.85), transparent 50%),
+      radial-gradient(1px 1px at 45% 35%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1.5px 1.5px at 88% 42%, rgba(255,250,220,0.8), transparent 50%),
+      radial-gradient(1px 1px at 12% 48%, rgba(255,255,255,0.65), transparent 50%),
+      radial-gradient(1.5px 1.5px at 60% 62%, rgba(255,255,250,0.75), transparent 50%),
+      radial-gradient(1px 1px at 25% 72%, rgba(255,255,255,0.6), transparent 50%),
+      radial-gradient(1px 1px at 82% 78%, rgba(255,250,230,0.7), transparent 50%),
+      radial-gradient(1px 1px at 50% 88%, rgba(255,255,255,0.55), transparent 50%);
+  }
+  .bg-predawn {
+    background: linear-gradient(180deg, #0F2848 0%, #1A4878 30%, #2E6FA0 55%, #4A8FB8 75%, #B8B8C8 88%, #E8C8B8 96%, #F0D0B8 100%);
+  }
+  .bg-predawn::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(1.2px 1.2px at 20% 12%, rgba(255,255,255,0.85), transparent 50%),
+      radial-gradient(1px 1px at 38% 8%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1.5px 1.5px at 68% 14%, rgba(255,255,255,0.9), transparent 50%),
+      radial-gradient(1px 1px at 85% 22%, rgba(255,255,255,0.7), transparent 50%),
+      radial-gradient(1px 1px at 28% 28%, rgba(255,255,255,0.65), transparent 50%),
+      radial-gradient(1px 1px at 55% 32%, rgba(255,255,255,0.6), transparent 50%);
+  }
+
+  /* ============ HOME ============ */
+  .home-date {
+    position: absolute; top: 60px; left: 0; right: 0;
+    text-align: center; z-index: 10;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.25em;
+  }
+  .home-msg {
+    position: absolute; top: 92px; left: 0; right: 0;
+    text-align: center; z-index: 10;
+    font-family: 'Gowun Batang', serif;
+    font-size: 15px; line-height: 1.5;
+  }
+  .home-msg-sub {
+    font-family: 'Gowun Batang', serif;
+    font-size: 11px;
+    font-style: normal;
+    margin-top: 4px;
+    display: block;
+  }
+  .home-jelly-center {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 110px; height: 110px;
+    z-index: 5;
+  }
+  .home-counter {
+    position: absolute; bottom: 32px; left: 0; right: 0;
+    text-align: center; z-index: 10;
+    font-family: 'Nanum Pen Script', cursive;
+    font-size: 10px;
+    line-height: 1.3;
+  }
+
+  .tone-light .home-date,
+  .tone-light .home-counter { color: rgba(90,79,90,0.55); }
+  .tone-light .home-msg { color: var(--ink); }
+  .tone-light .home-msg-sub { color: var(--ink-soft); }
+
+  .tone-dark .home-date,
+  .tone-dark .home-counter { color: rgba(255,235,240,0.5); }
+  .tone-dark .home-msg { color: rgba(255,240,235,0.92); }
+  .tone-dark .home-msg-sub { color: rgba(255,220,210,0.65); }
+  .tone-dark .h-help { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.2); color: rgba(255,240,235,0.8); }
+
+  .tone-warm .home-date,
+  .tone-warm .home-counter { color: rgba(120,80,70,0.55); }
+  .tone-warm .home-msg { color: #4a2a2a; }
+  .tone-warm .home-msg-sub { color: rgba(74,42,42,0.7); }
+
+  /* ripple */
+  .ripple {
+    position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1.5px solid rgba(244,184,199,0.5);
+    z-index: 4;
+  }
+  .ripple.r1 { width: 110px; height: 110px; }
+  .ripple.r2 { width: 160px; height: 160px; border-color: rgba(244,184,199,0.3); }
+  .ripple.r3 { width: 210px; height: 210px; border-color: rgba(244,184,199,0.15); }
+  .ripple.big1 { width: 130px; height: 130px; border-color: rgba(244,184,199,0.6); }
+  .ripple.big2 { width: 180px; height: 180px; border-color: rgba(244,184,199,0.35); }
+  .ripple.big3 { width: 230px; height: 230px; border-color: rgba(244,184,199,0.18); }
+
+  /* ============ ONBOARDING ============ */
+  .scr-onboard {
+    position: absolute; inset: 0;
+    background: rgba(255,250,247,0.96);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 50px 20px 24px;
+  }
+  .ob-stage {
+    position: relative;
+    width: 200px; height: 200px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ob-faint-jelly { width: 160px; height: 160px; }
+  .ob-overlap-msg {
+    position: absolute;
+    left: 0; right: 0;
+    text-align: center;
+    font-family: 'Gowun Batang', serif;
+    font-size: 17px; color: var(--ink);
+    z-index: 5;
+  }
+  .ob-dots { display: flex; gap: 5px; margin-top: 36px; }
+  .ob-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: rgba(90,79,90,0.25);
+  }
+  .ob-dot.on { background: var(--jelly-pink); }
+
+  /* ============ POUR ============ */
+  .scr-pour {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, #FFF1ED 0%, #F8E4E6 100%);
+    padding: 50px 18px 22px;
+    display: flex; flex-direction: column;
+  }
+  .pour-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.25em;
+    color: var(--ink-mute);
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .pour-headline {
+    font-family: 'Gowun Batang', serif;
+    font-size: 13px; color: var(--ink-soft);
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .pour-paper {
+    flex: 1;
+    background: linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,245,243,0.5) 100%);
+    border-radius: 16px;
+    padding: 16px 14px;
+    font-family: 'Nanum Pen Script', cursive;
+    font-size: 13px; color: #3a2f3a;
+    line-height: 1.8;
+  }
+  .pour-placeholder { color: rgba(58,47,58,0.35); }
+
+  /* ============ RITUAL PICK ============ */
+  .scr-ritual-pick {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, #F5E0E5 0%, #E5D2E0 50%, #D5C8E0 100%);
+    padding: 60px 14px 18px;
+    overflow-y: auto;
+  }
+  .pick-title {
+    font-family: 'Gowun Batang', serif; font-weight: 700;
+    font-size: 14px; color: var(--ink);
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  .pick-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px;
+  }
+  .pick-card {
+    background: rgba(255,255,255,0.45);
+    border-radius: 12px;
+    padding: 8px 4px 6px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .pick-icon {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pick-label {
+    font-family: 'Gowun Batang', serif;
+    font-size: 9px; color: var(--ink);
+  }
+  .ico-svg { width: 100%; height: 100%; }
+
+  /* ============ RITUAL ACT (burn 대표) ============ */
+  .scr-burn-active {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, #2a1820 0%, #3a1f25 50%, #4a2818 100%);
+    padding: 54px 18px 28px;
+    display: flex; flex-direction: column;
+    align-items: center;
+  }
+  .ritual-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 0.4em;
+    color: rgba(255,210,180,0.7);
+    margin-bottom: 12px;
+  }
+  .ritual-hint {
+    font-family: 'Nanum Pen Script', cursive;
+    font-size: 12px; color: rgba(255,200,170,0.6);
+    margin-bottom: 14px;
+  }
+  .burn-paper {
+    width: 88px; height: 110px;
+    background: linear-gradient(180deg, rgba(255,250,245,0.95) 0%, rgba(255,235,238,0.85) 100%);
+    border-radius: 4px;
+    margin-bottom: auto;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    padding: 8px 6px;
+    font-family: 'Nanum Pen Script', cursive;
+    font-size: 8px;
+    color: #3a2530;
+    line-height: 1.5;
+  }
+  .burn-flame {
+    position: absolute;
+    left: 50%; bottom: 60px;
+    transform: translateX(-50%);
+    width: 80px; height: 80px;
+    background: radial-gradient(ellipse at center bottom, rgba(255,180,80,0.6) 0%, rgba(255,120,50,0.3) 40%, transparent 70%);
+    border-radius: 50%;
+    animation: flame-breathe 1.5s ease-in-out infinite;
+  }
+  @keyframes flame-breathe {
+    0%, 100% { transform: translateX(-50%) scale(1, 1); opacity: 0.8; }
+    50% { transform: translateX(-50%) scale(1.1, 1.15); opacity: 1; }
+  }
+
+  /* ============ AFTERGLOW ============ */
+  .scr-afterglow {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, #4A4540 0%, #2A2520 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 50px 20px 28px;
+  }
+  .candle {
+    width: 18px; height: 28px;
+    background: radial-gradient(ellipse at 50% 40%, rgba(255,220,160,0.95) 0%, rgba(255,170,90,0.7) 50%, transparent 80%);
+    border-radius: 50%;
+    margin-bottom: 20px;
+    box-shadow: 0 0 40px rgba(255,180,100,0.5);
+    animation: candle-flicker 1.5s ease-in-out infinite;
+  }
+  @keyframes candle-flicker {
+    0%, 100% { transform: scale(1, 1) rotate(-2deg); opacity: 0.95; }
+    50% { transform: scale(1.05, 0.95) rotate(2deg); opacity: 1; }
+  }
+  .afterglow-text {
+    font-family: 'Gowun Batang', serif;
+    font-size: 12px; color: rgba(255,220,200,0.7);
+    text-align: center;
+  }
+  .afterglow-timer {
+    position: absolute; bottom: 32px; left: 0; right: 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.3em;
+    color: rgba(255,220,200,0.3);
+  }
+
+  /* ============ RELEASED ============ */
+  .scr-released {
+    position: absolute; inset: 0;
+    background: rgba(255,250,247,0.96);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 50px 20px;
+  }
+  .done-msg {
+    font-family: 'Gowun Batang', serif; font-weight: 700;
+    font-size: 18px; color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .done-sub {
+    font-family: 'Gowun Batang', serif;
+    font-size: 11px; color: var(--ink-mute);
+  }
+
+  /* ============ RITUAL FRAMES (작은 폰) ============ */
+  .ritual-block {
+    margin-bottom: 2.5rem;
+  }
+  .ritual-block:last-child { margin-bottom: 0; }
+  .ritual-header {
+    display: flex; align-items: baseline; gap: 12px;
+    margin-bottom: 4px;
+  }
+  .ritual-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.3em;
+    color: var(--ink-mute);
+  }
+  .ritual-name {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-size: 20px; color: var(--ink);
+  }
+  .ritual-name-ko {
+    font-family: 'Gowun Batang', serif; font-weight: 700;
+    font-size: 14px; color: var(--ink-soft);
+  }
+  .ritual-gesture {
+    font-family: 'Gowun Batang', serif;
+    font-size: 11px; color: var(--ink-soft);
+    margin-bottom: 14px;
+    line-height: 1.6;
+    padding-left: 2px;
+  }
+  .ritual-gesture b {
+    font-family: 'Gowun Batang', serif;
+    font-weight: 700; color: var(--ink);
+  }
+  .frame-row {
+    display: flex; gap: 14px; align-items: center;
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+  .frame-col {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    flex-shrink: 0;
+  }
+  .frame-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px; letter-spacing: 0.25em;
+    color: var(--ink-mute);
+  }
+  .frame-caption {
+    font-family: 'Gowun Batang', serif;
+    font-size: 9px; color: var(--ink-soft);
+    text-align: center; line-height: 1.4;
+    max-width: 130px;
+  }
+  .frame-arrow {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    color: rgba(90,79,90,0.4);
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .scene-label {
+    position: absolute; top: 18px; left: 0; right: 0;
+    text-align: center; z-index: 50;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7px; letter-spacing: 0.3em;
+  }
+  .scene-hint {
+    position: absolute; bottom: 14px; left: 0; right: 0;
+    text-align: center; z-index: 50;
+    font-family: 'Nanum Pen Script', cursive;
+    font-size: 9px;
+  }
+  .candle-text {
+    position: absolute; bottom: 50px; left: 0; right: 0;
+    text-align: center;
+    font-family: 'Gowun Batang', serif;
+    font-size: 9px;
+  }
+  .paper {
+    position: absolute;
+    background: linear-gradient(180deg, rgba(255,250,245,0.96) 0%, rgba(255,235,238,0.88) 100%);
+    border-radius: 3px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+    padding: 5px 4px;
+    font-family: 'Nanum Pen Script', cursive;
+    font-size: 6px;
+    color: #3a2530;
+    line-height: 1.4;
+    overflow: hidden;
+  }
+
+  /* burn ritual */
+  .sc-burn { background: linear-gradient(180deg, #2a1820 0%, #3a1f25 50%, #4a2818 100%); }
+  .sc-burn .scene-label { color: rgba(255,210,180,0.7); }
+  .sc-burn .scene-hint { color: rgba(255,200,170,0.55); }
+  .burn-paper-1 { width: 50px; height: 64px; left: 50%; top: 52px; transform: translateX(-50%); }
+  .burn-flame-s {
+    position: absolute; left: 50%; bottom: 50px; transform: translateX(-50%);
+    width: 60px; height: 60px;
+    background: radial-gradient(ellipse at center bottom, rgba(255,180,80,0.7) 0%, rgba(255,120,50,0.35) 40%, transparent 70%);
+    border-radius: 50%;
+    animation: flame-breathe 1.5s ease-in-out infinite;
+  }
+  .burn-flame-s.small { width: 40px; height: 40px; opacity: 0.5; }
+  .burn-flame-s.big { width: 80px; height: 80px; bottom: 30px;
+    background: radial-gradient(ellipse at center bottom, rgba(255,210,120,0.85) 0%, rgba(255,140,60,0.5) 40%, transparent 70%);
+  }
+  .ember {
+    position: absolute; width: 3px; height: 3px;
+    background: #FFB06A; border-radius: 50%;
+    box-shadow: 0 0 4px rgba(255,180,90,0.8);
+    animation: ember-rise 2.5s ease-out infinite;
+  }
+  @keyframes ember-rise {
+    0% { transform: translate(var(--x, 0), 0) scale(1); opacity: 1; }
+    100% { transform: translate(calc(var(--x, 0) + var(--drift, 20px)), -150px) scale(0.2); opacity: 0; }
+  }
+  .ember:nth-child(2) { animation-delay: 0.4s; }
+  .ember:nth-child(3) { animation-delay: 0.8s; }
+  .ember:nth-child(4) { animation-delay: 1.2s; }
+  .ember:nth-child(5) { animation-delay: 1.7s; }
+  @keyframes burn-progress {
+    0%, 15% { clip-path: inset(0 0 0 0); }
+    100% { clip-path: inset(100% 0 0 0); }
+  }
+  .anim-burn .burn-paper-1 { animation: burn-progress 4s ease-in infinite; }
+  .sc-afterglow-burn { background: linear-gradient(180deg, #4A4540 0%, #2A2520 100%); }
+  .candle-base {
+    position: absolute; left: 50%; bottom: 100px;
+    transform: translateX(-50%);
+    width: 8px; height: 24px;
+    background: linear-gradient(180deg, #F5E4C5 0%, #C8A878 100%);
+    border-radius: 1px;
+  }
+  .candle-flame {
+    position: absolute; left: 50%; bottom: 124px;
+    transform: translateX(-50%);
+    width: 10px; height: 16px;
+    background: radial-gradient(ellipse at 50% 70%, rgba(255,220,140,0.95) 0%, rgba(255,160,70,0.7) 50%, transparent 80%);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow: 0 0 30px rgba(255,180,90,0.6), 0 0 60px rgba(255,150,70,0.3);
+    animation: flicker 1.5s ease-in-out infinite;
+  }
+  @keyframes flicker {
+    0%, 100% { transform: translateX(-50%) scale(1, 1) rotate(-2deg); opacity: 0.95; }
+    50% { transform: translateX(-50%) scale(1.05, 0.95) rotate(2deg); opacity: 1; }
+  }
+
+  /* shred ritual */
+  .sc-shred { background: linear-gradient(180deg, #F0CCD0 0%, #D9A0AC 60%, #B47585 100%); }
+  .sc-shred .scene-label { color: rgba(80,30,50,0.6); }
+  .sc-shred .scene-hint { color: rgba(80,30,50,0.55); }
+  .shredder-body {
+    position: absolute; left: 50%; top: 120px; transform: translateX(-50%);
+    width: 80px; height: 36px;
+    background: #5A4F5A;
+    border-radius: 4px;
+  }
+  .shredder-mouth {
+    position: absolute; top: 10px; left: 8px;
+    width: 64px; height: 3px;
+    background: #1a1015;
+  }
+  .shredder-mouth.glow {
+    box-shadow: 0 -3px 12px rgba(255,180,140,0.7), 0 -1px 6px rgba(255,200,160,0.9);
+  }
+  .shred-paper-1 { width: 46px; height: 56px; left: 50%; top: 50px; transform: translateX(-50%); }
+  .shred-strip {
+    position: absolute;
+    width: 3px;
+    background: linear-gradient(180deg, rgba(255,250,245,0.95) 0%, rgba(255,235,238,0.85) 100%);
+  }
+  @keyframes paper-pull-in {
+    0% { transform: translateX(-50%) scaleY(1); top: 50px; }
+    100% { transform: translateX(-50%) scaleY(0); top: 120px; }
+  }
+  .anim-shred .shred-paper-1 { animation: paper-pull-in 3s ease-in infinite; transform-origin: bottom center; }
+  @keyframes strip-fall {
+    0% { top: 158px; opacity: 1; }
+    100% { top: 260px; opacity: 0.2; }
+  }
+  .anim-shred .shred-strip { animation: strip-fall 2.2s ease-in infinite; }
+  .anim-shred .shred-strip:nth-child(2) { animation-delay: 0.2s; }
+  .anim-shred .shred-strip:nth-child(3) { animation-delay: 0.4s; }
+  .anim-shred .shred-strip:nth-child(4) { animation-delay: 0.6s; }
+  .anim-shred .shred-strip:nth-child(5) { animation-delay: 0.8s; }
+  .anim-shred .shred-strip:nth-child(6) { animation-delay: 1s; }
+  .sc-afterglow-shred { background: linear-gradient(180deg, #4A3540 0%, #2A1F25 100%); }
+  .shred-pile {
+    position: absolute; left: 50%; bottom: 80px;
+    transform: translateX(-50%);
+    width: 90px; height: 40px;
+  }
+  .shred-pile .strip {
+    position: absolute; width: 3px;
+    background: rgba(255,235,238,0.85);
+    border-radius: 1px;
+  }
+
+  /* tear ritual */
+  .sc-tear { background: linear-gradient(180deg, #E5DCE8 0%, #C5B5D5 100%); }
+  .sc-tear .scene-label { color: rgba(70,50,90,0.6); }
+  .sc-tear .scene-hint { color: rgba(70,50,90,0.55); }
+  .tear-paper-whole { width: 56px; height: 72px; left: 50%; top: 70px; transform: translateX(-50%); }
+  .tear-half-l {
+    width: 26px; height: 72px; left: 30px; top: 70px;
+    background: linear-gradient(180deg, rgba(255,250,245,0.96) 0%, rgba(255,235,238,0.88) 100%);
+    border-radius: 3px 0 0 3px;
+    position: absolute;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+    clip-path: polygon(0 0, 100% 0, 92% 15%, 100% 30%, 88% 45%, 100% 60%, 90% 78%, 100% 100%, 0 100%);
+    transform: rotate(-12deg) translateX(-4px);
+  }
+  .tear-half-r {
+    width: 26px; height: 72px; right: 30px; top: 70px;
+    background: linear-gradient(180deg, rgba(255,250,245,0.96) 0%, rgba(255,235,238,0.88) 100%);
+    border-radius: 0 3px 3px 0;
+    position: absolute;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+    clip-path: polygon(8% 0, 100% 0, 100% 100%, 0 100%, 10% 78%, 0 60%, 12% 45%, 0 30%, 8% 15%);
+    transform: rotate(12deg) translateX(4px);
+  }
+  .tear-flake {
+    position: absolute;
+    width: 7px; height: 9px;
+    background: rgba(255,245,240,0.9);
+    border-radius: 1px;
+  }
+  @keyframes tear-split-l {
+    0%, 30% { transform: rotate(0deg) translateX(28px); }
+    100% { transform: rotate(-25deg) translateX(-12px); }
+  }
+  @keyframes tear-split-r {
+    0%, 30% { transform: rotate(0deg) translateX(-28px); }
+    100% { transform: rotate(25deg) translateX(12px); }
+  }
+  .anim-tear .tear-half-l { animation: tear-split-l 2.5s ease-out infinite; }
+  .anim-tear .tear-half-r { animation: tear-split-r 2.5s ease-out infinite; }
+  .sc-afterglow-tear { background: linear-gradient(180deg, #3A2A4A 0%, #5A3A6A 100%); }
+  .petal {
+    position: absolute;
+    width: 6px; height: 8px;
+    background: rgba(255,235,240,0.8);
+    border-radius: 50% 0;
+  }
+  @keyframes petal-drift {
+    0% { transform: translate(var(--px, 0), -10px) rotate(0deg); opacity: 0; }
+    20% { opacity: 0.8; }
+    100% { transform: translate(calc(var(--px, 0) + 20px), 200px) rotate(180deg); opacity: 0; }
+  }
+  .anim-tear-after .petal { animation: petal-drift 5s linear infinite; }
+  .anim-tear-after .petal:nth-child(2) { animation-delay: 0.8s; }
+  .anim-tear-after .petal:nth-child(3) { animation-delay: 1.6s; }
+  .anim-tear-after .petal:nth-child(4) { animation-delay: 2.4s; }
+  .anim-tear-after .petal:nth-child(5) { animation-delay: 3.2s; }
+
+  /* crumple ritual */
+  .sc-crumple { background: linear-gradient(180deg, #FFE8E4 0%, #F5D5DE 100%); }
+  .sc-crumple .scene-label { color: rgba(120,60,80,0.6); }
+  .sc-crumple .scene-hint { color: rgba(120,60,80,0.55); }
+  .crumple-paper-1 { width: 50px; height: 64px; left: 50%; top: 90px; transform: translateX(-50%); }
+  .crumple-ball {
+    position: absolute; left: 50%; top: 115px; transform: translate(-50%, 0) scale(0.35);
+    width: 50px; height: 50px;
+    background: radial-gradient(circle at 30% 30%, rgba(255,250,245,0.95) 0%, rgba(255,210,215,0.85) 60%, rgba(200,150,170,0.9) 100%);
+    border-radius: 50%;
+    box-shadow: 0 4px 14px rgba(120,60,80,0.3),
+                inset -8px -10px 14px rgba(180,100,130,0.2);
+  }
+  @keyframes crumple-shrink {
+    0% { transform: translate(-50%, 0) scale(1); border-radius: 3px; filter: contrast(1); }
+    60% { transform: translate(-50%, 0) scale(0.6); border-radius: 30%; filter: contrast(1.2); }
+    100% { transform: translate(-50%, 0) scale(0.35); border-radius: 50%; filter: contrast(1.3); }
+  }
+  .anim-crumple .crumple-paper-1 { animation: crumple-shrink 3s ease-in infinite; }
+  @keyframes paper-fly {
+    0%, 60% { transform: translate(-50%, 0) scale(0.35); left: 50%; top: 115px; opacity: 1; }
+    100% { transform: rotate(720deg) scale(0.1); left: 80%; top: 30px; opacity: 0; }
+  }
+  .anim-crumple .crumple-ball { animation: paper-fly 3s ease-out infinite; animation-delay: 1.5s; }
+  .sc-afterglow-crumple { background: linear-gradient(180deg, #F8E0E5 0%, #E5C5D0 100%); }
+  .distant-dot {
+    position: absolute; top: 40px; right: 30px;
+    width: 6px; height: 6px;
+    background: rgba(180,100,130,0.5);
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(180,100,130,0.3);
+  }
+  .horizon-line {
+    position: absolute; left: 0; right: 0; bottom: 90px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(120,60,80,0.2) 50%, transparent 100%);
+  }
+
+  /* scatter ritual */
+  .sc-scatter { background: linear-gradient(180deg, #DEE5F0 0%, #B8C5DE 100%); }
+  .sc-scatter .scene-label { color: rgba(60,80,120,0.6); }
+  .sc-scatter .scene-hint { color: rgba(60,80,120,0.55); }
+  .scatter-paper { width: 56px; height: 70px; left: 50%; top: 70px; transform: translateX(-50%); }
+  .scatter-char {
+    position: absolute;
+    font-family: 'Nanum Pen Script', cursive;
+    font-size: 8px;
+    color: #3a2530;
+  }
+  @keyframes char-float {
+    0%, 20% { transform: translate(var(--sx, 0), var(--sy, 0)); opacity: 1; }
+    50% { transform: translate(calc(var(--sx, 0) + 8px), -20px) rotate(15deg); opacity: 0.9; }
+    100% { transform: translate(calc(var(--sx, 0) - 12px), 80px) rotate(-25deg); opacity: 0; }
+  }
+  .anim-scatter .scatter-char { animation: char-float 3s ease-in-out infinite; }
+  .anim-scatter .scatter-char:nth-child(2) { animation-delay: 0.3s; }
+  .anim-scatter .scatter-char:nth-child(3) { animation-delay: 0.6s; }
+  .anim-scatter .scatter-char:nth-child(4) { animation-delay: 0.9s; }
+  .anim-scatter .scatter-char:nth-child(5) { animation-delay: 1.2s; }
+  .anim-scatter .scatter-char:nth-child(6) { animation-delay: 1.5s; }
+  .anim-scatter .scatter-char:nth-child(7) { animation-delay: 1.8s; }
+  .sc-afterglow-scatter { background: linear-gradient(180deg, #4A5878 0%, #2A3858 100%); }
+  .rolling-char {
+    position: absolute;
+    font-family: 'Nanum Pen Script', cursive;
+    font-size: 11px;
+    color: rgba(220,230,245,0.5);
+  }
+  @keyframes char-roll {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 0.6; }
+    100% { transform: translate(140px, 30px) rotate(540deg); opacity: 0; }
+  }
+  .anim-scatter-after .rolling-char { animation: char-roll 4s ease-in infinite; }
+  .anim-scatter-after .rolling-char:nth-child(2) { animation-delay: 1s; }
+  .anim-scatter-after .rolling-char:nth-child(3) { animation-delay: 2s; }
+
+  /* unravel ritual */
+  .sc-unravel { background: linear-gradient(180deg, #F0D8E0 0%, #C8A8B8 60%, #8A6878 100%); }
+  .sc-unravel .scene-label { color: rgba(70,30,50,0.65); }
+  .sc-unravel .scene-hint { color: rgba(70,30,50,0.55); }
+  .yarn-ball {
+    position: absolute; left: 50%; top: 80px; transform: translateX(-50%);
+    width: 50px; height: 50px;
+    background: radial-gradient(circle at 30% 30%, #D88898 0%, #B85a78 60%, #8a3858 100%);
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(80,30,50,0.3);
+  }
+  .yarn-ball::before {
+    content: ''; position: absolute; inset: 4px;
+    background:
+      repeating-linear-gradient(35deg, transparent 0 3px, rgba(255,235,240,0.25) 3px 4px),
+      repeating-linear-gradient(-35deg, transparent 0 3px, rgba(255,235,240,0.18) 3px 4px);
+    border-radius: 50%;
+  }
+  .yarn-ball.small { width: 32px; height: 32px; }
+  .unravel-paper { width: 16px; height: 20px; }
+  .unravel-paper.shrink { width: 8px; height: 10px; opacity: 0.5; }
+  @keyframes yarn-shrink {
+    0% { transform: translateX(-50%) scale(1); }
+    100% { transform: translateX(-50%) scale(0.5); }
+  }
+  .anim-unravel .yarn-ball { animation: yarn-shrink 3s ease-in-out infinite alternate; }
+  @keyframes thread-draw {
+    0% { stroke-dashoffset: 200; }
+    100% { stroke-dashoffset: 0; }
+  }
+  .thread-anim {
+    stroke-dasharray: 200;
+    animation: thread-draw 3s ease-out infinite;
+  }
+  .sc-afterglow-unravel { background: linear-gradient(180deg, #2A1A28 0%, #4A2838 100%); }
+
+  /* heart ritual */
+  .sc-heart { background: linear-gradient(180deg, #FFE0E8 0%, #FFB8C8 60%, #E89AAE 100%); }
+  .sc-heart .scene-label { color: rgba(140,40,80,0.65); }
+  .sc-heart .scene-hint { color: rgba(140,40,80,0.55); }
+  .heart-paper-flat { width: 56px; height: 64px; left: 50%; top: 80px; transform: translateX(-50%); }
+  .heart-paper-half {
+    position: absolute; left: 50%; top: 90px;
+    transform: translateX(-50%);
+    width: 56px; height: 64px;
+    background: linear-gradient(180deg, rgba(255,250,245,0.96) 0%, rgba(255,225,228,0.88) 100%);
+    border-radius: 3px 3px 30px 30px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+  }
+  .heart-paper-half::before {
+    content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px;
+    background: rgba(180,100,130,0.3);
+  }
+  .heart-shape {
+    position: absolute; left: 50%; top: 110px;
+    transform: translateX(-50%);
+  }
+  .heart-shape svg {
+    width: 60px; height: 56px;
+    filter: drop-shadow(0 3px 10px rgba(180,100,130,0.4));
+  }
+  @keyframes heart-form {
+    0% { opacity: 0; transform: translateX(-50%) scale(0.7) rotate(-10deg); }
+    100% { opacity: 1; transform: translateX(-50%) scale(1) rotate(0deg); }
+  }
+  .anim-heart .heart-shape { animation: heart-form 1.2s ease-out infinite alternate; }
+  .sc-afterglow-heart { background: linear-gradient(180deg, #4A2840 0%, #2A1828 100%); }
+  .rising-heart {
+    position: absolute; left: 50%; bottom: 80px;
+    transform: translateX(-50%);
+    animation: heart-rise 3s ease-out infinite;
+  }
+  .rising-heart svg {
+    width: 40px; height: 36px;
+    filter: drop-shadow(0 0 14px rgba(244,184,199,0.6));
+  }
+  @keyframes heart-rise {
+    0% { transform: translate(-50%, 0) scale(1); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translate(-50%, -120px) scale(0.7); opacity: 0; }
+  }
+
+  /* letter ritual */
+  .sc-letter { background: linear-gradient(180deg, #F5E8D5 0%, #E8C8A8 60%, #C8A088 100%); }
+  .sc-letter .scene-label { color: rgba(100,60,30,0.65); }
+  .sc-letter .scene-hint { color: rgba(100,60,30,0.55); }
+  .letter-paper-flat { width: 70px; height: 50px; left: 50%; top: 90px; transform: translateX(-50%); }
+  .letter-folding {
+    position: absolute; left: 50%; top: 100px;
+    transform: translateX(-50%);
+    width: 70px; height: 50px;
+  }
+  .letter-folding::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(255,250,245,0.96) 0%, rgba(255,235,228,0.88) 100%);
+    border-radius: 2px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    clip-path: polygon(0 0, 100% 0, 100% 50%, 50% 80%, 0 50%);
+  }
+  .envelope {
+    position: absolute; left: 50%; top: 110px;
+    transform: translateX(-50%);
+    width: 60px; height: 42px;
+    background: linear-gradient(180deg, #F5DCB5 0%, #DEB088 100%);
+    border-radius: 2px;
+    box-shadow: 0 4px 12px rgba(80,40,15,0.3);
+  }
+  .envelope::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 24px;
+    background: linear-gradient(180deg, #E8C898 0%, #C89868 100%);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+  .envelope-seal {
+    position: absolute; left: 50%; top: 18px;
+    transform: translateX(-50%);
+    width: 8px; height: 8px;
+    background: #C8506C;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(200,80,108,0.5);
+  }
+  @keyframes envelope-seal-anim {
+    0% { transform: translateX(-50%) scale(0); opacity: 0; }
+    60% { transform: translateX(-50%) scale(1.3); opacity: 1; }
+    100% { transform: translateX(-50%) scale(1); opacity: 1; }
+  }
+  .anim-letter .envelope-seal { animation: envelope-seal-anim 1.5s ease-out infinite; }
+  .sc-afterglow-letter { background: linear-gradient(180deg, #F8D8B8 0%, #E0A878 100%); }
+  .flying-bird {
+    position: absolute;
+    animation: bird-fly 4s ease-out infinite;
+  }
+  @keyframes bird-fly {
+    0% { left: 20%; top: 70%; transform: scale(1); opacity: 0; }
+    15% { opacity: 1; }
+    100% { left: 90%; top: 20%; transform: scale(0.3); opacity: 0; }
+  }
+  .flying-bird svg { width: 28px; height: 20px; }
+  .cloud {
+    position: absolute;
+    background: rgba(255,255,255,0.5);
+    border-radius: 50%;
+    filter: blur(4px);
+  }
+
+  /* plane ritual */
+  .sc-plane { background: linear-gradient(180deg, #C8DCE8 0%, #98B5D0 50%, #6890B8 100%); }
+  .sc-plane .scene-label { color: rgba(30,60,100,0.65); }
+  .sc-plane .scene-hint { color: rgba(30,60,100,0.55); }
+  .plane-paper-flat { width: 60px; height: 60px; left: 50%; top: 90px; transform: translateX(-50%); }
+  .plane-folding {
+    position: absolute; left: 50%; top: 100px;
+    transform: translateX(-50%);
+    width: 60px; height: 50px;
+  }
+  .plane-folding::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(255,250,245,0.96) 0%, rgba(245,240,235,0.88) 100%);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    clip-path: polygon(50% 0, 100% 100%, 50% 80%, 0 100%);
+  }
+  .paper-plane {
+    position: absolute; left: 50%; top: 110px;
+    transform: translateX(-50%);
+  }
+  .paper-plane svg {
+    width: 56px; height: 40px;
+    filter: drop-shadow(0 4px 8px rgba(30,60,100,0.3));
+  }
+  @keyframes plane-hover {
+    0%, 100% { transform: translateX(-50%) translateY(0) rotate(-3deg); }
+    50% { transform: translateX(-50%) translateY(-4px) rotate(3deg); }
+  }
+  .anim-plane .paper-plane { animation: plane-hover 2s ease-in-out infinite; }
+  .sc-afterglow-plane {
+    background: linear-gradient(180deg, #5A88B8 0%, #88B0D8 50%, #C8D8E8 100%);
+  }
+  .distant-plane {
+    position: absolute;
+    animation: plane-fly 4s ease-out infinite;
+  }
+  @keyframes plane-fly {
+    0% { left: 20%; top: 60%; transform: rotate(-15deg) scale(1); opacity: 0; }
+    15% { opacity: 1; }
+    100% { left: 85%; top: 15%; transform: rotate(-30deg) scale(0.25); opacity: 0; }
+  }
+  .distant-plane svg { width: 36px; height: 26px; }
+
+  /* jewelbox ritual */
+  .sc-jewel { background: linear-gradient(180deg, #5A2A48 0%, #8A4068 50%, #B05880 100%); }
+  .sc-jewel .scene-label { color: rgba(255,220,200,0.65); }
+  .sc-jewel .scene-hint { color: rgba(255,220,200,0.65); }
+  .jewel-paper-above { width: 36px; height: 46px; left: 50%; top: 80px; transform: translateX(-50%); }
+  .jewelbox-open {
+    position: absolute; left: 50%; bottom: 60px;
+    transform: translateX(-50%);
+    width: 80px; height: 60px;
+  }
+  .jewelbox-open .lid {
+    position: absolute; top: 0; left: 0;
+    width: 80px; height: 30px;
+    background: linear-gradient(180deg, #C8506C 0%, #8a2a48 100%);
+    border-radius: 6px 6px 0 0;
+    transform-origin: bottom center;
+    transform: rotateX(60deg);
+    box-shadow: 0 -4px 14px rgba(80,20,40,0.5);
+  }
+  .jewelbox-open .lid::before {
+    content: ''; position: absolute; left: 50%; top: 30%;
+    transform: translateX(-50%);
+    width: 14px; height: 8px;
+    background: #FFD080;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(255,200,120,0.6);
+  }
+  .jewelbox-open .base {
+    position: absolute; bottom: 0; left: 0;
+    width: 80px; height: 36px;
+    background: linear-gradient(180deg, #D88098 0%, #B05880 100%);
+    border-radius: 2px 2px 6px 6px;
+    box-shadow: 0 6px 16px rgba(80,20,40,0.4);
+  }
+  .jewelbox-open .interior {
+    position: absolute; top: 28px; left: 6px;
+    width: 68px; height: 14px;
+    background: linear-gradient(180deg, #3a1825 0%, #5a2a40 100%);
+    border-radius: 4px 4px 0 0;
+  }
+  .jewelbox-closed {
+    position: absolute; left: 50%; bottom: 60px;
+    transform: translateX(-50%);
+    width: 80px; height: 60px;
+  }
+  .jewelbox-closed .lid {
+    position: absolute; top: 0; left: 0;
+    width: 80px; height: 28px;
+    background: linear-gradient(180deg, #C8506C 0%, #8a2a48 100%);
+    border-radius: 6px 6px 0 0;
+    box-shadow: 0 2px 8px rgba(80,20,40,0.4);
+  }
+  .jewelbox-closed .lid::before {
+    content: ''; position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px; height: 10px;
+    background: #FFD080;
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(255,200,120,0.7), 0 0 20px rgba(255,200,120,0.4);
+    animation: jewel-glow 1.5s ease-in-out infinite;
+  }
+  @keyframes jewel-glow {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+  .jewelbox-closed .base {
+    position: absolute; top: 26px; left: 0;
+    width: 80px; height: 34px;
+    background: linear-gradient(180deg, #D88098 0%, #B05880 100%);
+    border-radius: 2px 2px 6px 6px;
+    box-shadow: 0 6px 16px rgba(80,20,40,0.4);
+  }
+  .sc-afterglow-jewel { background: linear-gradient(180deg, #2A1828 0%, #4A2840 100%); }
+  .placed-jewel {
+    position: absolute; left: 50%; bottom: 80px;
+    transform: translateX(-50%);
+    width: 60px; height: 44px;
+  }
+  .placed-jewel::before {
+    content: ''; position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 90px; height: 6px;
+    background: radial-gradient(ellipse, rgba(255,210,150,0.3) 0%, transparent 70%);
+    filter: blur(3px);
+  }
+  .placed-jewel .lid {
+    position: absolute; top: 0; left: 0;
+    width: 60px; height: 20px;
+    background: linear-gradient(180deg, #C8506C 0%, #8a2a48 100%);
+    border-radius: 5px 5px 0 0;
+  }
+  .placed-jewel .lid::before {
+    content: ''; position: absolute; left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px; height: 7px;
+    background: #FFD080;
+    border-radius: 2px;
+    box-shadow: 0 0 12px rgba(255,200,120,0.7);
+    animation: gem-twinkle 2s ease-in-out infinite;
+  }
+  @keyframes gem-twinkle {
+    0%, 100% { opacity: 0.85; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+  }
+  .placed-jewel .base {
+    position: absolute; top: 18px; left: 0;
+    width: 60px; height: 26px;
+    background: linear-gradient(180deg, #D88098 0%, #B05880 100%);
+    border-radius: 2px 2px 5px 5px;
+  }
+
+  /* ============ LEGEND ============ */
+  .legend {
+    margin-top: 1.5rem;
+    padding: 16px 18px;
+    background: rgba(244,184,199,0.08);
+    border: 1px solid rgba(244,184,199,0.25);
+    border-radius: 12px;
+    font-family: 'Gowun Batang', serif;
+    font-size: 12px; color: var(--ink-soft);
+    line-height: 1.8;
+  }
+  .legend b {
+    font-family: 'Instrument Serif', serif; font-style: italic;
+    font-weight: 400;
+    color: var(--ink);
+    font-size: 13px;
+  }
+
+  /* ============ FOOTER ============ */
+  .doc-footer {
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(90,79,90,0.15);
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--ink-mute);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ===================== HEADER ===================== -->
+  <div class="doc-header">
+    <div class="doc-title">heulim</div>
+    <div class="doc-subtitle">wireframe & flow document</div>
+    <div class="doc-meta">2026 . 05 . 28 &nbsp;·&nbsp; v3</div>
+  </div>
+
+  <!-- ===================== SECTION 1: MAIN FLOW ===================== -->
+  <div class="section">
+    <div class="section-title">main flow</div>
+    <div class="section-sub">온보딩 → 첫 화면 → 글쓰기 → 의식 선택 → 의식 진행 → 잔상 → 완료 → home 리셋</div>
+
+    <div class="scroll-area">
+      <div class="screens-row">
+
+        <!-- 01. 온보딩 -->
+        <div class="h-col">
+          <div class="h-step">01</div>
+          <div class="h-phone">
+            <div class="notch"></div>
+            <div class="scr-onboard">
+              <div class="ob-stage">
+                <div class="jelly faint ob-faint-jelly"></div>
+                <div class="ob-overlap-msg">뭐든 괜찮아요</div>
+              </div>
+              <div class="ob-dots">
+                <div class="ob-dot on"></div>
+                <div class="ob-dot"></div>
+                <div class="ob-dot"></div>
+              </div>
+            </div>
+            <div class="h-arrow-label">스와이프</div>
+            <div class="h-arrow"></div>
+          </div>
+          <div class="h-name">onboarding</div>
+          <div class="h-note">희미한 공 정중앙<br/>위에 멘트 오버랩</div>
+        </div>
+
+        <!-- 02. home day -->
+        <div class="h-col">
+          <div class="h-step">02</div>
+          <div class="h-phone tone-light">
+            <div class="scr-bg bg-day"></div>
+            <div class="notch"></div>
+            <div class="h-help">?</div>
+            <div class="home-date">2026 . 05 . 27</div>
+            <div class="home-msg">
+              여기 있어요
+              <span class="home-msg-sub">뭐든 괜찮아요</span>
+            </div>
+            <div class="home-jelly-center"><div class="jelly" style="width:100%;height:100%;"></div></div>
+            <div class="home-counter">12번째 흘려보냄</div>
+            <div class="h-arrow-label">공 터치</div>
+            <div class="h-arrow"></div>
+          </div>
+          <div class="h-name">home · day</div>
+          <div class="h-note">공 정중앙<br/>하단 카운터 작게</div>
+        </div>
+
+        <!-- 03. touched -->
+        <div class="h-col">
+          <div class="h-step">03</div>
+          <div class="h-phone tone-light">
+            <div class="scr-bg bg-day"></div>
+            <div class="notch"></div>
+            <div class="h-help">?</div>
+            <div class="home-date">2026 . 05 . 27</div>
+            <div class="ripple r3"></div>
+            <div class="ripple r2"></div>
+            <div class="ripple r1"></div>
+            <div class="home-jelly-center"><div class="jelly" style="width:100%;height:100%;"></div></div>
+            <div class="home-counter">12번째 흘려보냄</div>
+            <div class="h-arrow-label">계속 누르기</div>
+            <div class="h-arrow"></div>
+          </div>
+          <div class="h-name">touched</div>
+          <div class="h-note">터치 순간 상단 멘트 사라짐<br/>날짜는 아직 남음</div>
+        </div>
+
+        <!-- 03·b. touched full clear -->
+        <div class="h-col">
+          <div class="h-step">03 · b</div>
+          <div class="h-phone tone-light">
+            <div class="scr-bg bg-day"></div>
+            <div class="notch"></div>
+            <div class="h-help">?</div>
+            <div class="ripple big3"></div>
+            <div class="ripple big2"></div>
+            <div class="ripple big1"></div>
+            <div class="home-jelly-center"><div class="jelly" style="width:100%;height:100%;"></div></div>
+            <div class="home-counter">12번째 흘려보냄</div>
+            <div class="h-arrow-label">글쓰기로</div>
+            <div class="h-arrow"></div>
+          </div>
+          <div class="h-name">touched · full clear</div>
+          <div class="h-note">날짜까지 fade-out<br/>공과 파장, 카운터만 남음</div>
+        </div>
+
+        <!-- 04. pour -->
+        <div class="h-col">
+          <div class="h-step">04</div>
+          <div class="h-phone">
+            <div class="notch"></div>
+            <div class="scr-pour">
+              <div class="pour-meta">2026 . 05 . 27</div>
+              <div class="pour-headline">마음을 따라 적어보세요</div>
+              <div class="pour-paper">
+                오늘은 정말 너무 많은<br/>일이 있었다.<br/><br/>
+                <span class="pour-placeholder">아무말이나 적어도 돼요...</span>
+              </div>
+            </div>
+            <div class="h-arrow-label">작성 완료</div>
+            <div class="h-arrow"></div>
+          </div>
+          <div class="h-name">pour</div>
+          <div class="h-note">감정을 종이에 옮기기<br/>자유 입력</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="scroll-area">
+      <div class="screens-row">
+
+        <!-- 05. ritual pick -->
+        <div class="h-col">
+          <div class="h-step">05</div>
+          <div class="h-phone">
+            <div class="notch"></div>
+            <div class="scr-ritual-pick">
+              <div class="pick-title">어떻게 흘려보낼까요?</div>
+              <div class="pick-grid">
+                <div class="pick-card">
+                  <div class="pick-icon">
+                    <svg class="ico-svg" viewBox="0 0 40 40">
+                      <path d="M20 8 Q14 16 16 22 Q14 26 18 30 Q20 26 22 28 Q26 24 22 18 Q24 14 20 8 Z" fill="#E88858" opacity="0.85"/>
+                      <path d="M20 14 Q17 20 19 24 Q21 21 22 23 Q24 19 20 14 Z" fill="#FFD080" opacity="0.9"/>
+                    </svg>
+                  </div>
+                  <div class="pick-label">태우기</div>
+                </div>
+                <div class="pick-card">
+                  <div class="pick-icon">
+                    <svg class="ico-svg" viewBox="0 0 40 40">
+                      <rect x="9" y="6" width="14" height="10" fill="#FAFAFA" stroke="#8a7585" stroke-width="0.8"/>
+                      <rect x="6" y="16" width="28" height="9" rx="1.5" fill="#5A4F5A"/>
+                      <rect x="9" y="20" width="22" height="1.2" fill="#2A2530"/>
+                      <line x1="11" y1="27" x2="11" y2="33" stroke="#8a7585" stroke-width="0.7"/>
+                      <line x1="15" y1="27" x2="15" y2="34" stroke="#8a7585" stroke-width="0.7"/>
+                      <line x1="19" y1="27" x2="19" y2="33" stroke="#8a7585" stroke-width="0.7"/>
+                      <line x1="23" y1="27" x2="23" y2="34" stroke="#8a7585" stroke-width="0.7"/>
+                      <line x1="27" y1="27" x2="27" y2="33" stroke="#8a7585" stroke-width="0.7"/>
+                    </svg>
+                  </div>
+                  <div class="pick-label">파쇄기</div>
+                </div>
+                <div class="pick-card">
+                  <div class="pick-icon">
+                    <svg class="ico-svg" viewBox="0 0 40 40">
+                      <path d="M10 8 L18 8 L17 14 L19 18 L17 24 L19 30 L17 33 L9 33 Z" fill="#FAFAFA" stroke="#8a7585" stroke-width="0.7"/>
+                      <path d="M22 8 L30 8 L31 33 L23 33 L25 30 L23 24 L25 18 L23 14 Z" fill="#FAFAFA" stroke="#8a7585" stroke-width="0.7"/>
+                    </svg>
+                  </div>
+                  <div class="pick-label">찢기</div>
+                </div>
+                <div class="pick-card">
+                  <div class="pick-icon">
+                    <svg class="ico-svg" viewBox="0 0 40 40">
+                      <path d="M12 14 Q9 18 11 22 Q8 26 13 29 Q17 32 22 30 Q28 31 30 26 Q33 22 29 18 Q31 14 26 12 Q21 10 17 12 Q14 11 12 14 Z" fill="#FAFAFA" stroke="#8a7585" stroke-width="0.7"/>
+                      <path d="M14 17 L17 20 M20 15 L22 19 M24 16 L26 21 M16 24 L20 26 M23 24 L27 26 M18 21 L22 23" stroke="#8a7585" stroke-width="0.5" fill="none"/>
+                    </svg>
+                  </div>
+                  <div class="pick-label">구기기</div>
+                </div>
+                <div class="pick-card">
+                  <div class="pick-icon">
+                    <svg class="ico-svg" viewBox="0 0 40 40">
+                      <ellipse cx="20" cy="20" rx="13" ry="13" fill="#D5E0F0" opacity="0.7" stroke="#8a95a8" stroke-width="0.7"/>
+                      <ellipse cx="20" cy="33" rx="11" ry="2" fill="#8a7585"/>
+                      <circle cx="16" cy="16" r="1" fill="#FAFAFA"/>
+                      <circle cx="23" cy="14" r="0.8" fill="#FAFAFA"/>
+                      <circle cx="21" cy="22" r="0.9" fill="#FAFAFA"/>
+                      <circle cx="14" cy="23" r="0.7" fill="#FAFAFA"/>
+                      <circle cx="25" cy="24" r="0.8" fill="#FAFAFA"/>
+                      <circle cx="18" cy="27" r="0.7" fill="#FAFAFA"/>
+                    </svg>
+                  </div>
+                  <div class="pick-label">뒤섞기</div>
+                </div>
+                <div class="pick-card">
+                  <div class="pick-icon">
+                    <svg class="ico-svg" viewBox="0 0 40 40">
+                      <ellipse cx="14" cy="20" rx="7" ry="8" fill="#B85a78" opacity="0.85"/>
+                      <path d="M9 14 Q14 17 19 14 M9 18 Q14 21 19 18 M9 22 Q14 25 19 22 M9 26 Q14 23 19 26" stroke="#FAFAFA" stroke-width="0.5" fill="none" opacity="0.7"/>
+                      <path d="M21 20 Q24 18 27 21 Q30 24 33 22 Q35 19 33 17" stroke="#B85a78" stroke-width="1" fill="none"/>
+                    </svg>
+                  </div>
+                  <div class="pick-label">실풀기</div>
+                </div>
+                <div class="pick-card">
+                  <div class="pick-icon">
+                    <svg class="ico-svg" viewBox="0 0 40 40">
+                      <path d="M20 30 Q10 22 10 16 Q10 11 14 11 Q17 11 20 14 Q23 11 26 11 Q30 11 30 16 Q30 22 20 30 Z" fill="#F4B8C7" stroke="#B85a78" stroke-width="0.6"/>
+                      <path d="M14 14 L20 19 L26 14" stroke="#B85a78" stroke-width="0.5" fill="none" opacity="0.6"/>
+                    </svg>
+                  </div>
+                  <div class="pick-label">하트 접기</div>
+                </div>
+                <div class="pick-card">
+                  <div class="pick-icon">
+                    <svg class="ico-svg" viewBox="0 0 40 40">
+                      <rect x="7" y="13" width="26" height="16" rx="1" fill="#FAFAFA" stroke="#8a7585" stroke-width="0.7"/>
+                      <path d="M7 13 L20 23 L33 13" stroke="#8a7585" stroke-width="0.7" fill="none"/>
+                      <circle cx="20" cy="21" r="1.5" fill="#F4B8C7"/>
+                    </svg>
+                  </div>
+                  <div class="pick-label">편지</div>
+                </div>
+                <div class="pick-card">
+                  <div class="pick-icon">
+                    <svg class="ico-svg" viewBox="0 0 40 40">
+                      <path d="M6 22 L33 9 L24 32 L19 24 Z" fill="#FAFAFA" stroke="#8a7585" stroke-width="0.7"/>
+                      <path d="M19 24 L33 9" stroke="#8a7585" stroke-width="0.7" fill="none"/>
+                      <path d="M19 24 L25 22" stroke="#8a7585" stroke-width="0.5" fill="none"/>
+                    </svg>
+                  </div>
+                  <div class="pick-label">종이비행기</div>
+                </div>
+                <div class="pick-card">
+                  <div class="pick-icon">
+                    <svg class="ico-svg" viewBox="0 0 40 40">
+                      <path d="M8 16 Q8 11 12 11 L28 11 Q32 11 32 16 L32 18 L8 18 Z" fill="#B85a78" stroke="#6a2a48" stroke-width="0.6"/>
+                      <rect x="8" y="18" width="24" height="13" fill="#D688A0" stroke="#6a2a48" stroke-width="0.6"/>
+                      <rect x="18" y="17" width="4" height="4" fill="#FFD080" stroke="#a87520" stroke-width="0.4"/>
+                    </svg>
+                  </div>
+                  <div class="pick-label">보석함</div>
+                </div>
+              </div>
+            </div>
+            <div class="h-arrow-label">의식 선택</div>
+            <div class="h-arrow"></div>
+          </div>
+          <div class="h-name">ritual · pick</div>
+          <div class="h-note">10가지 의식<br/>구분 없이 한 그리드</div>
+        </div>
+
+        <!-- 06. ritual act -->
+        <div class="h-col">
+          <div class="h-step">06</div>
+          <div class="h-phone">
+            <div class="scr-burn-active">
+              <div class="notch"></div>
+              <div class="ritual-label" style="margin-top: 22px;">B U R N</div>
+              <div class="ritual-hint">불 위에 가져가 보세요</div>
+              <div class="burn-paper">
+                오늘은 정말 너무<br/>많은 일이 있었다
+              </div>
+              <div class="burn-flame"></div>
+            </div>
+            <div class="h-arrow-label">의식 종료</div>
+            <div class="h-arrow"></div>
+          </div>
+          <div class="h-name">ritual · act</div>
+          <div class="h-note">선택한 의식별<br/>인터랙션 + 애니메이션</div>
+        </div>
+
+        <!-- 07. afterglow -->
+        <div class="h-col">
+          <div class="h-step">07</div>
+          <div class="h-phone">
+            <div class="notch"></div>
+            <div class="scr-afterglow">
+              <div class="candle"></div>
+              <div class="afterglow-text">잔상이 남아요</div>
+              <div class="afterglow-timer">3 · 2 · 1</div>
+            </div>
+            <div class="h-arrow-label long">3초 후<br/>자동 전환</div>
+            <div class="h-arrow"></div>
+          </div>
+          <div class="h-name">afterglow</div>
+          <div class="h-note">의식별 상징 이미지<br/>3초간 머무름</div>
+        </div>
+
+        <!-- 08. released -->
+        <div class="h-col">
+          <div class="h-step">08</div>
+          <div class="h-phone">
+            <div class="notch"></div>
+            <div class="scr-released">
+              <div class="done-msg">다 보냈어요</div>
+              <div class="done-sub">처음으로 돌아가요</div>
+            </div>
+            <div class="h-arrow-label">home 리셋</div>
+            <div class="h-arrow"></div>
+          </div>
+          <div class="h-name">released</div>
+          <div class="h-note">짧게 머문 뒤<br/>home으로</div>
+        </div>
+
+        <!-- 09. home reset -->
+        <div class="h-col">
+          <div class="h-step">09</div>
+          <div class="h-phone tone-light">
+            <div class="scr-bg bg-day"></div>
+            <div class="notch"></div>
+            <div class="h-help">?</div>
+            <div class="home-date">2026 . 05 . 27</div>
+            <div class="home-msg">
+              여기 있어요
+              <span class="home-msg-sub">뭐든 괜찮아요</span>
+            </div>
+            <div class="home-jelly-center"><div class="jelly" style="width:100%;height:100%;"></div></div>
+            <div class="home-counter">13번째 흘려보냄</div>
+            <div class="h-loop-arrow">↺</div>
+          </div>
+          <div class="h-name">home · reset</div>
+          <div class="h-note">카운터 +1<br/>현재 시간대 배경</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SECTION 2: TIME OF DAY ===================== -->
+  <div class="section">
+    <div class="section-title">home · time of day</div>
+    <div class="section-sub">레퍼런스 사진 색감 기반 - 일출 · 낮 · 노을 · 밤 · 새벽</div>
+
+    <div class="scroll-area">
+      <div class="screens-row tight">
+
+        <div class="h-col">
+          <div class="h-step">05 — 07</div>
+          <div class="h-phone tone-warm">
+            <div class="scr-bg bg-dawn"></div>
+            <div class="notch"></div>
+            <div class="h-help">?</div>
+            <div class="home-date">05 : 47</div>
+            <div class="home-msg">
+              아침이 와요
+              <span class="home-msg-sub">천천히 시작해도 돼요</span>
+            </div>
+            <div class="home-jelly-center"><div class="jelly" style="width:100%;height:100%;"></div></div>
+            <div class="home-counter">12번째 흘려보냄</div>
+          </div>
+          <div class="h-name">dawn</div>
+          <div class="h-note">하늘색에서<br/>살구빛 바다로</div>
+        </div>
+
+        <div class="h-col">
+          <div class="h-step">07 — 16</div>
+          <div class="h-phone tone-light">
+            <div class="scr-bg bg-day"></div>
+            <div class="notch"></div>
+            <div class="h-help">?</div>
+            <div class="home-date">14 : 22</div>
+            <div class="home-msg">
+              여기 있어요
+              <span class="home-msg-sub">뭐든 괜찮아요</span>
+            </div>
+            <div class="home-jelly-center"><div class="jelly" style="width:100%;height:100%;"></div></div>
+            <div class="home-counter">12번째 흘려보냄</div>
+          </div>
+          <div class="h-name">day</div>
+          <div class="h-note">부드러운 분홍에서<br/>라벤더로</div>
+        </div>
+
+        <div class="h-col">
+          <div class="h-step">16 — 19</div>
+          <div class="h-phone tone-dark">
+            <div class="scr-bg bg-dusk"></div>
+            <div class="notch"></div>
+            <div class="h-help">?</div>
+            <div class="home-date">18 : 14</div>
+            <div class="home-msg">
+              해가 져요
+              <span class="home-msg-sub">오늘도 수고했어요</span>
+            </div>
+            <div class="home-jelly-center"><div class="jelly" style="width:100%;height:100%;"></div></div>
+            <div class="home-counter">12번째 흘려보냄</div>
+          </div>
+          <div class="h-name">dusk</div>
+          <div class="h-note">남색 하늘에서<br/>핑크·산호 구름으로</div>
+        </div>
+
+        <div class="h-col">
+          <div class="h-step">19 — 04</div>
+          <div class="h-phone tone-dark">
+            <div class="scr-bg bg-night"></div>
+            <div class="notch"></div>
+            <div class="h-help">?</div>
+            <div class="home-date">22 : 38</div>
+            <div class="home-msg">
+              밤이에요
+              <span class="home-msg-sub">마음보다 손이 먼저 가도</span>
+            </div>
+            <div class="home-jelly-center"><div class="jelly" style="width:100%;height:100%;"></div></div>
+            <div class="home-counter">12번째 흘려보냄</div>
+          </div>
+          <div class="h-name">night</div>
+          <div class="h-note">짙은 남색에 별빛</div>
+        </div>
+
+        <div class="h-col">
+          <div class="h-step">04 — 05</div>
+          <div class="h-phone tone-dark">
+            <div class="scr-bg bg-predawn"></div>
+            <div class="notch"></div>
+            <div class="h-help">?</div>
+            <div class="home-date">04 : 33</div>
+            <div class="home-msg">
+              잠들지 못했나요
+              <span class="home-msg-sub">여기 있어요</span>
+            </div>
+            <div class="home-jelly-center"><div class="jelly" style="width:100%;height:100%;"></div></div>
+            <div class="home-counter">12번째 흘려보냄</div>
+          </div>
+          <div class="h-name">pre-dawn</div>
+          <div class="h-note">진한 파랑에서<br/>분홍 여명으로</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SECTION 3: RITUAL ACT - LET GO ===================== -->
+  <div class="section">
+    <div class="section-title">ritual · let go</div>
+    <div class="section-sub">흘려보내기 6종 - 각 의식의 step 1 → 2 → 3 → afterglow 흐름</div>
+
+    <!-- BURN -->
+    <div class="ritual-block">
+      <div class="ritual-header">
+        <span class="ritual-num">01</span>
+        <span class="ritual-name">burn</span>
+        <span class="ritual-name-ko">태우기</span>
+      </div>
+      <div class="ritual-gesture"><b>제스처</b> &nbsp; 종이를 길게 눌러 잡고 아래쪽 불꽃 영역으로 드래그 &nbsp;·&nbsp; <b>잔상</b> &nbsp; 명상의 촛불, 깜빡임</div>
+      <div class="frame-row">
+        <div class="frame-col">
+          <div class="frame-label">STEP 1</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-burn" style="position:absolute;inset:0;">
+              <div class="scene-label">B U R N</div>
+              <div class="paper burn-paper-1">오늘은 정말<br/>너무 많은<br/>일이 있었다</div>
+              <div class="burn-flame-s small"></div>
+              <div class="scene-hint">불 위에 가져가 보세요</div>
+            </div>
+          </div>
+          <div class="frame-caption">종이가 떠있고<br/>아래에 작은 불꽃</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 2 · 진행</div>
+          <div class="h-phone small anim-burn">
+            <div class="notch"></div>
+            <div class="sc-burn" style="position:absolute;inset:0;">
+              <div class="scene-label">B U R N</div>
+              <div class="paper burn-paper-1">오늘은 정말<br/>너무 많은<br/>일이 있었다</div>
+              <div class="burn-flame-s"></div>
+              <div class="ember" style="left: 48%; bottom: 80px; --x: -10px; --drift: -15px;"></div>
+              <div class="ember" style="left: 52%; bottom: 85px; --x: 8px; --drift: 12px;"></div>
+              <div class="ember" style="left: 50%; bottom: 90px; --x: 0px; --drift: 20px;"></div>
+              <div class="ember" style="left: 45%; bottom: 75px; --x: -15px; --drift: -8px;"></div>
+              <div class="ember" style="left: 55%; bottom: 78px; --x: 12px; --drift: 18px;"></div>
+            </div>
+          </div>
+          <div class="frame-caption">종이가 위에서 아래로<br/>타들어가며 불티 상승</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 3 · 절정</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-burn" style="position:absolute;inset:0;">
+              <div class="scene-label">B U R N</div>
+              <div class="burn-flame-s big"></div>
+              <div class="ember" style="left: 40%; bottom: 100px;"></div>
+              <div class="ember" style="left: 50%; bottom: 130px;"></div>
+              <div class="ember" style="left: 60%; bottom: 110px;"></div>
+              <div class="ember" style="left: 45%; bottom: 150px;"></div>
+            </div>
+          </div>
+          <div class="frame-caption">종이 사라짐<br/>불빛 강해지고 잔불티</div>
+        </div>
+        <div class="frame-arrow">↓</div>
+        <div class="frame-col">
+          <div class="frame-label">AFTERGLOW · 3s</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-afterglow-burn" style="position:absolute;inset:0;">
+              <div class="candle-base"></div>
+              <div class="candle-flame"></div>
+              <div class="candle-text" style="color: rgba(255,220,200,0.7);">고요해졌어요</div>
+            </div>
+          </div>
+          <div class="frame-caption">촛불 하나<br/>flicker 1.5s loop</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHRED -->
+    <div class="ritual-block">
+      <div class="ritual-header">
+        <span class="ritual-num">02</span>
+        <span class="ritual-name">shred</span>
+        <span class="ritual-name-ko">파쇄기</span>
+      </div>
+      <div class="ritual-gesture"><b>제스처</b> &nbsp; 종이를 잡고 파쇄기 입구로 위→아래 드래그 &nbsp;·&nbsp; <b>잔상</b> &nbsp; 파쇄해서 내려간 화면, 더 스크롤하면 종이더미</div>
+      <div class="frame-row">
+        <div class="frame-col">
+          <div class="frame-label">STEP 1</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-shred" style="position:absolute;inset:0;">
+              <div class="scene-label">S H R E D</div>
+              <div class="paper shred-paper-1">오늘은 정말<br/>너무 많은<br/>일이 있었다</div>
+              <div class="shredder-body"><div class="shredder-mouth"></div></div>
+              <div class="scene-hint">파쇄기로 내려보내세요</div>
+            </div>
+          </div>
+          <div class="frame-caption">종이가 위에<br/>파쇄기는 중앙</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 2 · 진입</div>
+          <div class="h-phone small anim-shred">
+            <div class="notch"></div>
+            <div class="sc-shred" style="position:absolute;inset:0;">
+              <div class="scene-label">S H R E D</div>
+              <div class="paper shred-paper-1">오늘은 정말<br/>너무 많은<br/>일이 있었다</div>
+              <div class="shredder-body"><div class="shredder-mouth glow"></div></div>
+              <div class="shred-strip" style="left: 38px; height: 70px; top: 158px;"></div>
+              <div class="shred-strip" style="left: 49px; height: 70px; top: 158px;"></div>
+              <div class="shred-strip" style="left: 60px; height: 70px; top: 158px;"></div>
+              <div class="shred-strip" style="left: 71px; height: 70px; top: 158px;"></div>
+              <div class="shred-strip" style="left: 82px; height: 70px; top: 158px;"></div>
+              <div class="shred-strip" style="left: 93px; height: 70px; top: 158px;"></div>
+            </div>
+          </div>
+          <div class="frame-caption">종이가 입구로<br/>scaleY 0으로 빨림</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 3 · 출구</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-shred" style="position:absolute;inset:0;">
+              <div class="scene-label">S H R E D</div>
+              <div class="shredder-body"><div class="shredder-mouth"></div></div>
+              <div class="shred-strip" style="left: 38px; height: 90px; top: 168px; opacity: 0.6;"></div>
+              <div class="shred-strip" style="left: 49px; height: 92px; top: 166px; opacity: 0.7;"></div>
+              <div class="shred-strip" style="left: 60px; height: 88px; top: 170px; opacity: 0.5;"></div>
+              <div class="shred-strip" style="left: 71px; height: 94px; top: 164px; opacity: 0.6;"></div>
+              <div class="shred-strip" style="left: 82px; height: 86px; top: 172px; opacity: 0.7;"></div>
+              <div class="shred-strip" style="left: 93px; height: 90px; top: 168px; opacity: 0.5;"></div>
+            </div>
+          </div>
+          <div class="frame-caption">스트립이 stagger로<br/>아래로 떨어짐</div>
+        </div>
+        <div class="frame-arrow">↓</div>
+        <div class="frame-col">
+          <div class="frame-label">AFTERGLOW · 3s</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-afterglow-shred" style="position:absolute;inset:0;">
+              <div class="shred-pile">
+                <div class="strip" style="left: 4px; height: 36px; bottom: 0; transform: rotate(-3deg);"></div>
+                <div class="strip" style="left: 14px; height: 32px; bottom: 0; transform: rotate(2deg);"></div>
+                <div class="strip" style="left: 24px; height: 38px; bottom: 0; transform: rotate(-1deg);"></div>
+                <div class="strip" style="left: 34px; height: 34px; bottom: 0; transform: rotate(4deg);"></div>
+                <div class="strip" style="left: 44px; height: 36px; bottom: 0; transform: rotate(-2deg);"></div>
+                <div class="strip" style="left: 54px; height: 30px; bottom: 0; transform: rotate(3deg);"></div>
+                <div class="strip" style="left: 64px; height: 34px; bottom: 0; transform: rotate(-4deg);"></div>
+                <div class="strip" style="left: 74px; height: 38px; bottom: 0; transform: rotate(1deg);"></div>
+                <div class="strip" style="left: 84px; height: 32px; bottom: 0; transform: rotate(-2deg);"></div>
+              </div>
+              <div class="candle-text" style="bottom: 40px; color: rgba(255,220,200,0.7);">조용해졌어요</div>
+            </div>
+          </div>
+          <div class="frame-caption">바닥에 쌓인 스트립<br/>화면 줌아웃</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAR -->
+    <div class="ritual-block">
+      <div class="ritual-header">
+        <span class="ritual-num">03</span>
+        <span class="ritual-name">tear</span>
+        <span class="ritual-name-ko">찢기</span>
+      </div>
+      <div class="ritual-gesture"><b>제스처</b> &nbsp; 두 손가락으로 종이를 잡고 핀치 아웃 (양쪽으로 당기기) &nbsp;·&nbsp; <b>잔상</b> &nbsp; 꽃잎처럼 흩날리며 떨어짐</div>
+      <div class="frame-row">
+        <div class="frame-col">
+          <div class="frame-label">STEP 1</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-tear" style="position:absolute;inset:0;">
+              <div class="scene-label">T E A R</div>
+              <div class="paper tear-paper-whole">오늘은 정말<br/>너무 많은<br/>일이 있었다</div>
+              <div class="scene-hint">양쪽으로 당겨보세요</div>
+            </div>
+          </div>
+          <div class="frame-caption">온전한 종이<br/>중앙 배치</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 2 · 진행</div>
+          <div class="h-phone small anim-tear">
+            <div class="notch"></div>
+            <div class="sc-tear" style="position:absolute;inset:0;">
+              <div class="scene-label">T E A R</div>
+              <div class="tear-half-l">오늘은<br/>너무</div>
+              <div class="tear-half-r">정말<br/>많은</div>
+            </div>
+          </div>
+          <div class="frame-caption">두 갈래로 갈라지며<br/>좌우로 회전</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 3 · 흩날림</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-tear" style="position:absolute;inset:0;">
+              <div class="scene-label">T E A R</div>
+              <div class="tear-flake" style="left: 25px; top: 100px; transform: rotate(20deg);"></div>
+              <div class="tear-flake" style="left: 45px; top: 130px; transform: rotate(-30deg);"></div>
+              <div class="tear-flake" style="left: 70px; top: 110px; transform: rotate(45deg);"></div>
+              <div class="tear-flake" style="left: 95px; top: 140px; transform: rotate(-15deg);"></div>
+              <div class="tear-flake" style="left: 60px; top: 160px; transform: rotate(60deg);"></div>
+              <div class="tear-flake" style="left: 30px; top: 180px; transform: rotate(-45deg);"></div>
+            </div>
+          </div>
+          <div class="frame-caption">조각이 회전하며<br/>아래로 떨어짐</div>
+        </div>
+        <div class="frame-arrow">↓</div>
+        <div class="frame-col">
+          <div class="frame-label">AFTERGLOW · 3s</div>
+          <div class="h-phone small anim-tear-after">
+            <div class="notch"></div>
+            <div class="sc-afterglow-tear" style="position:absolute;inset:0;">
+              <div class="petal" style="left: 20px; --px: 5px;"></div>
+              <div class="petal" style="left: 50px; --px: -10px;"></div>
+              <div class="petal" style="left: 80px; --px: 8px;"></div>
+              <div class="petal" style="left: 110px; --px: -5px;"></div>
+              <div class="petal" style="left: 35px; --px: 12px;"></div>
+              <div class="candle-text" style="bottom: 40px; color: rgba(255,235,240,0.7);">흩어졌어요</div>
+            </div>
+          </div>
+          <div class="frame-caption">꽃잎이 끊임없이<br/>천천히 떨어짐</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CRUMPLE -->
+    <div class="ritual-block">
+      <div class="ritual-header">
+        <span class="ritual-num">04</span>
+        <span class="ritual-name">crumple</span>
+        <span class="ritual-name-ko">구기기</span>
+      </div>
+      <div class="ritual-gesture"><b>제스처</b> &nbsp; 종이 위에서 손가락으로 원 그리며 빙빙 돌림 (각도 누적) &nbsp;·&nbsp; <b>잔상</b> &nbsp; 멀리 날아간 점 하나</div>
+      <div class="frame-row">
+        <div class="frame-col">
+          <div class="frame-label">STEP 1</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-crumple" style="position:absolute;inset:0;">
+              <div class="scene-label">C R U M P L E</div>
+              <div class="paper crumple-paper-1">오늘은 정말<br/>너무 많은<br/>일이 있었다</div>
+              <div class="scene-hint">동그라미 그리듯 돌려보세요</div>
+            </div>
+          </div>
+          <div class="frame-caption">평평한 종이<br/>중앙 배치</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 2 · 구겨짐</div>
+          <div class="h-phone small anim-crumple">
+            <div class="notch"></div>
+            <div class="sc-crumple" style="position:absolute;inset:0;">
+              <div class="scene-label">C R U M P L E</div>
+              <div class="paper crumple-paper-1">오늘은 정말<br/>너무 많은<br/>일이 있었다</div>
+            </div>
+          </div>
+          <div class="frame-caption">점점 작아지고<br/>구겨진 텍스처</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 3 · 날아감</div>
+          <div class="h-phone small anim-crumple">
+            <div class="notch"></div>
+            <div class="sc-crumple" style="position:absolute;inset:0;">
+              <div class="scene-label">C R U M P L E</div>
+              <div class="crumple-ball"></div>
+            </div>
+          </div>
+          <div class="frame-caption">공처럼 변해<br/>회전하며 날아감</div>
+        </div>
+        <div class="frame-arrow">↓</div>
+        <div class="frame-col">
+          <div class="frame-label">AFTERGLOW · 3s</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-afterglow-crumple" style="position:absolute;inset:0;">
+              <div class="horizon-line"></div>
+              <div class="distant-dot"></div>
+              <div class="candle-text" style="bottom: 40px; color: rgba(120,60,80,0.6);">멀어졌어요</div>
+            </div>
+          </div>
+          <div class="frame-caption">먼 곳의 작은 점<br/>잔잔한 지평선</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCATTER -->
+    <div class="ritual-block">
+      <div class="ritual-header">
+        <span class="ritual-num">05</span>
+        <span class="ritual-name">scatter</span>
+        <span class="ritual-name-ko">뒤섞기</span>
+      </div>
+      <div class="ritual-gesture"><b>제스처</b> &nbsp; 폰을 흔들기 (devicemotion) &nbsp;·&nbsp; <b>잔상</b> &nbsp; 마지막 글자가 굴러나가는 잔상</div>
+      <div class="frame-row">
+        <div class="frame-col">
+          <div class="frame-label">STEP 1</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-scatter" style="position:absolute;inset:0;">
+              <div class="scene-label">S C A T T E R</div>
+              <div class="paper scatter-paper">오늘은 정말<br/>너무 많은<br/>일이 있었다</div>
+              <div class="scene-hint">폰을 흔들어보세요</div>
+            </div>
+          </div>
+          <div class="frame-caption">글자가 종이에<br/>가지런히</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 2 · 분해</div>
+          <div class="h-phone small anim-scatter">
+            <div class="notch"></div>
+            <div class="sc-scatter" style="position:absolute;inset:0;">
+              <div class="scene-label">S C A T T E R</div>
+              <span class="scatter-char" style="left: 45px; top: 80px;">오</span>
+              <span class="scatter-char" style="left: 60px; top: 75px;">늘</span>
+              <span class="scatter-char" style="left: 75px; top: 85px;">은</span>
+              <span class="scatter-char" style="left: 50px; top: 110px;">정</span>
+              <span class="scatter-char" style="left: 70px; top: 115px;">말</span>
+              <span class="scatter-char" style="left: 55px; top: 140px;">많</span>
+              <span class="scatter-char" style="left: 80px; top: 145px;">은</span>
+            </div>
+          </div>
+          <div class="frame-caption">글자가 떠올라<br/>스노우볼처럼 흩날림</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 3 · 정착</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-scatter" style="position:absolute;inset:0;">
+              <div class="scene-label">S C A T T E R</div>
+              <span class="scatter-char" style="left: 30px; bottom: 30px; opacity: 0.5; transform: rotate(20deg);">은</span>
+              <span class="scatter-char" style="left: 55px; bottom: 25px; opacity: 0.4; transform: rotate(-15deg);">말</span>
+              <span class="scatter-char" style="left: 80px; bottom: 35px; opacity: 0.3; transform: rotate(40deg);">늘</span>
+              <span class="scatter-char" style="left: 100px; bottom: 20px; opacity: 0.2; transform: rotate(-30deg);">정</span>
+            </div>
+          </div>
+          <div class="frame-caption">아래로 가라앉아<br/>흐릿하게 정렬</div>
+        </div>
+        <div class="frame-arrow">↓</div>
+        <div class="frame-col">
+          <div class="frame-label">AFTERGLOW · 3s</div>
+          <div class="h-phone small anim-scatter-after">
+            <div class="notch"></div>
+            <div class="sc-afterglow-scatter" style="position:absolute;inset:0;">
+              <div class="rolling-char" style="left: 30px; top: 130px;">은</div>
+              <div class="rolling-char" style="left: 30px; top: 140px;">말</div>
+              <div class="rolling-char" style="left: 30px; top: 150px;">늘</div>
+              <div class="candle-text" style="bottom: 40px; color: rgba(220,230,245,0.5);">흩어졌어요</div>
+            </div>
+          </div>
+          <div class="frame-caption">마지막 글자가<br/>회전하며 굴러나감</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- UNRAVEL -->
+    <div class="ritual-block">
+      <div class="ritual-header">
+        <span class="ritual-num">06</span>
+        <span class="ritual-name">unravel</span>
+        <span class="ritual-name-ko">실풀기</span>
+      </div>
+      <div class="ritual-gesture"><b>제스처</b> &nbsp; 화면 위에서 손가락으로 직선/곡선 드래그 (실이 따라옴) &nbsp;·&nbsp; <b>잔상</b> &nbsp; 풀린 실 한 줄이 가로로 흘러감</div>
+      <div class="frame-row">
+        <div class="frame-col">
+          <div class="frame-label">STEP 1</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-unravel" style="position:absolute;inset:0;">
+              <div class="scene-label">U N R A V E L</div>
+              <div class="yarn-ball"></div>
+              <div class="paper unravel-paper" style="left: 50%; top: 150px; transform: translateX(-50%);">글</div>
+              <div class="scene-hint">실을 풀어보세요</div>
+            </div>
+          </div>
+          <div class="frame-caption">엉킨 실타래<br/>속에 글이 묶여 있음</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 2 · 풀림</div>
+          <div class="h-phone small anim-unravel">
+            <div class="notch"></div>
+            <div class="sc-unravel" style="position:absolute;inset:0;">
+              <div class="scene-label">U N R A V E L</div>
+              <div class="yarn-ball small"></div>
+              <svg style="position:absolute;inset:0;" viewBox="0 0 140 280">
+                <path class="thread-anim" d="M 70 100 Q 50 130 80 150 Q 110 170 60 200 Q 30 220 100 240"
+                      stroke="#8a3858" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+              </svg>
+              <div class="paper unravel-paper shrink" style="left: 50%; top: 155px; transform: translateX(-50%);">글</div>
+            </div>
+          </div>
+          <div class="frame-caption">손가락 궤적 따라<br/>실이 풀려나옴</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 3 · 사라짐</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-unravel" style="position:absolute;inset:0;">
+              <div class="scene-label">U N R A V E L</div>
+              <svg style="position:absolute;inset:0;" viewBox="0 0 140 280">
+                <path d="M 30 80 Q 50 110 70 100 Q 95 90 110 130 Q 120 170 70 180 Q 30 200 80 230 Q 110 250 60 260"
+                      stroke="#8a3858" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.6"/>
+              </svg>
+            </div>
+          </div>
+          <div class="frame-caption">실타래와 종이 모두<br/>사라지고 실 한 줄</div>
+        </div>
+        <div class="frame-arrow">↓</div>
+        <div class="frame-col">
+          <div class="frame-label">AFTERGLOW · 3s</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-afterglow-unravel" style="position:absolute;inset:0;">
+              <svg style="position:absolute;inset:0;" viewBox="0 0 140 280">
+                <path d="M 0 140 Q 30 138 60 142 Q 90 145 120 138 Q 135 135 140 140"
+                      stroke="rgba(232,200,210,0.6)" stroke-width="1" fill="none" stroke-linecap="round"/>
+              </svg>
+              <div class="candle-text" style="bottom: 40px; color: rgba(232,200,210,0.65);">풀어졌어요</div>
+            </div>
+          </div>
+          <div class="frame-caption">실 한 줄이 화면<br/>가로로 천천히 흘러감</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SECTION 4: RITUAL ACT - KEEP ===================== -->
+  <div class="section">
+    <div class="section-title">ritual · keep</div>
+    <div class="section-sub">보관하기 4종 - 형태가 바뀌어 남기 · afterglow의 잔상이 마지막 인상</div>
+
+    <!-- HEART -->
+    <div class="ritual-block">
+      <div class="ritual-header">
+        <span class="ritual-num">07</span>
+        <span class="ritual-name">heart</span>
+        <span class="ritual-name-ko">하트 접기</span>
+      </div>
+      <div class="ritual-gesture"><b>제스처</b> &nbsp; 종이를 위아래, 좌우, 모서리 안쪽으로 차례로 접기 (총 4번 스와이프) &nbsp;·&nbsp; <b>잔상</b> &nbsp; 하트가 위로 천천히 떠올라 사라짐</div>
+      <div class="frame-row">
+        <div class="frame-col">
+          <div class="frame-label">STEP 1</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-heart" style="position:absolute;inset:0;">
+              <div class="scene-label">H E A R T</div>
+              <div class="paper heart-paper-flat">오늘은 정말<br/>너무 많은<br/>일이 있었다</div>
+              <div class="scene-hint">한 번씩 접어보세요</div>
+            </div>
+          </div>
+          <div class="frame-caption">평평한 종이</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 2 · 접는 중</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-heart" style="position:absolute;inset:0;">
+              <div class="scene-label">H E A R T</div>
+              <div class="heart-paper-half"></div>
+              <div class="scene-hint">두 번째 접기</div>
+            </div>
+          </div>
+          <div class="frame-caption">반으로 접힘<br/>접힘선 강조</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 3 · 완성</div>
+          <div class="h-phone small anim-heart">
+            <div class="notch"></div>
+            <div class="sc-heart" style="position:absolute;inset:0;">
+              <div class="scene-label">H E A R T</div>
+              <div class="heart-shape">
+                <svg viewBox="0 0 60 56">
+                  <path d="M30 50 Q8 35 8 20 Q8 8 16 8 Q24 8 30 16 Q36 8 44 8 Q52 8 52 20 Q52 35 30 50 Z"
+                        fill="#F4B8C7" stroke="#B85a78" stroke-width="0.8"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="frame-caption">하트 모양 완성</div>
+        </div>
+        <div class="frame-arrow">↓</div>
+        <div class="frame-col">
+          <div class="frame-label">AFTERGLOW · 3s</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-afterglow-heart" style="position:absolute;inset:0;">
+              <div class="rising-heart">
+                <svg viewBox="0 0 40 36">
+                  <path d="M20 32 Q5 22 5 12 Q5 5 10 5 Q16 5 20 10 Q24 5 30 5 Q35 5 35 12 Q35 22 20 32 Z"
+                        fill="#F4B8C7"/>
+                </svg>
+              </div>
+              <div class="candle-text" style="color: rgba(255,200,220,0.7);">간직했어요</div>
+            </div>
+          </div>
+          <div class="frame-caption">하트가 위로<br/>천천히 떠오름</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LETTER -->
+    <div class="ritual-block">
+      <div class="ritual-header">
+        <span class="ritual-num">08</span>
+        <span class="ritual-name">letter</span>
+        <span class="ritual-name-ko">편지</span>
+      </div>
+      <div class="ritual-gesture"><b>제스처</b> &nbsp; 종이의 네 모서리를 안쪽으로 차례로 스와이프 (4번) &nbsp;·&nbsp; <b>잔상</b> &nbsp; 새가 봉투를 물고 우상단으로 날아가며 점이 됨</div>
+      <div class="frame-row">
+        <div class="frame-col">
+          <div class="frame-label">STEP 1</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-letter" style="position:absolute;inset:0;">
+              <div class="scene-label">L E T T E R</div>
+              <div class="paper letter-paper-flat">오늘은 정말 너무<br/>많은 일이 있었다</div>
+              <div class="scene-hint">모서리를 모아보세요</div>
+            </div>
+          </div>
+          <div class="frame-caption">가로로 펼쳐진<br/>편지지</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 2 · 접는 중</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-letter" style="position:absolute;inset:0;">
+              <div class="scene-label">L E T T E R</div>
+              <div class="letter-folding"></div>
+              <div class="scene-hint">반쯤 접혔어요</div>
+            </div>
+          </div>
+          <div class="frame-caption">모서리가 안으로<br/>모여 봉투 형태</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 3 · 봉투</div>
+          <div class="h-phone small anim-letter">
+            <div class="notch"></div>
+            <div class="sc-letter" style="position:absolute;inset:0;">
+              <div class="scene-label">L E T T E R</div>
+              <div class="envelope">
+                <div class="envelope-seal"></div>
+              </div>
+            </div>
+          </div>
+          <div class="frame-caption">봉투 완성<br/>왁스 씰 찍힘</div>
+        </div>
+        <div class="frame-arrow">↓</div>
+        <div class="frame-col">
+          <div class="frame-label">AFTERGLOW · 3s</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-afterglow-letter" style="position:absolute;inset:0;">
+              <div class="cloud" style="left: 60%; top: 25%; width: 30px; height: 12px;"></div>
+              <div class="cloud" style="left: 15%; top: 40%; width: 24px; height: 10px;"></div>
+              <div class="flying-bird">
+                <svg viewBox="0 0 28 20">
+                  <path d="M2 14 Q8 4 14 10 Q20 4 26 14" stroke="#3a2530" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                  <rect x="11" y="11" width="6" height="4" fill="#F5DCB5" stroke="#3a2530" stroke-width="0.5"/>
+                </svg>
+              </div>
+              <div class="candle-text" style="color: rgba(74,40,15,0.65);">전해졌어요</div>
+            </div>
+          </div>
+          <div class="frame-caption">새가 봉투 물고<br/>우상단으로 멀어짐</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANE -->
+    <div class="ritual-block">
+      <div class="ritual-header">
+        <span class="ritual-num">09</span>
+        <span class="ritual-name">plane</span>
+        <span class="ritual-name-ko">종이비행기</span>
+      </div>
+      <div class="ritual-gesture"><b>제스처</b> &nbsp; 종이를 세로로 한 번, 양쪽 모서리를 안으로 한 번, 날개를 펼치는 한 번 (총 3번 스와이프) &nbsp;·&nbsp; <b>잔상</b> &nbsp; 비행기가 사선으로 멀어지며 점이 됨</div>
+      <div class="frame-row">
+        <div class="frame-col">
+          <div class="frame-label">STEP 1</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-plane" style="position:absolute;inset:0;">
+              <div class="scene-label">P L A N E</div>
+              <div class="paper plane-paper-flat">오늘은 정말<br/>너무 많은<br/>일이 있었다</div>
+              <div class="scene-hint">세로로 접어보세요</div>
+            </div>
+          </div>
+          <div class="frame-caption">정사각형 종이</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 2 · 접는 중</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-plane" style="position:absolute;inset:0;">
+              <div class="scene-label">P L A N E</div>
+              <div class="plane-folding"></div>
+              <div class="scene-hint">날개를 펴세요</div>
+            </div>
+          </div>
+          <div class="frame-caption">화살촉 형태로<br/>모아짐</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 3 · 완성</div>
+          <div class="h-phone small anim-plane">
+            <div class="notch"></div>
+            <div class="sc-plane" style="position:absolute;inset:0;">
+              <div class="scene-label">P L A N E</div>
+              <div class="paper-plane">
+                <svg viewBox="0 0 56 40">
+                  <path d="M2 22 L52 4 L36 32 L26 24 Z" fill="#FAFAFA" stroke="#5a4f5a" stroke-width="0.8"/>
+                  <path d="M26 24 L52 4" stroke="#5a4f5a" stroke-width="0.6" fill="none"/>
+                  <path d="M26 24 L38 22" stroke="#5a4f5a" stroke-width="0.4" fill="none"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="frame-caption">종이비행기 완성<br/>제자리에서 흔들림</div>
+        </div>
+        <div class="frame-arrow">↓</div>
+        <div class="frame-col">
+          <div class="frame-label">AFTERGLOW · 3s</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-afterglow-plane" style="position:absolute;inset:0;">
+              <div class="cloud" style="left: 20%; top: 30%; width: 32px; height: 12px;"></div>
+              <div class="cloud" style="left: 65%; top: 50%; width: 28px; height: 10px;"></div>
+              <div class="cloud" style="left: 30%; top: 65%; width: 36px; height: 14px;"></div>
+              <div class="distant-plane">
+                <svg viewBox="0 0 36 26">
+                  <path d="M1 14 L33 2 L23 22 L17 16 Z" fill="#FAFAFA" stroke="#5a4f5a" stroke-width="0.7"/>
+                </svg>
+              </div>
+              <div class="candle-text" style="color: rgba(30,60,100,0.6);">멀어졌어요</div>
+            </div>
+          </div>
+          <div class="frame-caption">비행기가 사선으로<br/>날아 점이 됨</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JEWELBOX -->
+    <div class="ritual-block">
+      <div class="ritual-header">
+        <span class="ritual-num">10</span>
+        <span class="ritual-name">jewelbox</span>
+        <span class="ritual-name-ko">보석함</span>
+      </div>
+      <div class="ritual-gesture"><b>제스처</b> &nbsp; 종이를 보석함 안으로 드래그한 뒤, 뚜껑을 위에서 아래로 스와이프하여 닫기 &nbsp;·&nbsp; <b>잔상</b> &nbsp; 보석함이 어두운 공간에 안치되어 보석이 반짝임</div>
+      <div class="frame-row">
+        <div class="frame-col">
+          <div class="frame-label">STEP 1</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-jewel" style="position:absolute;inset:0;">
+              <div class="scene-label">J E W E L B O X</div>
+              <div class="paper jewel-paper-above">오늘은 정말<br/>너무 많은<br/>일이 있었다</div>
+              <div class="jewelbox-open">
+                <div class="lid"></div>
+                <div class="base"></div>
+                <div class="interior"></div>
+              </div>
+              <div class="scene-hint">안에 넣어보세요</div>
+            </div>
+          </div>
+          <div class="frame-caption">보석함이 열려있고<br/>종이가 위에 있음</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 2 · 담기</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-jewel" style="position:absolute;inset:0;">
+              <div class="scene-label">J E W E L B O X</div>
+              <div class="paper" style="width: 36px; height: 20px; left: 50%; top: 175px; transform: translateX(-50%); opacity: 0.6;">너무 많은</div>
+              <div class="jewelbox-open">
+                <div class="lid"></div>
+                <div class="base"></div>
+                <div class="interior"></div>
+              </div>
+              <div class="scene-hint">뚜껑을 닫아주세요</div>
+            </div>
+          </div>
+          <div class="frame-caption">종이가 안으로<br/>들어감</div>
+        </div>
+        <div class="frame-arrow">→</div>
+        <div class="frame-col">
+          <div class="frame-label">STEP 3 · 닫힘</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-jewel" style="position:absolute;inset:0;">
+              <div class="scene-label">J E W E L B O X</div>
+              <div class="jewelbox-closed">
+                <div class="lid"></div>
+                <div class="base"></div>
+              </div>
+            </div>
+          </div>
+          <div class="frame-caption">뚜껑이 닫히고<br/>보석이 반짝임</div>
+        </div>
+        <div class="frame-arrow">↓</div>
+        <div class="frame-col">
+          <div class="frame-label">AFTERGLOW · 3s</div>
+          <div class="h-phone small">
+            <div class="notch"></div>
+            <div class="sc-afterglow-jewel" style="position:absolute;inset:0;">
+              <div class="placed-jewel">
+                <div class="lid"></div>
+                <div class="base"></div>
+              </div>
+              <div class="candle-text" style="color: rgba(255,200,220,0.7);">소중해졌어요</div>
+            </div>
+          </div>
+          <div class="frame-caption">어두운 공간에 안치<br/>보석만 깜빡</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== LEGEND ===================== -->
+  <div class="legend">
+    <b>main flow</b> &nbsp; onboarding → home → touched → touched · full clear → pour → ritual · pick → ritual · act → afterglow(3초) → released → home reset<br/>
+    <b>time of day</b> &nbsp; 일출 · 낮 · 노을 · 밤 · 새벽 — 같은 톤이 pour, ritual · pick의 배경에도 자연스럽게 이어짐<br/>
+    <b>ritual</b> &nbsp; 10가지 의식 각각 step 1 → 2 → 3 → afterglow 4프레임 흐름. 보관 결과는 앱 안에 따로 모이지 않고 잔상이 마지막 인상으로 남음
+  </div>
+
+  <div class="doc-footer">
+    heulim · 감정 해소 앱 · wireframe document
+  </div>
+
+</div>
+</body>
+</html>
