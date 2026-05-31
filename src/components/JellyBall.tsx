@@ -1,10 +1,11 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { LONG_PRESS_MS } from '../constants'
 
 interface Props {
   onLongPress?: () => void // 800ms 이상 누르고 있으면 발화 (글쓰기 진입)
   onPressStart?: () => void // 누르는 순간 발화 (멘트 사라짐 등)
+  onPlayActive?: (ms: number) => void // 공놀이 활성 구간 1회분(ms) — 누름 해제마다 (KPI 계측)
   faint?: boolean
   size?: number
 }
@@ -22,12 +23,36 @@ interface Ripple {
 //   GST-02 당겼다 놓기 : 당기면 탄성 저항 → 놓으면 dragSnapToOrigin으로 원위치 복귀
 //   GST-01 튕기기      : 빠르게 놓으면 release 속도가 스프링에 실려 더 크게 튕김
 //   GST-03 터치 파장   : 누른 지점에서 동심원 ripple 확산
-export default function JellyBall({ onLongPress, onPressStart, faint = false, size = 150 }: Props) {
+export default function JellyBall({ onLongPress, onPressStart, onPlayActive, faint = false, size = 150 }: Props) {
   const interactive = !!onLongPress
   const [ripples, setRipples] = useState<Ripple[]>([])
   const [pressing, setPressing] = useState(false)
   const rippleSeq = useRef(0)
   const timerRef = useRef<number | null>(null)
+
+  // 공놀이 활성 시간 계측: 누름(드래그 포함) 시작~해제 구간만 누적. idle은 제외.
+  const activeStartRef = useRef<number | null>(null)
+  const onPlayActiveRef = useRef(onPlayActive)
+  onPlayActiveRef.current = onPlayActive
+
+  const closeActive = () => {
+    if (activeStartRef.current !== null) {
+      const ms = Date.now() - activeStartRef.current
+      activeStartRef.current = null
+      if (ms > 0) onPlayActiveRef.current?.(ms)
+    }
+  }
+
+  // 누름 도중 화면이 바뀌어 언마운트되면(롱프레스로 글쓰기 진입 등) 남은 구간 회수
+  useEffect(() => {
+    return () => {
+      if (activeStartRef.current !== null) {
+        const ms = Date.now() - activeStartRef.current
+        activeStartRef.current = null
+        if (ms > 0) onPlayActiveRef.current?.(ms)
+      }
+    }
+  }, [])
 
   // 원형 게이지 기하
   const ringSize = size + 20
@@ -48,8 +73,17 @@ export default function JellyBall({ onLongPress, onPressStart, faint = false, si
     setPressing(false)
   }
 
+  // 누름 해제(떼기/취소/이탈) — 활성 구간 마감 후 게이지 리셋
+  const endPressAndActive = () => {
+    closeActive()
+    endPress()
+  }
+
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!interactive) return
+
+    // 공놀이 활성 구간 시작
+    activeStartRef.current = Date.now()
 
     // GST-03: 누른 지점 기준 파장
     const rect = e.currentTarget.getBoundingClientRect()
@@ -67,6 +101,7 @@ export default function JellyBall({ onLongPress, onPressStart, faint = false, si
     timerRef.current = window.setTimeout(() => {
       timerRef.current = null
       setPressing(false)
+      closeActive() // 진입 직전까지의 누름 시간 회수
       onLongPress?.()
     }, LONG_PRESS_MS)
   }
@@ -87,12 +122,12 @@ export default function JellyBall({ onLongPress, onPressStart, faint = false, si
       dragSnapToOrigin
       dragElastic={0.7}
       dragTransition={{ bounceStiffness: 220, bounceDamping: 14 }}
-      onDragStart={endPress} // 드래그로 판정되면 롱프레스 취소
+      onDragStart={endPress} // 드래그로 판정되면 롱프레스(게이지)만 취소 — 활성 시간은 계속 누적
       whileDrag={interactive ? { cursor: 'grabbing', scale: 1.06 } : undefined}
       onPointerDown={handlePointerDown}
-      onPointerUp={endPress}
-      onPointerCancel={endPress}
-      onPointerLeave={endPress}
+      onPointerUp={endPressAndActive}
+      onPointerCancel={endPressAndActive}
+      onPointerLeave={endPressAndActive}
     >
       {/* 롱프레스 게이지 — 누르는 동안만 등장, 800ms에 걸쳐 채워짐 */}
       {pressing && (
