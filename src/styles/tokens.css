@@ -1,21 +1,64 @@
 :root {
-  --ink: #4a4220; /* 본문/버튼 텍스트 — 노란 배경 위 따뜻한 다크 */
-  --ink-soft: #6f6536;
-  --ink-mute: #a99f6e;
+  --ink: #2a2530;
+  --ink-soft: #5a4f5a;
+  --ink-mute: #908090;
   --jelly-pink: #f4b8c7;
-  --paper: #fffdf4;
+  --paper: #fbf7f4;
 
   --serif: 'Instrument Serif', serif;
   --batang: 'Gowun Batang', serif;
+}
 
-  /*
-    밝고 연한 파스텔 노란 배경 — 전 시간대 공통.
-    부드러운 깊이를 위해 3레이어: 위쪽 흰 채광 glow + 아래쪽 따뜻한 노란 기운 + 노란 하늘 베이스.
-    (data-tod 속성은 남아있지만 색에는 더 이상 영향 주지 않음)
-  */
-  --on-bg: #6b5f2a; /* 배경 위 텍스트 */
+/*
+  실제 시각 기반 5단계 배경 (data-tod 속성으로 전환, useTimeOfDay 연동).
+  레퍼런스 이미지 기준 — 위→아래 하늘 그라데이션 + 지평선/채광 글로우.
+    dawn 05–07     : 하늘색 → 살구빛 바다 (밝음 / 어두운 글씨)
+    day  07–16     : 부드러운 분홍 → 라벤더 (밝음 / 어두운 글씨)
+    dusk 16–19     : 남색 하늘 → 핑크·산호 구름 (어두움 / 밝은 글씨)
+    night 19–04    : 짙은 남색 + 별빛 (어두움 / 밝은 글씨)
+    pre-dawn 04–05 : 진한 파랑 → 분홍 여명 (어두움 / 밝은 글씨)
+*/
+
+/* 일출 — 차가운 하늘색에서 따뜻한 살구빛 지평선으로 */
+[data-tod='dawn'] {
+  --on-bg: #4b4658;
   --bg:
-    radial-gradient(120% 78% at 50% 6%, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0) 58%),
-    radial-gradient(125% 85% at 50% 102%, rgba(250, 226, 150, 0.55) 0%, rgba(250, 226, 150, 0) 60%),
-    linear-gradient(180deg, #fffdf0 0%, #fdf4c6 56%, #fbeaa8 100%);
+    radial-gradient(120% 80% at 50% 108%, rgba(255, 206, 166, 0.6) 0%, rgba(255, 206, 166, 0) 60%),
+    linear-gradient(180deg, #aac4e6 0%, #cabfdd 40%, #eecdb4 78%, #f6d3b4 100%);
+}
+
+/* 낮 — 부드러운 분홍에서 라벤더로, 위쪽 은은한 채광 */
+[data-tod='day'] {
+  --on-bg: #5b4f66;
+  --bg:
+    radial-gradient(100% 60% at 50% 4%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(180deg, #f7d8e4 0%, #ecd8ee 50%, #d6d2f1 100%);
+}
+
+/* 노을(일몰) — 짙은 남색 윗하늘에서 핑크·산호 지평선으로 */
+[data-tod='dusk'] {
+  --on-bg: #f6eaef;
+  --bg:
+    radial-gradient(120% 62% at 50% 106%, rgba(255, 166, 130, 0.62) 0%, rgba(255, 166, 130, 0) 64%),
+    linear-gradient(180deg, #2d2f6b 0%, #6f5694 42%, #c98aa0 74%, #e6a585 100%);
+}
+
+/* 밤 — 짙은 남색에 은은한 달무리 + 옅은 별빛 */
+[data-tod='night'] {
+  --on-bg: #e7e4f2;
+  --bg:
+    radial-gradient(2px 2px at 26% 22%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(2px 2px at 72% 17%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(1.5px 1.5px at 60% 31%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(1.5px 1.5px at 38% 12%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(70% 48% at 50% 48%, rgba(150, 165, 230, 0.2) 0%, rgba(150, 165, 230, 0) 60%),
+    linear-gradient(180deg, #0c1130 0%, #181d46 55%, #242953 100%);
+}
+
+/* 새벽(여명) — 진한 파랑에서 아래쪽 분홍 여명으로 */
+[data-tod='pre-dawn'] {
+  --on-bg: #eef1ff;
+  --bg:
+    radial-gradient(110% 56% at 50% 108%, rgba(224, 150, 178, 0.5) 0%, rgba(224, 150, 178, 0) 64%),
+    linear-gradient(180deg, #18285c 0%, #38437e 52%, #8f6f9e 84%, #c98fae 100%);
 }

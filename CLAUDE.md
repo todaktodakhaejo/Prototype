@@ -122,6 +122,8 @@ src/
 | 2026-05-31 | **흐름 수정: '오늘은 여기까지' → 홈 복귀** | `store.ts` | '오늘은 여기까지'가 기분척도(MOOD_POST)로 가서 같은 질문 반복처럼 보이던 문제 → 기분 질문 없이 라운드 종료(공놀이만 기록) 후 **홈(초기화면)** 복귀. 기분 pre는 상시 선노출 대신 **'리츄얼까지' 선택 후 글쓰기 직전**에 1회. 즉 기분 측정은 리츄얼 경로에서만(pre→post), 공놀이만 경로는 행동시간만. `tsc -b && vite build` 통과 |
 | 2026-05-31 | **의식 연출 강화: 태우기·날리기** | `rituals/Burn.tsx`, `rituals/Plane.tsx` | 태우기=일렁이는 불꽃 5갈래(무한 flicker)+아래→위 그을림 front(이글거리는 잉걸 edge)+불티 12개 상승+바닥 광원. 날리기=종이 접힘→빛 꼬리(혜성 트레일)+후광 달고 완만한 곡선으로 하늘로 멀어짐, 사라지는 자리 반짝임+떠다니는 빛 입자 6개. |
 | 2026-05-31 | **테마: 밝은 파스텔 노랑 배경** | `styles/tokens.css`·`global.css`, `components/MoodScale.tsx`, `screens/RitualPrompt.tsx`·`Ended.tsx`·`RitualPick.tsx` | 어두운 시간대별 배경 → 전 화면 공통 연한 파스텔 노랑(3레이어 그라데이션). `--on-bg`·`--ink` 따뜻한 다크로, body/frame 폴백도 노랑. 어두운 배경 가정이던 반투명 흰 버튼들을 밝은 배경용(흰 알약+그림자 / `.btn-ghost` 윤곽선)으로 교체. `tsc -b && vite build` 통과 |
+| 2026-05-31 | **흐름 재수정: '오늘은 여기까지'도 기분 post 받기** | `store.ts`, `App.tsx`, `types.ts`, `constants.ts`, `screens/Ended.tsx`(삭제) | 직전 변경에서 '오늘은 여기까지'가 기분 질문 없이 홈으로 가던 것을 정정(KPI 질문 누락). 이제 **'오늘은 여기까지'→기분 post(ball_only)→응답 시 홈(시작)으로** 복귀. ENDED 종료화면 제거(응답 후 바로 시작으로). 기분 측정: ritual 경로=pre+post, 공놀이만=post. `tsc -b && vite build` 통과 |
+| 2026-05-31 | **테마 되돌림: 시간대 5단계 그라데이션 복원** | `styles/tokens.css`·`global.css`, `components/MoodScale.tsx`, `screens/RitualPrompt.tsx`·`RitualPick.tsx` | 파스텔 노랑 폐기 → 실제 시각 기반 5단계(일출/낮/노을/밤/새벽) 그라데이션을 레퍼런스 이미지대로 재구현. day=분홍→라벤더, pre-dawn=진파랑→분홍여명, night=달무리+별빛 추가. 다크 배경용 버튼/칩 스타일 복원(`.btn-ghost` 제거). `tsc -b && vite build` 통과 |
 
 > 제스처 매핑: 굴리기=드래그 추종 / 당겼다놓기=탄성 복귀 / 튕기기=release 속도가 스프링에 실려 큰 복귀 / 터치파장=누른 지점 ripple. 4종이 *하나의 탄성 드래그 공*으로 통합 표현됨(최소 구현). 튕기기를 "날아가서 머무는" 물리로 분리하려면 dragEnd 속도 분기 추가 필요(후속).
 
