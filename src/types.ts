@@ -8,8 +8,10 @@ export type Step =
   | 'AFTERGLOW'
   | 'RELEASED'
 
-// MVP 의식 3종 (모두 흘려보내기/소멸형)
-export type RitualId = 'burn' | 'crumple' | 'tear'
+// 의식 종류 — 흘려보내기(소멸형) + 보내기/보관형 연출
+//   burn/shred/plane : 흘려보내기(감정이 떠나감)
+//   jewelbox         : 보관형 연출(시각적으로만 — 텍스트는 저장하지 않음)
+export type RitualId = 'burn' | 'shred' | 'plane' | 'jewelbox'
 
 export interface RitualMeta {
   id: RitualId

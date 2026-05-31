@@ -1,7 +1,8 @@
 import type { RitualId } from '../types'
 import Burn from './Burn'
-import Crumple from './Crumple'
-import Tear from './Tear'
+import Shred from './Shred'
+import Plane from './Plane'
+import Jewelbox from './Jewelbox'
 
 export interface RitualProps {
   text: string
@@ -10,6 +11,7 @@ export interface RitualProps {
 
 export const RITUAL_COMPONENTS: Record<RitualId, (p: RitualProps) => JSX.Element> = {
   burn: Burn,
-  crumple: Crumple,
-  tear: Tear,
+  shred: Shred,
+  plane: Plane,
+  jewelbox: Jewelbox,
 }
