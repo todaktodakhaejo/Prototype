@@ -99,6 +99,11 @@ src/
 
 ---
 
+## 작업 규칙 (필수)
+
+**코드를 변경하는 모든 기능 작업은 `feature-development` 스킬 절차를 따른다.**
+즉: ① `main` pull로 최신화 → ② `feature/<요약>` 브랜치 생성 → ③ 작업 → ④ 커밋·푸시 → ⑤ main 대상 PR 생성(`gh pr create`). main에 직접 커밋하지 않는다(사용자가 명시 요청 시만 예외). 상세는 `.claude/skills/feature-development/SKILL.md`.
+
 ## 진행 로그
 
 | 날짜 | 변경 | 파일 | 메모 |
