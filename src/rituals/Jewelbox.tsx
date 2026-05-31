@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion'
 import type { RitualProps } from './index'
 
-const DURATION = 2.8
 const PARTICLES = 12 // 빛 입자 개수
 
 // 보석함 넣기:

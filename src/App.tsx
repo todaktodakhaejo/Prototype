@@ -2,22 +2,26 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from './store'
 import { useTimeOfDay } from './hooks/useTimeOfDay'
 import Onboarding from './screens/Onboarding'
+import MoodPre from './screens/MoodPre'
 import Home from './screens/Home'
 import Write from './screens/Write'
 import RitualPick from './screens/RitualPick'
 import RitualAct from './screens/RitualAct'
 import Afterglow from './screens/Afterglow'
 import Released from './screens/Released'
+import MoodPost from './screens/MoodPost'
 import type { Step } from './types'
 
 const SCREENS: Record<Step, () => JSX.Element | null> = {
   ONBOARDING: Onboarding,
+  MOOD_PRE: MoodPre,
   HOME: Home,
   WRITE: Write,
   RITUAL_PICK: RitualPick,
   RITUAL_ACT: RitualAct,
   AFTERGLOW: Afterglow,
   RELEASED: Released,
+  MOOD_POST: MoodPost,
 }
 
 export default function App() {
