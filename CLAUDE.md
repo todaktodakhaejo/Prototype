@@ -106,6 +106,7 @@ src/
 | 2026-05-31 | 초기 MVP 화면 구조 | src/* 전체 | 단방향 FSM 7화면 + 의식 3종 |
 | 2026-05-31 | **3단계 제스처 인터랙션(GST-01~04)** 최소 구현 | `components/JellyBall.tsx` | 홈 공에 굴리기/당겼다놓기/튕기기/터치파장. Framer `drag`+`dragSnapToOrigin`+ripple, Pointer 이벤트로 마우스·터치 동시 지원. **未실행 검증** |
 | 2026-05-31 | **글쓰기 진입 = 탭 → 롱프레스(800ms)로 변경** | `JellyBall.tsx`, `Home.tsx`, `constants.ts` | 공을 `LONG_PRESS_MS`(800ms) 이상 누르면 글쓰기 진입. 누르는 동안 원형 SVG 게이지 차오름 + 공 살짝 눌림(scale 0.9). 800ms 전 떼면 리셋·원상복귀. 드래그 시작 시 `onDragStart`로 롱프레스 취소(굴리기/튕기기와 공존). 멘트는 pointerdown(`onPressStart`)에 사라짐. `onTap` 내비게이션 제거. **未실행 검증** |
+| 2026-05-31 | **오브제 → 슬라임/젤리 물성으로 개편** | `components/JellyBall.tsx` | `useVelocity`+`useSpring`+`useTransform`로 드래그 속도를 읽어 진행 축 늘림+트레일 skew(끈적함). 누름은 비대칭 찌그러짐(scaleX1.12/scaleY0.82)+손가락 자리 딤플 음영+딤플 방향 이동. 떼면 스프링 복원(탄성 오버슈트). idle은 유기적 borderRadius 모핑(액체 출렁임)+젤 inset 음영. 3중 변형 레이어(속도/누름/모핑) 분리 합성. 게이지·ripple 유지. **未실행 검증** |
 
 > 제스처 매핑: 굴리기=드래그 추종 / 당겼다놓기=탄성 복귀 / 튕기기=release 속도가 스프링에 실려 큰 복귀 / 터치파장=누른 지점 ripple. 4종이 *하나의 탄성 드래그 공*으로 통합 표현됨(최소 구현). 튕기기를 "날아가서 머무는" 물리로 분리하려면 dragEnd 속도 분기 추가 필요(후속).
 
