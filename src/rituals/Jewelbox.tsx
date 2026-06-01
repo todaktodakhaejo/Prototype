@@ -31,12 +31,21 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('jewelbox', JEWELBOX_MESSAGES))
   const [stored, setStored] = useState(false)
   const fired = useRef(false)
+  const doneRef = useRef(false)
+
+  // onDone을 한 번만 호출 (후광 애니메이션 끝 + 타이머 폴백 둘 중 먼저)
+  const finish = () => {
+    if (!doneRef.current) {
+      doneRef.current = true
+      onDone()
+    }
+  }
 
   const onDragEnd = (_e: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
     if (info.offset.y > DROP && !fired.current) {
       fired.current = true
       setStored(true)
-      setTimeout(onDone, 2600)
+      setTimeout(finish, 2700) // 폴백
     }
     // 덜 내리고 놓으면 dragSnapToOrigin으로 복귀 → 다시 시도
   }
@@ -61,6 +70,9 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
         initial={{ opacity: 0, scale: 0.3 }}
         animate={stored ? { opacity: [0, 0.9, 0], scale: [0.3, 1.1, 1.45] } : {}}
         transition={{ duration: 1.2, delay: 1.2, ease: 'easeOut' }}
+        onAnimationComplete={() => {
+          if (stored) finish()
+        }}
       />
 
       {/* 빛 입자 */}
