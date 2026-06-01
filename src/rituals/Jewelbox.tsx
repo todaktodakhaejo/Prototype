@@ -26,10 +26,26 @@ function Gem({ size = 86 }: { size?: number }) {
   )
 }
 
-// 보석함 — 사용자가 종이를 '보석함으로 끌어내리면' 보석으로 접혀 담기고 뚜껑이 닫힌다(직접 행위).
+// 뚜껑 표면 장식(광택 + 금테 + 손잡이) — 닫힌 뚜껑/닫히는 뚜껑이 공유
+function LidDecor() {
+  return (
+    <>
+      <div style={{ position: 'absolute', left: 16, top: 7, width: 96, height: 14, borderRadius: '50%', background: 'radial-gradient(ellipse at 40% 40%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%)', filter: 'blur(1px)' }} />
+      <div style={{ position: 'absolute', left: 8, right: 8, bottom: 3, height: 6, borderRadius: 3, background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 55%, #c9a24f 100%)` }} />
+      <div style={{ position: 'absolute', left: '50%', bottom: -5, marginLeft: -6, width: 12, height: 13, borderRadius: '3px 3px 5px 5px', background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 60%, #b8923f 100%)`, boxShadow: '0 2px 4px rgba(0,0,0,0.25)' }} />
+    </>
+  )
+}
+
+// 뚜껑이 들려 열린 상태의 변형(이미지처럼 위로 들려 비스듬히)
+const LID_OPEN = { x: 10, y: -50, rotate: -12 }
+
+// 보석함 — 닫힌 상자에서 시작, 종이를 드래그하는 순간 뚜껑이 들려 열리고,
+//  종이를 끌어내려 담으면 보석으로 접혀 들어가고 뚜껑이 다시 닫힌다(직접 행위).
 export default function Jewelbox({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('jewelbox', JEWELBOX_MESSAGES))
   const [stored, setStored] = useState(false)
+  const [open, setOpen] = useState(false) // 뚜껑 열림(드래그 시작 시)
   const [pull, setPull] = useState(0) // 아래로 끌어내린 정도(px)
   const fired = useRef(false)
   const doneRef = useRef(false)
@@ -50,6 +66,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
       setTimeout(finish, 4000) // 폴백
     } else {
       setPull(0) // 덜 내리고 놓으면 복귀 → 입구 빛도 가라앉음
+      setOpen(false) // 뚜껑 다시 닫힘
     }
     // 덜 내리고 놓으면 dragSnapToOrigin으로 복귀 → 다시 시도
   }
@@ -190,30 +207,28 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
         />
       </div>
 
-      {/* 열린 뚜껑 — 담기 전엔 열려 있고, 종이를 가까이 끌수록 더 활짝 열림(불빛과 함께) */}
+      {/* 뚜껑 — 닫힌 채 시작, 드래그하는 순간 위로 들려 비스듬히 열림(이미지 참고) */}
       {!stored && (
         <div
           style={{
             position: 'absolute',
             left: '50%',
-            bottom: 118,
-            width: 168,
-            height: 60,
-            marginLeft: -84,
+            bottom: 84,
+            width: 170,
+            height: 40,
+            marginLeft: -85,
             zIndex: 3,
-            borderRadius: '16px 16px 6px 6px',
+            borderRadius: '14px 14px 6px 6px',
             background: PINK_LID,
             boxShadow: '0 -2px 12px rgba(231,201,122,0.3), inset 0 3px 0 rgba(255,255,255,0.7), inset -8px -8px 18px rgba(176,80,110,0.3)',
             transformOrigin: '50% 100%',
-            transform: `rotate(${-(70 + nearness * 32)}deg)`,
-            transition: 'transform 0.12s ease-out',
+            transform: open ? `translate(${LID_OPEN.x}px, ${LID_OPEN.y}px) rotate(${LID_OPEN.rotate}deg)` : 'none',
+            transition: 'transform 0.28s ease-out',
             overflow: 'hidden',
             pointerEvents: 'none',
           }}
         >
-          <div style={{ position: 'absolute', left: 14, top: 8, width: 90, height: 16, borderRadius: '50%', background: 'radial-gradient(ellipse at 40% 40%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 70%)', filter: 'blur(1px)' }} />
-          <div style={{ position: 'absolute', left: 8, right: 8, bottom: 2, height: 5, borderRadius: 3, background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 55%, #c9a24f 100%)` }} />
-          <div style={{ position: 'absolute', left: '50%', bottom: -4, marginLeft: -5, width: 10, height: 12, borderRadius: '3px 3px 5px 5px', background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 60%, #b8923f 100%)`, boxShadow: '0 2px 4px rgba(0,0,0,0.25)' }} />
+          <LidDecor />
         </div>
       )}
 
@@ -223,6 +238,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           drag
           dragSnapToOrigin
           dragElastic={0.5}
+          onDragStart={() => setOpen(true)}
           onDrag={(_e, info) => setPull(Math.max(0, info.offset.y))}
           onDragEnd={onDragEnd}
           whileDrag={{ scale: 0.78, cursor: 'grabbing' }}
@@ -266,63 +282,28 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
             <Gem />
           </motion.div>
 
-          {/* 뚜껑 */}
+          {/* 뚜껑 — 열린 상태에서 다시 닫힘 */}
           <motion.div
             style={{
               position: 'absolute',
               left: '50%',
-              bottom: 118,
-              width: 168,
-              height: 60,
-              marginLeft: -84,
+              bottom: 84,
+              width: 170,
+              height: 40,
+              marginLeft: -85,
               zIndex: 5,
-              borderRadius: '16px 16px 6px 6px',
+              borderRadius: '14px 14px 6px 6px',
               background: PINK_LID,
               boxShadow:
                 '0 -2px 12px rgba(231,201,122,0.3), inset 0 3px 0 rgba(255,255,255,0.7), inset -8px -8px 18px rgba(176,80,110,0.3)',
               transformOrigin: '50% 100%',
               overflow: 'hidden',
             }}
-            initial={{ rotate: -102, opacity: 1 }}
-            animate={{ rotate: [-102, -102, 0] }}
-            transition={{ duration: 0.85, delay: 0.9, times: [0, 0.2, 1], ease: 'easeIn' }}
+            initial={{ x: LID_OPEN.x, y: LID_OPEN.y, rotate: LID_OPEN.rotate, opacity: 1 }}
+            animate={{ x: [LID_OPEN.x, LID_OPEN.x, 0], y: [LID_OPEN.y, LID_OPEN.y, 0], rotate: [LID_OPEN.rotate, LID_OPEN.rotate, 0] }}
+            transition={{ duration: 0.8, delay: 0.9, times: [0, 0.2, 1], ease: 'easeIn' }}
           >
-            <div
-              style={{
-                position: 'absolute',
-                left: 14,
-                top: 8,
-                width: 90,
-                height: 16,
-                borderRadius: '50%',
-                background: 'radial-gradient(ellipse at 40% 40%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 70%)',
-                filter: 'blur(1px)',
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                left: 8,
-                right: 8,
-                bottom: 2,
-                height: 5,
-                borderRadius: 3,
-                background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 55%, #c9a24f 100%)`,
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                left: '50%',
-                bottom: -4,
-                marginLeft: -5,
-                width: 10,
-                height: 12,
-                borderRadius: '3px 3px 5px 5px',
-                background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 60%, #b8923f 100%)`,
-                boxShadow: '0 2px 4px rgba(0,0,0,0.25)',
-              }}
-            />
+            <LidDecor />
           </motion.div>
         </>
       )}

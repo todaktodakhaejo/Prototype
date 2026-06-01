@@ -219,9 +219,8 @@ export default function Burn({ text, onDone }: RitualProps) {
           whileDrag={{ cursor: 'grabbing' }}
           style={{
             position: 'absolute',
-            left: '50%',
-            bottom: 6,
-            marginLeft: -7,
+            left: -40, // 종이 왼쪽 바깥 아래 — 여기서부터 끌어 종이에 불을 붙임
+            bottom: 2,
             width: 14,
             height: 92,
             zIndex: 20,

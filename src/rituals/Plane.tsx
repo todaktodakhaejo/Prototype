@@ -94,6 +94,7 @@ export default function Plane({ text, onDone }: RitualProps) {
   const power = Math.min(1, Math.hypot(pull.x, pull.y) / MAXPULL)
   const aim = launchVec(pull.x, pull.y) // 미리보기: 실제 발사 방향(당긴 반대·위로)
   const angleDeg = (Math.atan2(aim.y, aim.x) * 180) / Math.PI
+  const dirAngle = (Math.atan2(dir.y, dir.x) * 180) / Math.PI // 발사 후 비행 방향(코끝 유지용)
 
   return (
     <div style={{ position: 'relative', width: 240, height: 320, touchAction: 'none' }}>
@@ -173,7 +174,10 @@ export default function Plane({ text, onDone }: RitualProps) {
           animate={{ scaleX: 1, scaleY: 1, opacity: 1, y: [0, -6, 0] }}
           transition={{ scaleX: { duration: 0.45 }, scaleY: { duration: 0.45 }, opacity: { duration: 0.3 }, y: { duration: 2.4, repeat: Infinity, ease: 'easeInOut' } }}
         >
-          <PaperPlane />
+          {/* 당기는 방향(=발사 방향)으로 코끝이 향하도록 회전. 기본 코 방향 ≈ -38° 보정 */}
+          <div style={{ transform: `rotate(${power > 0.04 ? angleDeg + 38 : 0}deg)`, transition: 'transform 0.06s linear' }}>
+            <PaperPlane />
+          </div>
         </motion.div>
       )}
 
@@ -192,7 +196,7 @@ export default function Plane({ text, onDone }: RitualProps) {
           transition={{ duration: 2.8, times: [0, 0.22, 1], ease: 'easeOut' }}
           onAnimationComplete={() => setPhase('star')}
         >
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', transform: `rotate(${dirAngle + 38}deg)` }}>
             <div
               style={{
                 position: 'absolute',
