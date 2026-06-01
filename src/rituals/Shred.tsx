@@ -4,7 +4,7 @@ import type { RitualProps } from './index'
 import { rotatingMessage, SHRED_MESSAGES } from '../constants'
 
 const TOTAL = 3.4 // 파쇄 + 폭죽 + 멘트 머무는 총 시간
-const CONFETTI = 18 // 폭죽 조각 수
+const CONFETTI = 30 // 폭죽 조각 수
 const COLORS = ['#f4b8c7', '#d8b15a', '#fbf7f4', '#c9a7e0', '#9ad0d8']
 
 // 파쇄기:
@@ -64,9 +64,12 @@ export default function Shred({ text, onDone }: RitualProps) {
           border: '1px solid rgba(255,255,255,0.12)',
           boxShadow: '0 16px 30px rgba(0,0,0,0.35)',
         }}
-        initial={{ x: 0 }}
-        animate={{ x: [0, -3, 3, -3, 3, -2, 0] }}
-        transition={{ duration: 0.7, delay: 0.7, ease: 'easeInOut' }}
+        initial={{ x: 0, rotate: 0 }}
+        animate={{
+          x: [0, -8, 8, -9, 9, -7, 8, -6, 5, -3, 0],
+          rotate: [0, -1.6, 1.6, -1.6, 1.4, -1.2, 1, 0],
+        }}
+        transition={{ duration: 0.85, delay: 0.6, ease: 'linear' }}
       >
         {/* 투입구 (어두운 슬롯) */}
         <div
@@ -100,9 +103,9 @@ export default function Shred({ text, onDone }: RitualProps) {
       {/* 폭죽 — 투입구에서 파쇄 조각이 사방으로 터짐 */}
       {Array.from({ length: CONFETTI }).map((_, i) => {
         const angle = (i / CONFETTI) * Math.PI * 2 + (i % 2 ? 0.18 : -0.18)
-        const dist = 110 + (i % 4) * 22
+        const dist = 138 + (i % 5) * 26
         const dx = Math.cos(angle) * dist
-        const dy = Math.sin(angle) * dist - 40 // 위로 살짝 솟구치는 폭죽 느낌
+        const dy = Math.sin(angle) * dist - 54 // 위로 솟구치는 폭죽 느낌
         return (
           <motion.span
             key={i}
@@ -110,21 +113,22 @@ export default function Shred({ text, onDone }: RitualProps) {
               position: 'absolute',
               left: '50%',
               bottom: 142, // 투입구 부근
-              width: 5,
-              height: 13,
-              marginLeft: -2.5,
+              width: 6,
+              height: 15,
+              marginLeft: -3,
               borderRadius: 2,
               background: COLORS[i % COLORS.length],
               zIndex: 3,
             }}
-            initial={{ x: 0, y: 0, opacity: 0, rotate: 0 }}
+            initial={{ x: 0, y: 0, opacity: 0, rotate: 0, scale: 0.4 }}
             animate={{
-              x: [0, dx],
-              y: [0, dy, dy + 70], // 솟구쳤다가 중력으로 떨어짐
+              x: [0, dx * 0.96, dx, dx], // 순간적으로 빠르게 튀어나감
+              y: [0, dy, dy + 46, dy + 96], // 솟구쳤다가 중력으로 떨어짐
               opacity: [0, 1, 1, 0],
-              rotate: [0, (i % 2 ? 1 : -1) * 200],
+              rotate: [0, (i % 2 ? 1 : -1) * 170, (i % 2 ? 1 : -1) * 330, (i % 2 ? 1 : -1) * 380],
+              scale: [0.4, 1.3, 1, 0.7],
             }}
-            transition={{ duration: 1.3, delay: 1.3, times: [0, 0.3, 0.7, 1], ease: 'easeOut' }}
+            transition={{ duration: 1.4, delay: 1.2, times: [0, 0.16, 0.62, 1], ease: [0.1, 0.85, 0.3, 1] }}
           />
         )
       })}
