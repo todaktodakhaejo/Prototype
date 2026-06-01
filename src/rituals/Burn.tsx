@@ -20,6 +20,7 @@ export default function Burn({ text, onDone }: RitualProps) {
   const [pressing, setPressing] = useState(false)
   const [done, setDone] = useState(false)
   const last = useRef(0)
+  const fired = useRef(false)
 
   // 누르고 있는 동안만 진행
   useEffect(() => {
@@ -39,15 +40,16 @@ export default function Burn({ text, onDone }: RitualProps) {
     }
   }, [pressing, done])
 
-  // 다 타면 마무리
+  // 다 타면 마무리 (fired 가드 + done을 deps에서 제외 → 타이머가 cleanup에 취소되지 않음)
   useEffect(() => {
-    if (progress >= 1 && !done) {
+    if (progress >= 1 && !fired.current) {
+      fired.current = true
       setDone(true)
       setPressing(false)
       const t = setTimeout(onDone, HOLD_MSG * 1000)
       return () => clearTimeout(t)
     }
-  }, [progress, done, onDone])
+  }, [progress, onDone])
 
   const pct = progress * 100
   const flameOn = pressing && !done
@@ -201,25 +203,27 @@ export default function Burn({ text, onDone }: RitualProps) {
         />
       )}
 
-      {/* 안내 / 마무리 멘트 */}
-      <motion.p
-        className="serif"
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 18,
-          textAlign: 'center',
-          color: 'var(--on-bg)',
-          fontSize: done ? 16 : 14,
-          opacity: 0.85,
-          pointerEvents: 'none',
-        }}
-        animate={{ opacity: done ? [0, 1] : 0.85 }}
-        transition={{ duration: 0.6 }}
-      >
-        {done ? msg : progress > 0 ? '계속 누르고 계세요' : '꾹 눌러서 태워보세요'}
-      </motion.p>
+      {/* 상단 행위 안내 캡션 (어두운 알약 — 흰 종이 위에서도 잘 보이게) */}
+      {!done && (
+        <div style={{ position: 'absolute', top: -44, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
+          <span style={{ background: 'rgba(30,22,40,0.55)', color: '#fff', fontSize: 13, padding: '6px 14px', borderRadius: 999, whiteSpace: 'nowrap' }}>
+            {progress > 0 ? '계속 꾹 누르고 계세요' : '🔥 꾹 눌러서 태워보세요'}
+          </span>
+        </div>
+      )}
+
+      {/* 마무리 멘트 */}
+      {done && (
+        <motion.p
+          className="serif"
+          style={{ position: 'absolute', left: 0, right: 0, bottom: 18, textAlign: 'center', color: 'var(--on-bg)', fontSize: 16, pointerEvents: 'none' }}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          {msg}
+        </motion.p>
+      )}
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion, type PanInfo } from 'framer-motion'
 import type { RitualProps } from './index'
 import { rotatingMessage, JEWELBOX_MESSAGES } from '../constants'
@@ -30,9 +30,11 @@ function Gem({ size = 86 }: { size?: number }) {
 export default function Jewelbox({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('jewelbox', JEWELBOX_MESSAGES))
   const [stored, setStored] = useState(false)
+  const fired = useRef(false)
 
   const onDragEnd = (_e: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
-    if (info.offset.y > DROP && !stored) {
+    if (info.offset.y > DROP && !fired.current) {
+      fired.current = true
       setStored(true)
       setTimeout(onDone, 2600)
     }
@@ -240,26 +242,27 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
         </>
       )}
 
-      {/* 안내 / 마무리 멘트 */}
-      <motion.p
-        className="serif"
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 4,
-          textAlign: 'center',
-          color: 'var(--on-bg)',
-          fontSize: 16,
-          whiteSpace: 'pre-line',
-          opacity: 0.85,
-          pointerEvents: 'none',
-        }}
-        animate={{ opacity: stored ? [0, 1] : 0.85 }}
-        transition={{ duration: 0.7, delay: stored ? 1.3 : 0 }}
-      >
-        {stored ? msg : '보석함으로 끌어내려 담아보세요'}
-      </motion.p>
+      {/* 상단 행위 안내 캡션 */}
+      {!stored && (
+        <div style={{ position: 'absolute', top: -44, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
+          <span style={{ background: 'rgba(30,22,40,0.55)', color: '#fff', fontSize: 13, padding: '6px 14px', borderRadius: 999, whiteSpace: 'nowrap' }}>
+            💎 종이를 보석함으로 끌어내려 담아보세요
+          </span>
+        </div>
+      )}
+
+      {/* 마무리 멘트 */}
+      {stored && (
+        <motion.p
+          className="serif"
+          style={{ position: 'absolute', left: 0, right: 0, bottom: 4, textAlign: 'center', color: 'var(--on-bg)', fontSize: 16, whiteSpace: 'pre-line', pointerEvents: 'none' }}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 1.3 }}
+        >
+          {msg}
+        </motion.p>
+      )}
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { RitualProps } from './index'
 import { rotatingMessage, SHRED_MESSAGES } from '../constants'
@@ -20,23 +20,25 @@ export default function Shred({ text, onDone }: RitualProps) {
   const [grinding, setGrinding] = useState(false)
   const [done, setDone] = useState(false)
   const last = useRef<{ x: number; y: number } | null>(null)
+  const fired = useRef(false)
 
-  const finish = () => {
-    setDone(true)
-    setGrinding(false)
-    setTimeout(onDone, 2700)
-  }
+  // 다 갈리면 마무리 (fired 가드 + done deps 제외 → 타이머가 취소되지 않음)
+  useEffect(() => {
+    if (progress >= 1 && !fired.current) {
+      fired.current = true
+      setDone(true)
+      setGrinding(false)
+      const t = setTimeout(onDone, 2700)
+      return () => clearTimeout(t)
+    }
+  }, [progress, onDone])
 
   const onMove = (e: React.PointerEvent) => {
     if (!grinding || done) return
     const p = { x: e.clientX, y: e.clientY }
     if (last.current) {
       const d = Math.abs(p.x - last.current.x) + Math.abs(p.y - last.current.y)
-      setProgress((v) => {
-        const nv = Math.min(1, v + d / GRIND_DIST)
-        if (nv >= 1) finish()
-        return nv
-      })
+      setProgress((v) => Math.min(1, v + d / GRIND_DIST))
     }
     last.current = p
   }
@@ -178,23 +180,27 @@ export default function Shred({ text, onDone }: RitualProps) {
           )
         })}
 
-      {/* 안내 / 마무리 멘트 */}
-      <p
-        className="serif"
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 12,
-          textAlign: 'center',
-          color: 'var(--on-bg)',
-          fontSize: done ? 16 : 14,
-          opacity: 0.85,
-          pointerEvents: 'none',
-        }}
-      >
-        {done ? msg : progress > 0.02 ? '더 세게 문질러요' : '좌우로 마구 문질러 갈아요'}
-      </p>
+      {/* 상단 행위 안내 캡션 */}
+      {!done && (
+        <div style={{ position: 'absolute', top: -44, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
+          <span style={{ background: 'rgba(30,22,40,0.55)', color: '#fff', fontSize: 13, padding: '6px 14px', borderRadius: 999, whiteSpace: 'nowrap' }}>
+            {progress > 0.02 ? '더 세게 문질러 갈아요' : '🗑️ 좌우로 마구 문질러 갈아보세요'}
+          </span>
+        </div>
+      )}
+
+      {/* 마무리 멘트 */}
+      {done && (
+        <motion.p
+          className="serif"
+          style={{ position: 'absolute', left: 0, right: 0, bottom: 12, textAlign: 'center', color: 'var(--on-bg)', fontSize: 16, pointerEvents: 'none' }}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          {msg}
+        </motion.p>
+      )}
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion, type PanInfo } from 'framer-motion'
 import type { RitualProps } from './index'
 import { rotatingMessage, PLANE_MESSAGES } from '../constants'
@@ -11,12 +11,14 @@ export default function Plane({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('plane', PLANE_MESSAGES))
   const [flying, setFlying] = useState(false)
   const [dir, setDir] = useState({ x: 0.6, y: -1 })
+  const fired = useRef(false)
 
   const onDragEnd = (_e: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
     const vx = info.velocity.x
     const vy = info.velocity.y
     const speed = Math.hypot(vx, vy)
-    if (speed > FLICK && !flying) {
+    if (speed > FLICK && !fired.current) {
+      fired.current = true
       const m = speed || 1
       setDir({ x: vx / m, y: Math.min(vy / m, -0.35) }) // 항상 살짝 위로 날아가게
       setFlying(true)
@@ -134,26 +136,27 @@ export default function Plane({ text, onDone }: RitualProps) {
         </>
       )}
 
-      {/* 안내 / 마무리 멘트 */}
-      <motion.p
-        className="serif"
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 16,
-          textAlign: 'center',
-          color: 'var(--on-bg)',
-          fontSize: 16,
-          whiteSpace: 'pre-line',
-          opacity: 0.85,
-          pointerEvents: 'none',
-        }}
-        animate={{ opacity: flying ? [0, 1] : 0.85 }}
-        transition={{ duration: 0.7, delay: flying ? 0.9 : 0 }}
-      >
-        {flying ? msg : '종이를 잡고 휙 던져 보내세요'}
-      </motion.p>
+      {/* 상단 행위 안내 캡션 */}
+      {!flying && (
+        <div style={{ position: 'absolute', top: -44, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
+          <span style={{ background: 'rgba(30,22,40,0.55)', color: '#fff', fontSize: 13, padding: '6px 14px', borderRadius: 999, whiteSpace: 'nowrap' }}>
+            ✈️ 종이를 잡고 휙 던져 보내세요
+          </span>
+        </div>
+      )}
+
+      {/* 마무리 멘트 */}
+      {flying && (
+        <motion.p
+          className="serif"
+          style={{ position: 'absolute', left: 0, right: 0, bottom: 16, textAlign: 'center', color: 'var(--on-bg)', fontSize: 16, whiteSpace: 'pre-line', pointerEvents: 'none' }}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.9 }}
+        >
+          {msg}
+        </motion.p>
+      )}
     </div>
   )
 }
