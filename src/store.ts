@@ -49,9 +49,9 @@ interface AppState {
   goPickRitual: () => void
   pickRitual: (id: RitualId) => void
   finishRitual: () => void
-  goReleased: () => void
-  afterReleased: () => void // Released 여운 종료 후 (KPI: 기분 post / 아니면 홈 리셋)
-  submitMoodPost: (value: number) => void // 기분 post 응답 후 새 라운드 + 홈(시작)으로
+  afterAfterglow: () => void // 잔상 후 (KPI: 마친 후 기분 post / 아니면 완료 화면)
+  afterReleased: () => void // 완료(RELEASED) 화면 후 (KPI: 처음=기분 pre / 아니면 홈 리셋)
+  submitMoodPost: (value: number) => void // 마친 후 기분 응답 → 완료(RELEASED) 화면
   resetHome: () => void
 }
 
@@ -127,16 +127,16 @@ export const useStore = create<AppState>((set, get) => {
       set({ step: 'AFTERGLOW' })
     },
 
-    goReleased: () => set({ step: 'RELEASED' }),
-
-    afterReleased: () => {
+    // 잔상(AFTERGLOW) 이후 — KPI면 '마친 후 기분'을 먼저 묻고, 아니면 바로 완료 화면
+    afterAfterglow: () => {
       if (KPI_ENABLED) {
         set({ step: 'MOOD_POST', postRoundType: 'full' })
       } else {
-        resetForNext(true)
+        set({ step: 'RELEASED' })
       }
     },
 
+    // 마친 후 기분 응답 → 완료(RELEASED, "처음으로 돌아가요") 화면으로
     submitMoodPost: (value) => {
       kpi.setMoodPost(value)
       const rt = get().postRoundType ?? 'full'
@@ -151,14 +151,17 @@ export const useStore = create<AppState>((set, get) => {
         }
         set({ releaseCount: next })
       }
-      // 응답 후 새 라운드 시작 → 처음(공놀이 전 기분 pre)으로 복귀
-      if (KPI_ENABLED) kpi.startRound()
-      set({
-        step: KPI_ENABLED ? 'MOOD_PRE' : 'HOME',
-        draftText: '',
-        selectedRitual: null,
-        postRoundType: null,
-      })
+      set({ step: 'RELEASED' })
+    },
+
+    // 완료 화면 여운 종료 후 — KPI면 처음(공놀이 전 기분 pre)으로, 아니면 홈 리셋
+    afterReleased: () => {
+      if (KPI_ENABLED) {
+        kpi.startRound()
+        set({ step: 'MOOD_PRE', draftText: '', selectedRitual: null, postRoundType: null })
+      } else {
+        resetForNext(true)
+      }
     },
 
     resetHome: () => resetForNext(true),

@@ -5,12 +5,12 @@ import { AFTERGLOW_MS } from '../constants'
 
 // 공통 잔상 — 의식별 차별화 없이 통일 (MVP 결정)
 export default function Afterglow() {
-  const goReleased = useStore((s) => s.goReleased)
+  const afterAfterglow = useStore((s) => s.afterAfterglow)
 
   useEffect(() => {
-    const id = setTimeout(goReleased, AFTERGLOW_MS)
+    const id = setTimeout(afterAfterglow, AFTERGLOW_MS)
     return () => clearTimeout(id)
-  }, [goReleased])
+  }, [afterAfterglow])
 
   return (
     <motion.div
