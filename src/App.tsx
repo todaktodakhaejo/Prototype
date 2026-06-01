@@ -10,6 +10,7 @@ import RitualPick from './screens/RitualPick'
 import RitualAct from './screens/RitualAct'
 import Released from './screens/Released'
 import MoodPost from './screens/MoodPost'
+import StartupNotice from './components/StartupNotice'
 import type { Step } from './types'
 
 const SCREENS: Record<Step, () => JSX.Element | null> = {
@@ -30,19 +31,22 @@ export default function App() {
   const Screen = SCREENS[step]
 
   return (
-    <div className="app-frame" data-tod={tod}>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={step}
-          className="screen"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.6, ease: 'easeInOut' }}
-        >
-          <Screen />
-        </motion.div>
-      </AnimatePresence>
-    </div>
+    <>
+      <div className="app-frame" data-tod={tod}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            className="screen"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: 'easeInOut' }}
+          >
+            <Screen />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      <StartupNotice />
+    </>
   )
 }
