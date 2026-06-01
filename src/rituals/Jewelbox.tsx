@@ -190,6 +190,33 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
         />
       </div>
 
+      {/* 열린 뚜껑 — 담기 전엔 열려 있고, 종이를 가까이 끌수록 더 활짝 열림(불빛과 함께) */}
+      {!stored && (
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 118,
+            width: 168,
+            height: 60,
+            marginLeft: -84,
+            zIndex: 3,
+            borderRadius: '16px 16px 6px 6px',
+            background: PINK_LID,
+            boxShadow: '0 -2px 12px rgba(231,201,122,0.3), inset 0 3px 0 rgba(255,255,255,0.7), inset -8px -8px 18px rgba(176,80,110,0.3)',
+            transformOrigin: '50% 100%',
+            transform: `rotate(${-(70 + nearness * 32)}deg)`,
+            transition: 'transform 0.12s ease-out',
+            overflow: 'hidden',
+            pointerEvents: 'none',
+          }}
+        >
+          <div style={{ position: 'absolute', left: 14, top: 8, width: 90, height: 16, borderRadius: '50%', background: 'radial-gradient(ellipse at 40% 40%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 70%)', filter: 'blur(1px)' }} />
+          <div style={{ position: 'absolute', left: 8, right: 8, bottom: 2, height: 5, borderRadius: 3, background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 55%, #c9a24f 100%)` }} />
+          <div style={{ position: 'absolute', left: '50%', bottom: -4, marginLeft: -5, width: 10, height: 12, borderRadius: '3px 3px 5px 5px', background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 60%, #b8923f 100%)`, boxShadow: '0 2px 4px rgba(0,0,0,0.25)' }} />
+        </div>
+      )}
+
       {/* ready: 종이(글)를 잡고 보석함으로 끌어내림 (끌수록 작게 접힘) */}
       {!stored && (
         <motion.div
@@ -256,9 +283,9 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
               transformOrigin: '50% 100%',
               overflow: 'hidden',
             }}
-            initial={{ y: -58, rotate: -24, opacity: 0 }}
-            animate={{ y: [-58, -58, 0], rotate: [-24, -24, 0], opacity: [0, 1, 1] }}
-            transition={{ duration: 0.7, delay: 1.1, times: [0, 0.2, 1], ease: 'easeIn' }}
+            initial={{ rotate: -102, opacity: 1 }}
+            animate={{ rotate: [-102, -102, 0] }}
+            transition={{ duration: 0.85, delay: 0.9, times: [0, 0.2, 1], ease: 'easeIn' }}
           >
             <div
               style={{

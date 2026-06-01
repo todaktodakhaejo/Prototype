@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, type PanInfo } from 'framer-motion'
 import type { RitualProps } from './index'
 import Gauge from './Gauge'
 import { rotatingMessage, BURN_MESSAGES } from '../constants'
 
-const HOLD_SEC = 3.2 // 꾹 누르고 있어야 다 타는 시간 (충분히 머물며 태우도록 길게)
+const HOLD_SEC = 3.2 // 불붙은 뒤 다 타는 데 걸리는 시간
 const HOLD_MSG = 2.6 // 잿더미 + 멘트 머무는 여운
+const IGNITE_DIST = 52 // 성냥을 이만큼 끌면 점화
 const FLAMES = [
   { dx: -30, w: 20, h: 34, flick: 0.46 },
   { dx: -10, w: 26, h: 46, flick: 0.52 },
@@ -13,19 +14,30 @@ const FLAMES = [
   { dx: 30, w: 18, h: 30, flick: 0.5 },
 ]
 
-// 태우기 — 사용자가 종이를 '꾹 누르고 있는 동안' 아래에서부터 타들어간다(직접 행위).
-//  누르면 타오르고, 떼면 멈춘다. 다 타면 흰 잿더미 + 멘트.
+// 태우기 — 먼저 '성냥을 끌어' 종이에 불을 붙이면(점화), 그때부터 아래에서 위로 타오른다.
+//  점화 후엔 진행도(progress)가 시간에 따라 0→1로 차오르고, 게이지가 그와 동시에 찬다.
 export default function Burn({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('burn', BURN_MESSAGES))
+  const [lit, setLit] = useState(false) // 불 붙음
   const [progress, setProgress] = useState(0) // 0~1 (아래에서부터 탄 정도)
-  const [pressing, setPressing] = useState(false)
   const [done, setDone] = useState(false)
   const last = useRef(0)
   const fired = useRef(false)
+  const litRef = useRef(false)
 
-  // 누르고 있는 동안만 진행
+  const ignite = () => {
+    if (!litRef.current) {
+      litRef.current = true
+      setLit(true)
+    }
+  }
+  const onMatchDrag = (_e: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
+    if (Math.hypot(info.offset.x, info.offset.y) > IGNITE_DIST) ignite()
+  }
+
+  // 불이 붙으면 자동으로 타오름
   useEffect(() => {
-    if (!pressing || done) return
+    if (!lit || done) return
     let id = 0
     const tick = (t: number) => {
       if (!last.current) last.current = t
@@ -39,31 +51,24 @@ export default function Burn({ text, onDone }: RitualProps) {
       cancelAnimationFrame(id)
       last.current = 0
     }
-  }, [pressing, done])
+  }, [lit, done])
 
   // 다 타면 마무리 (fired 가드 + done을 deps에서 제외 → 타이머가 cleanup에 취소되지 않음)
   useEffect(() => {
     if (progress >= 1 && !fired.current) {
       fired.current = true
       setDone(true)
-      setPressing(false)
       const t = setTimeout(onDone, HOLD_MSG * 1000)
       return () => clearTimeout(t)
     }
   }, [progress, onDone])
 
   const pct = progress * 100
-  const flameOn = pressing && !done
+  const flameOn = lit && !done
 
   return (
-    <div
-      style={{ position: 'relative', width: 220, height: 300, touchAction: 'none', cursor: 'pointer' }}
-      onPointerDown={() => !done && setPressing(true)}
-      onPointerUp={() => setPressing(false)}
-      onPointerLeave={() => setPressing(false)}
-      onPointerCancel={() => setPressing(false)}
-    >
-      {/* 광원 — 누를 때 밝아짐 */}
+    <div style={{ position: 'relative', width: 220, height: 300, touchAction: 'none' }}>
+      {/* 광원 — 불 붙으면 밝아짐 */}
       <div
         style={{
           position: 'absolute',
@@ -75,7 +80,7 @@ export default function Burn({ text, onDone }: RitualProps) {
           marginTop: -120,
           borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(255,176,80,0.45) 0%, rgba(255,150,60,0) 64%)',
-          opacity: flameOn ? 0.9 : 0.2 + progress * 0.3,
+          opacity: flameOn ? 0.9 : 0.12,
           transition: 'opacity 0.2s',
           pointerEvents: 'none',
         }}
@@ -204,14 +209,63 @@ export default function Burn({ text, onDone }: RitualProps) {
         />
       )}
 
-      {/* 진행 게이지 — 누른 정도(progress)에 직결, 다 차면 완료 */}
-      {!done && <Gauge value={progress} from="#ff7a2f" to="#ffd770" />}
+      {/* 성냥 — 끌어서 종이에 불을 붙임 (점화 전에만) */}
+      {!lit && !done && (
+        <motion.div
+          drag
+          dragSnapToOrigin
+          dragElastic={0.4}
+          onDrag={onMatchDrag}
+          whileDrag={{ cursor: 'grabbing' }}
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 6,
+            marginLeft: -7,
+            width: 14,
+            height: 92,
+            zIndex: 20,
+            cursor: 'grab',
+            touchAction: 'none',
+          }}
+        >
+          {/* 성냥대 */}
+          <div
+            style={{
+              position: 'absolute',
+              left: 5,
+              top: 16,
+              width: 4,
+              height: 74,
+              borderRadius: 2,
+              background: 'linear-gradient(180deg, #d8b483 0%, #9a6a3a 100%)',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.3)',
+            }}
+          />
+          {/* 성냥 머리 + 작은 불씨 */}
+          <div
+            style={{
+              position: 'absolute',
+              left: 1,
+              top: 0,
+              width: 12,
+              height: 18,
+              borderRadius: '50% 50% 46% 46%',
+              background: 'radial-gradient(circle at 42% 34%, #ffd07a 0%, #ff7a3a 42%, #b3301a 100%)',
+              boxShadow: '0 0 10px 2px rgba(255,150,70,0.7)',
+            }}
+          />
+        </motion.div>
+      )}
 
-      {/* 상단 행위 안내 캡션 (어두운 알약 — 흰 종이 위에서도 잘 보이게) */}
+      {/* 진행 게이지 — 불 붙은 뒤, 누른 정도(progress)와 '동시에' 차오름 */}
+      {lit && !done && <Gauge value={progress} from="#ff7a2f" to="#ffd770" />}
+
+      {/* 상단 행위 안내 캡션 */}
       {!done && (
         <div style={{ position: 'absolute', top: -44, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
           <span style={{ background: 'rgba(30,22,40,0.55)', color: '#fff', fontSize: 13, padding: '6px 14px', borderRadius: 999, whiteSpace: 'nowrap' }}>
-            {progress > 0 ? '계속 꾹 누르고 계세요' : '🔥 꾹 눌러서 태워보세요'}
+            {lit ? '활활 타오르고 있어요' : '🔥 성냥을 끌어 종이에 불을 붙이세요'}
           </span>
         </div>
       )}

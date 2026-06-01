@@ -16,7 +16,7 @@ export default function Gauge({
     <div
       style={{
         position: 'absolute',
-        [side]: 8,
+        [side]: -24, // 컨테이너 바깥 오른쪽(종이/오브제와 안 겹치게)
         top: 26,
         bottom: 26,
         width: 10,
@@ -38,7 +38,7 @@ export default function Gauge({
           borderRadius: 999,
           background: `linear-gradient(0deg, ${from} 0%, ${to} 100%)`,
           boxShadow: `0 0 10px ${to}`,
-          transition: 'height 0.08s linear',
+          // 트랜지션 없음 — progress와 '동시에' 정확히 같은 높이로 차오르도록(싱크)
         }}
       />
     </div>
