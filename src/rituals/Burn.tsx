@@ -197,7 +197,7 @@ export default function Burn({ text, onDone }: RitualProps) {
         }}
         initial={{ opacity: 0, scaleY: 0.35, y: 10 }}
         animate={{ opacity: [0, 1], scaleY: [0.35, 1], y: [10, 0] }}
-        transition={{ duration: 0.9, delay: D * 0.72, ease: 'easeOut' }}
+        transition={{ duration: 0.8, delay: D, ease: 'easeOut' }}
       />
 
       {/* 마무리 멘트 */}
@@ -215,7 +215,7 @@ export default function Burn({ text, onDone }: RitualProps) {
         }}
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: [0, 1], y: [6, 0] }}
-        transition={{ duration: 0.7, delay: D * 0.82, ease: 'easeOut' }}
+        transition={{ duration: 0.7, delay: D + 0.35, ease: 'easeOut' }}
       >
         {msg}
       </motion.p>

@@ -3,12 +3,12 @@ import { motion } from 'framer-motion'
 import type { RitualProps } from './index'
 import { rotatingMessage, PLANE_MESSAGES } from '../constants'
 
-const D = 3.4
-const HOLD = 1.1
+const D = 3.6
+const HOLD = 1.0
 const MOTES = 6
 
-// 날리기 — 종이가 비행기로 접힌 뒤, 빛 꼬리를 끌며 완만한 곡선으로 하늘로 멀어진다.
-//  감정이 천천히, 아쉬움 없이 떠나가는 느낌. 사라지는 자리에 반짝임 + 주변엔 떠다니는 빛 입자.
+// 날리기 — 종이가 접혀 사라진 뒤(겹침 없음), 그 자리에서 비행기 형태로 갖춰져 하늘로 날아간다.
+//  타임라인: 0~0.33 종이 접힘(완전히 사라짐) → 0.33~0.42 비행기 형태로 펼쳐짐 → 0.42~1 날아감.
 export default function Plane({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('plane', PLANE_MESSAGES))
   useEffect(() => {
@@ -18,7 +18,7 @@ export default function Plane({ text, onDone }: RitualProps) {
 
   return (
     <div style={{ position: 'relative', width: 240, height: 320 }}>
-      {/* 떠다니는 빛 입자 — 몽환적인 하늘 분위기 (전체 동안 은은히) */}
+      {/* 떠다니는 빛 입자 */}
       {Array.from({ length: MOTES }).map((_, i) => {
         const left = 18 + ((i * 47) % 200)
         const top = 40 + ((i * 83) % 220)
@@ -43,7 +43,7 @@ export default function Plane({ text, onDone }: RitualProps) {
         )
       })}
 
-      {/* 종이(글) — 부드럽게 반으로 접히며 사라짐 */}
+      {/* 종이(글) — 접히며 한 점으로 모여 사라짐 (비행기 형성 전 완전히 사라짐) */}
       <motion.div
         style={{
           position: 'absolute',
@@ -58,18 +58,17 @@ export default function Plane({ text, onDone }: RitualProps) {
           color: 'var(--ink)',
           textAlign: 'left',
           whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
           overflow: 'hidden',
           transformOrigin: 'center',
         }}
-        initial={{ scaleX: 1, opacity: 1 }}
-        animate={{ scaleX: [1, 0.5, 0.18], opacity: [1, 0.5, 0] }}
-        transition={{ duration: D, times: [0, 0.28, 0.4], ease: 'easeInOut' }}
+        initial={{ scaleX: 1, scaleY: 1, rotate: 0, opacity: 1 }}
+        animate={{ scaleX: [1, 0.5, 0.14], scaleY: [1, 0.78, 0.44], rotate: [0, -5, -10], opacity: [1, 1, 0] }}
+        transition={{ duration: D, times: [0, 0.2, 0.33], ease: 'easeInOut' }}
       >
         {text}
       </motion.div>
 
-      {/* 비행기 — 빛 꼬리를 달고 완만한 곡선으로 하늘로 */}
+      {/* 종이비행기 — 종이가 사라진 그 자리에서 형태를 갖춰(펼쳐지며) 날아감 */}
       <motion.div
         style={{
           position: 'absolute',
@@ -79,16 +78,16 @@ export default function Plane({ text, onDone }: RitualProps) {
           justifyContent: 'center',
           pointerEvents: 'none',
         }}
-        // 종이가 다 접힐 때(t≈0.4)까지 숨어 있다가, 그 자리에서 비행기로 나타나 날아간다 (겹침 방지)
-        initial={{ x: 0, y: 0, rotate: 0, scale: 0.92, opacity: 0 }}
+        initial={{ x: 0, y: 0, rotate: 0, scaleX: 0.5, scaleY: 0.28, opacity: 0 }}
         animate={{
+          opacity: [0, 0, 1, 1, 0],
+          scaleX: [0.5, 0.5, 1, 0.6, 0.26], // 접힌 사리 → 가로로 펼쳐지며 비행기 형태
+          scaleY: [0.28, 0.28, 1, 0.6, 0.26],
           x: [0, 0, 0, 150, 300],
           y: [0, 0, 0, -150, -286],
-          rotate: [0, 0, 0, -16, -24],
-          scale: [0.92, 0.92, 0.98, 0.5, 0.22],
-          opacity: [0, 0, 1, 1, 0],
+          rotate: [0, 0, -6, -16, -24],
         }}
-        transition={{ duration: D, times: [0, 0.4, 0.46, 0.8, 1], ease: 'easeInOut' }}
+        transition={{ duration: D, times: [0, 0.33, 0.42, 0.8, 1], ease: 'easeInOut' }}
       >
         <div style={{ position: 'relative' }}>
           {/* 부드러운 후광 */}
@@ -101,10 +100,10 @@ export default function Plane({ text, onDone }: RitualProps) {
               height: 120,
               transform: 'translate(-50%,-50%)',
               borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255,236,180,0.55) 0%, rgba(255,236,180,0) 70%)',
+              background: 'radial-gradient(circle, rgba(255,236,180,0.5) 0%, rgba(255,236,180,0) 70%)',
             }}
           />
-          {/* 빛 꼬리(혜성 트레일) — 비행 반대쪽(좌하)으로 길게 */}
+          {/* 빛 꼬리(혜성 트레일) */}
           <div
             style={{
               position: 'absolute',
@@ -115,7 +114,8 @@ export default function Plane({ text, onDone }: RitualProps) {
               transformOrigin: 'right center',
               transform: 'rotate(24deg)',
               borderRadius: 5,
-              background: 'linear-gradient(270deg, rgba(255,250,235,0.85) 0%, rgba(255,236,180,0.4) 35%, rgba(255,236,180,0) 100%)',
+              background:
+                'linear-gradient(270deg, rgba(255,250,235,0.85) 0%, rgba(255,236,180,0.4) 35%, rgba(255,236,180,0) 100%)',
               filter: 'blur(2px)',
             }}
           />
