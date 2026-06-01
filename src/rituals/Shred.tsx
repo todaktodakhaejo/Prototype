@@ -25,35 +25,48 @@ export default function Shred({ text, onDone }: RitualProps) {
 
   return (
     <div style={{ position: 'relative', width: 240, height: 280 }}>
-      {/* 종이(글) — 투입구로 내려가며 파쇄기 뒤로 사라짐 */}
-      <motion.div
+      {/* 종이(글) 투입 — 슬롯 높이(140)에서 클립. 내려갈수록 투입구로 빨려 들어가 사라지고,
+          파쇄기 아래로는 빠져나오지 않는다. */}
+      <div
         style={{
           position: 'absolute',
-          left: '50%',
-          top: 6,
-          width: 90,
-          height: 116,
-          marginLeft: -45,
-          zIndex: 1,
-          padding: '12px 10px',
-          borderRadius: 4,
-          background: 'var(--paper)',
-          boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
-          fontFamily: 'var(--batang)',
-          fontSize: 10,
-          lineHeight: 1.6,
-          color: 'var(--ink)',
-          textAlign: 'left',
+          left: 0,
+          right: 0,
+          top: 0,
+          height: 140,
           overflow: 'hidden',
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
+          zIndex: 1,
+          pointerEvents: 'none',
         }}
-        initial={{ y: 0, opacity: 1 }}
-        animate={{ y: [0, 120, 150], opacity: [1, 1, 0] }}
-        transition={{ duration: 1.2, times: [0, 0.7, 1], ease: 'easeIn' }}
       >
-        {text}
-      </motion.div>
+        <motion.div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: 6,
+            width: 90,
+            height: 116,
+            marginLeft: -45,
+            padding: '12px 10px',
+            borderRadius: 4,
+            background: 'var(--paper)',
+            boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
+            fontFamily: 'var(--batang)',
+            fontSize: 10,
+            lineHeight: 1.6,
+            color: 'var(--ink)',
+            textAlign: 'left',
+            overflow: 'hidden',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+          }}
+          initial={{ y: 0 }}
+          animate={{ y: [0, 150] }}
+          transition={{ duration: 1.0, delay: 0.15, ease: 'easeIn' }}
+        >
+          {text}
+        </motion.div>
+      </div>
 
       {/* 파쇄기 본체 — 종이가 들어갈 때 진동 */}
       <motion.div
