@@ -203,6 +203,38 @@ export default function Burn({ text, onDone }: RitualProps) {
         />
       )}
 
+      {/* 진행 게이지 — 오른쪽 세로 bar (다 차면 완료) */}
+      {!done && (
+        <div
+          style={{
+            position: 'absolute',
+            right: -30,
+            top: 40,
+            bottom: 40,
+            width: 10,
+            borderRadius: 999,
+            background: 'rgba(255,255,255,0.14)',
+            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.28)',
+            overflow: 'hidden',
+            pointerEvents: 'none',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: `${progress * 100}%`,
+              borderRadius: 999,
+              background: 'linear-gradient(0deg, #ff7a2f 0%, #ffd770 100%)',
+              boxShadow: '0 0 10px rgba(255,160,70,0.7)',
+              transition: 'height 0.08s linear',
+            }}
+          />
+        </div>
+      )}
+
       {/* 상단 행위 안내 캡션 (어두운 알약 — 흰 종이 위에서도 잘 보이게) */}
       {!done && (
         <div style={{ position: 'absolute', top: -44, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
