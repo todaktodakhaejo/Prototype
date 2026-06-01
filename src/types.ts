@@ -8,7 +8,6 @@ export type Step =
   | 'WRITE'
   | 'RITUAL_PICK'
   | 'RITUAL_ACT'
-  | 'AFTERGLOW'
   | 'RELEASED'
   | 'MOOD_POST'
 

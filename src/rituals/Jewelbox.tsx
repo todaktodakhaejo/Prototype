@@ -1,6 +1,9 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { RitualProps } from './index'
+import { rotatingMessage, JEWELBOX_MESSAGES } from '../constants'
 
+const TOTAL = 3.8 // 종이 투입 + 뚜껑 + 후광 + 멘트 머무는 총 시간
 const PARTICLES = 12 // 빛 입자 개수
 const GOLD = '#e7c97a'
 const PINK_LID = 'linear-gradient(160deg, #fcd9e3 0%, #f4b9c8 52%, #e89cb0 100%)'
@@ -10,6 +13,12 @@ const BLUSH = 'linear-gradient(180deg, #fff5f7 0%, #f6dde4 100%)'
 // 보석함 넣기 — 블러시 핑크 보석함(골드 지퍼·광택).
 //  종이가 안감 속으로 떨어짐 → 뚜껑이 닫힘 → 골드 후광 + 빛 입자가 퍼지며 '예쁘게 간직'되는 느낌.
 export default function Jewelbox({ text, onDone }: RitualProps) {
+  const [msg] = useState(() => rotatingMessage('jewelbox', JEWELBOX_MESSAGES))
+  useEffect(() => {
+    const t = setTimeout(onDone, TOTAL * 1000)
+    return () => clearTimeout(t)
+  }, [onDone])
+
   return (
     <div style={{ position: 'relative', width: 240, height: 280 }}>
       {/* 후광 — 닫힌 뒤 보석함 뒤에서 퍼짐 (마지막 애니메이션 → onDone) */}
@@ -30,7 +39,6 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
         initial={{ opacity: 0, scale: 0.3 }}
         animate={{ opacity: [0, 0.9, 0], scale: [0.3, 1.1, 1.45] }}
         transition={{ duration: 1.2, delay: 1.5, ease: 'easeOut' }}
-        onAnimationComplete={onDone}
       />
 
       {/* 빛 입자 */}
@@ -195,6 +203,26 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           }}
         />
       </motion.div>
+
+      {/* 마무리 멘트 — 보석함이 빛날 때 */}
+      <motion.p
+        className="serif"
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 4,
+          textAlign: 'center',
+          color: 'var(--on-bg)',
+          fontSize: 16,
+          whiteSpace: 'pre-line',
+        }}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: [0, 1], y: [6, 0] }}
+        transition={{ duration: 0.7, delay: 1.6, ease: 'easeOut' }}
+      >
+        {msg}
+      </motion.p>
     </div>
   )
 }

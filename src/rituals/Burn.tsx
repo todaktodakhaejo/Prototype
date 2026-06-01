@@ -1,9 +1,12 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { RitualProps } from './index'
+import { rotatingMessage, BURN_MESSAGES } from '../constants'
 
-const D = 3.2
+const D = 3.2 // 타들어가는 시간
+const HOLD = 1.7 // 잿더미 + 멘트 머무는 시간
 
-// 잔잔한 앰버 불꽃 갈래 — 작고 부드럽게(무섭지 않게). 타들어가는 front를 따라 위로 일렁.
+// 잔잔한 앰버 불꽃 갈래 — 작고 부드럽게(무섭지 않게).
 const FLAMES = [
   { dx: -30, w: 20, h: 34, flick: 0.46 },
   { dx: -10, w: 26, h: 46, flick: 0.52 },
@@ -13,12 +16,17 @@ const FLAMES = [
 const EMBERS = 10
 const SMOKE = 4
 
-// 태우기 — 종이가 아래에서부터 실제로 타들어가며 사라진다(clipPath 소멸).
-//  타는 경계엔 그을림 + 잉걸 + 잔잔한 앰버 불꽃, 위로는 연기와 불티.
+// 태우기 — 종이가 아래에서부터 실제로 타들어가 사라지고(clipPath), 끝에 흰 잿더미 한 줌 + 멘트.
 export default function Burn({ text, onDone }: RitualProps) {
+  const [msg] = useState(() => rotatingMessage('burn', BURN_MESSAGES))
+  useEffect(() => {
+    const t = setTimeout(onDone, (D + HOLD) * 1000)
+    return () => clearTimeout(t)
+  }, [onDone])
+
   return (
     <div style={{ position: 'relative', width: 220, height: 300 }}>
-      {/* 따뜻한 광원 — 타는 동안 은은히 번짐 */}
+      {/* 따뜻한 광원 */}
       <motion.div
         style={{
           position: 'absolute',
@@ -37,7 +45,7 @@ export default function Burn({ text, onDone }: RitualProps) {
         transition={{ duration: D, times: [0, 0.3, 0.82, 1], ease: 'easeInOut' }}
       />
 
-      {/* 연기 — 부드러운 회색 연기가 위로 피어오름 */}
+      {/* 연기 */}
       {Array.from({ length: SMOKE }).map((_, i) => {
         const x = -28 + i * 20
         return (
@@ -62,7 +70,7 @@ export default function Burn({ text, onDone }: RitualProps) {
         )
       })}
 
-      {/* 종이(글) — 아래에서부터 clipPath로 깎여 사라짐 (진짜 타서 없어지는 느낌) */}
+      {/* 종이(글) — 아래에서부터 clipPath로 깎여 사라짐 */}
       <motion.div
         style={{
           position: 'absolute',
@@ -82,19 +90,17 @@ export default function Burn({ text, onDone }: RitualProps) {
         initial={{ clipPath: 'inset(0% 0 0% 0)' }}
         animate={{ clipPath: ['inset(0% 0 0% 0)', 'inset(0% 0 100% 0)'] }}
         transition={{ duration: D, ease: 'easeIn' }}
-        onAnimationComplete={onDone}
       >
         {text}
       </motion.div>
 
-      {/* 타는 경계(front) — 아래에서 위로 올라가며: 그을림 + 잉걸 + 불꽃 */}
+      {/* 타는 경계(front) — 위로 올라가며 그을림 + 잉걸 + 불꽃, 끝에 사그라듦 */}
       <motion.div
         style={{ position: 'absolute', left: 0, right: 0, height: 0, pointerEvents: 'none' }}
-        initial={{ bottom: '0%' }}
-        animate={{ bottom: ['0%', '100%'] }}
-        transition={{ duration: D, ease: 'easeIn' }}
+        initial={{ bottom: '0%', opacity: 1 }}
+        animate={{ bottom: ['0%', '82%', '100%'], opacity: [1, 1, 0] }}
+        transition={{ duration: D, times: [0, 0.82, 1], ease: 'easeIn' }}
       >
-        {/* 그을림 — 경계 위쪽 종이가 갈색→검정으로 그을려 감 */}
         <div
           style={{
             position: 'absolute',
@@ -107,7 +113,6 @@ export default function Burn({ text, onDone }: RitualProps) {
             filter: 'blur(1px)',
           }}
         />
-        {/* 잉걸(타는 선) — 이글거리는 주황 경계 */}
         <div
           style={{
             position: 'absolute',
@@ -121,7 +126,6 @@ export default function Burn({ text, onDone }: RitualProps) {
             boxShadow: '0 0 16px 5px rgba(255,160,70,0.75)',
           }}
         />
-        {/* 잔잔한 불꽃 갈래 — 경계에서 위로 (개별 flicker 무한 반복) */}
         {FLAMES.map((f, i) => (
           <motion.div
             key={i}
@@ -150,7 +154,7 @@ export default function Burn({ text, onDone }: RitualProps) {
         ))}
       </motion.div>
 
-      {/* 불티(ember) — 위로 흩날리며 사라짐 (잔잔히) */}
+      {/* 불티 */}
       {Array.from({ length: EMBERS }).map((_, i) => {
         const dx = ((i % 5) - 2) * 22 + (i % 2 ? 6 : -6)
         const rise = 140 + (i % 4) * 36
@@ -171,10 +175,50 @@ export default function Burn({ text, onDone }: RitualProps) {
             }}
             initial={{ x: 0, y: 0, opacity: 0 }}
             animate={{ x: [0, dx * 0.5, dx], y: [0, -rise * 0.6, -rise], opacity: [0, 1, 0] }}
-            transition={{ duration: 1.5, delay: 0.6 + (i % 6) * 0.2, repeat: Infinity, ease: 'easeOut' }}
+            transition={{ duration: 1.5, delay: 0.6 + (i % 6) * 0.2, ease: 'easeOut' }}
           />
         )
       })}
+
+      {/* 잿더미 — 하얀 가루 한 줌 (다 타고 난 자리에 소복이) */}
+      <motion.div
+        style={{
+          position: 'absolute',
+          left: '50%',
+          bottom: 64,
+          width: 128,
+          height: 28,
+          marginLeft: -64,
+          borderRadius: '50% 50% 42% 42% / 82% 82% 26% 26%',
+          background: 'radial-gradient(ellipse at 50% 26%, #f6f3f2 0%, #ddd7d4 52%, #bdb6b2 100%)',
+          boxShadow: '0 6px 16px rgba(0,0,0,0.16)',
+          filter: 'blur(0.4px)',
+          pointerEvents: 'none',
+        }}
+        initial={{ opacity: 0, scaleY: 0.35, y: 10 }}
+        animate={{ opacity: [0, 1], scaleY: [0.35, 1], y: [10, 0] }}
+        transition={{ duration: 0.9, delay: D * 0.72, ease: 'easeOut' }}
+      />
+
+      {/* 마무리 멘트 */}
+      <motion.p
+        className="serif"
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 18,
+          textAlign: 'center',
+          color: 'var(--on-bg)',
+          fontSize: 16,
+          whiteSpace: 'pre-line',
+        }}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: [0, 1], y: [6, 0] }}
+        transition={{ duration: 0.7, delay: D * 0.82, ease: 'easeOut' }}
+      >
+        {msg}
+      </motion.p>
     </div>
   )
 }

@@ -54,7 +54,6 @@ interface AppState {
   editWriting: () => void // 글 다시 쓰기
   backToPlay: () => void // 공놀이로 더
   finishSession: () => void // 이제 마칠래요 → 마친 후 기분
-  afterAfterglow: () => void // 잔상 후 (KPI: 의식 허브로 복귀 / 아니면 완료 화면)
   afterReleased: () => void // 완료(RELEASED) 화면 후 (KPI: 처음=기분 pre / 아니면 홈 리셋)
   submitMoodPost: (value: number) => void // 마친 후 기분 응답 → 완료(RELEASED) 화면
   resetHome: () => void
@@ -141,19 +140,16 @@ export const useStore = create<AppState>((set, get) => {
       set({ selectedRitual: id, step: 'RITUAL_ACT' })
     },
 
+    // 의식 연출 완료(컴포넌트가 자체 마무리 멘트까지 보여준 뒤 호출) →
+    //   KPI: 의식 허브로 복귀(또 고를 수 있게) / 비KPI: 완료 화면
     finishRitual: () => {
       const id = get().selectedRitual
       if (id) kpi.ritualEnd(id)
-      set({ step: 'AFTERGLOW', ritualsThisSession: get().ritualsThisSession + 1 })
-    },
-
-    // 잔상(AFTERGLOW) 이후 — KPI면 의식 허브로 복귀(또 고를 수 있게), 아니면 완료 화면
-    afterAfterglow: () => {
-      if (KPI_ENABLED) {
-        set({ step: 'RITUAL_PICK', selectedRitual: null })
-      } else {
-        set({ step: 'RELEASED' })
-      }
+      set({
+        ritualsThisSession: get().ritualsThisSession + 1,
+        selectedRitual: null,
+        step: KPI_ENABLED ? 'RITUAL_PICK' : 'RELEASED',
+      })
     },
 
     // 마친 후 기분 응답 → 완료(RELEASED) 화면으로. roundType은 세션 내용으로 자동 판정.

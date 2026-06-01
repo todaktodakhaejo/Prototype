@@ -1,12 +1,21 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { RitualProps } from './index'
+import { rotatingMessage, PLANE_MESSAGES } from '../constants'
 
 const D = 3.4
+const HOLD = 1.1
 const MOTES = 6
 
 // 날리기 — 종이가 비행기로 접힌 뒤, 빛 꼬리를 끌며 완만한 곡선으로 하늘로 멀어진다.
 //  감정이 천천히, 아쉬움 없이 떠나가는 느낌. 사라지는 자리에 반짝임 + 주변엔 떠다니는 빛 입자.
 export default function Plane({ text, onDone }: RitualProps) {
+  const [msg] = useState(() => rotatingMessage('plane', PLANE_MESSAGES))
+  useEffect(() => {
+    const t = setTimeout(onDone, (D + HOLD) * 1000)
+    return () => clearTimeout(t)
+  }, [onDone])
+
   return (
     <div style={{ position: 'relative', width: 240, height: 320 }}>
       {/* 떠다니는 빛 입자 — 몽환적인 하늘 분위기 (전체 동안 은은히) */}
@@ -80,7 +89,6 @@ export default function Plane({ text, onDone }: RitualProps) {
           opacity: [0, 0, 1, 1, 0],
         }}
         transition={{ duration: D, times: [0, 0.4, 0.46, 0.8, 1], ease: 'easeInOut' }}
-        onAnimationComplete={onDone}
       >
         <div style={{ position: 'relative' }}>
           {/* 부드러운 후광 */}
@@ -136,6 +144,26 @@ export default function Plane({ text, onDone }: RitualProps) {
         animate={{ opacity: [0, 0, 1, 0], scale: [0.4, 0.4, 1.3, 0.6] }}
         transition={{ duration: D, times: [0, 0.82, 0.92, 1], ease: 'easeOut' }}
       />
+
+      {/* 마무리 멘트 — 비행기가 멀어지며 */}
+      <motion.p
+        className="serif"
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 16,
+          textAlign: 'center',
+          color: 'var(--on-bg)',
+          fontSize: 16,
+          whiteSpace: 'pre-line',
+        }}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: [0, 1], y: [6, 0] }}
+        transition={{ duration: 0.7, delay: D * 0.62, ease: 'easeOut' }}
+      >
+        {msg}
+      </motion.p>
     </div>
   )
 }

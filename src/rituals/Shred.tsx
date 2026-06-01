@@ -1,6 +1,9 @@
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { RitualProps } from './index'
+import { rotatingMessage, SHRED_MESSAGES } from '../constants'
 
+const TOTAL = 3.4 // 파쇄 + 폭죽 + 멘트 머무는 총 시간
 const CONFETTI = 18 // 폭죽 조각 수
 const COLORS = ['#f4b8c7', '#d8b15a', '#fbf7f4', '#c9a7e0', '#9ad0d8']
 
@@ -8,6 +11,12 @@ const COLORS = ['#f4b8c7', '#d8b15a', '#fbf7f4', '#c9a7e0', '#9ad0d8']
 //  STEP1 종이가 파쇄기 위에 → STEP2 종이가 투입구로 빨려 들어가며 파쇄기가 갈림(진동)
 //  STEP3 파쇄된 종이 조각이 투입구에서 폭죽처럼 사방으로 터짐
 export default function Shred({ text, onDone }: RitualProps) {
+  const [msg] = useState(() => rotatingMessage('shred', SHRED_MESSAGES))
+  useEffect(() => {
+    const t = setTimeout(onDone, TOTAL * 1000)
+    return () => clearTimeout(t)
+  }, [onDone])
+
   return (
     <div style={{ position: 'relative', width: 240, height: 280 }}>
       {/* 종이(글) — 투입구로 내려가며 파쇄기 뒤로 사라짐 */}
@@ -97,7 +106,6 @@ export default function Shred({ text, onDone }: RitualProps) {
         return (
           <motion.span
             key={i}
-            onAnimationComplete={i === 0 ? onDone : undefined}
             style={{
               position: 'absolute',
               left: '50%',
@@ -120,6 +128,26 @@ export default function Shred({ text, onDone }: RitualProps) {
           />
         )
       })}
+
+      {/* 마무리 멘트 — 폭죽과 함께 */}
+      <motion.p
+        className="serif"
+        style={{
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 12,
+          textAlign: 'center',
+          color: 'var(--on-bg)',
+          fontSize: 16,
+          whiteSpace: 'pre-line',
+        }}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: [0, 1], y: [6, 0] }}
+        transition={{ duration: 0.7, delay: 1.5, ease: 'easeOut' }}
+      >
+        {msg}
+      </motion.p>
     </div>
   )
 }
