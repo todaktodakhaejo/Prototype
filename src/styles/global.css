@@ -17,6 +17,9 @@ body {
   background: #15131a;
   overflow: hidden;
   user-select: none;
+  /* 한글이 어절(단어) 중간에서 줄바꿈되지 않도록 — 멘트가 두 줄이 돼도 단어가 안 쪼개짐 */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 /* 앱은 모바일 세로 화면을 가정 — 중앙 정렬된 프레임 */

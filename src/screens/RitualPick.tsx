@@ -21,7 +21,7 @@ export default function RitualPick() {
         {done === 0 ? '고르면 흘려보내요' : `지금까지 ${done}번 흘려보냈어요 · 여러 번 해도 괜찮아요`}
       </p>
 
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 340 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 92px)', gap: 16, justifyContent: 'center' }}>
         {RITUALS.map((r, idx) => (
           <motion.button
             key={r.id}

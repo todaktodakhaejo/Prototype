@@ -16,7 +16,7 @@ export default function RitualPrompt() {
       transition={{ duration: 0.5 }}
       style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 32, width: '100%', maxWidth: 360 }}
     >
-      <p className="serif" style={{ color: 'var(--on-bg)', fontSize: 21, lineHeight: 1.6 }}>
+      <p className="serif" style={{ color: 'var(--on-bg)', fontSize: 21, lineHeight: 1.6, whiteSpace: 'pre-line' }}>
         {RITUAL_PROMPT_TITLE}
       </p>
 

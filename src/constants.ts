@@ -9,13 +9,13 @@ export const LONG_PRESS_MS = 800
 
 // ── KPI 모드(프로토타입 한정) 기분 측정 ──
 export const MOOD_MAX = 10 // 0~10 척도
-export const MOOD_PRE_TITLE = '시작 전, 지금 마음은 어떤가요?'
-export const MOOD_POST_TITLE = '마친 뒤, 지금 마음은 어떤가요?'
+export const MOOD_PRE_TITLE = '시작 전, 마음의 무게는 어떤가요?'
+export const MOOD_POST_TITLE = '마친 뒤, 마음의 무게는 어떤가요?'
 export const MOOD_LOW_LABEL = '마음이 가벼움'
 export const MOOD_HIGH_LABEL = '마음이 무거움'
 
 // 공놀이 후 분기 팝업 (종이/리츄얼 진입 전)
-export const RITUAL_PROMPT_TITLE = '감정을 기록하고 리츄얼과 함께 해소해볼까요?'
+export const RITUAL_PROMPT_TITLE = '감정을 적어\n의식과 함께 흘려보낼까요?'
 export const RITUAL_PROMPT_YES = '리츄얼까지 해볼래요'
 export const RITUAL_PROMPT_NO = '오늘은 여기까지 할래요'
 

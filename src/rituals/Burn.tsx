@@ -1,43 +1,68 @@
 import { motion } from 'framer-motion'
 import type { RitualProps } from './index'
 
-const D = 2.9
+const D = 3.2
 
-// 일렁이는 불꽃 갈래 (바닥에서 솟음) — 폭/높이/위치/속도 제각각
+// 잔잔한 앰버 불꽃 갈래 — 작고 부드럽게(무섭지 않게). 타들어가는 front를 따라 위로 일렁.
 const FLAMES = [
-  { dx: -36, w: 26, h: 74, flick: 0.42 },
-  { dx: -15, w: 34, h: 104, flick: 0.5 },
-  { dx: 4, w: 42, h: 128, flick: 0.46 },
-  { dx: 24, w: 34, h: 98, flick: 0.54 },
-  { dx: 44, w: 24, h: 70, flick: 0.4 },
+  { dx: -30, w: 20, h: 34, flick: 0.46 },
+  { dx: -10, w: 26, h: 46, flick: 0.52 },
+  { dx: 12, w: 24, h: 40, flick: 0.44 },
+  { dx: 30, w: 18, h: 30, flick: 0.5 },
 ]
-const EMBERS = 12
+const EMBERS = 10
+const SMOKE = 4
 
-// 태우기:
-//  STEP1 종이 떠있음 → STEP2 바닥에서 불꽃이 일렁이며 검은 그을림이 위로 타올라감
-//  STEP3 종이가 재가 되어 사라지고, 불티가 위로 흩날림
+// 태우기 — 종이가 아래에서부터 실제로 타들어가며 사라진다(clipPath 소멸).
+//  타는 경계엔 그을림 + 잉걸 + 잔잔한 앰버 불꽃, 위로는 연기와 불티.
 export default function Burn({ text, onDone }: RitualProps) {
   return (
-    <div style={{ position: 'relative', width: 220, height: 280 }}>
-      {/* 따뜻한 광원 — 바닥에서 번지는 불빛 */}
+    <div style={{ position: 'relative', width: 220, height: 300 }}>
+      {/* 따뜻한 광원 — 타는 동안 은은히 번짐 */}
       <motion.div
         style={{
           position: 'absolute',
           left: '50%',
-          bottom: -10,
+          top: '40%',
           width: 240,
-          height: 200,
+          height: 240,
           marginLeft: -120,
+          marginTop: -120,
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,160,60,0.5) 0%, rgba(255,120,40,0) 65%)',
+          background: 'radial-gradient(circle, rgba(255,176,80,0.4) 0%, rgba(255,150,60,0) 64%)',
           pointerEvents: 'none',
         }}
         initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 0.9, 0.9, 0] }}
-        transition={{ duration: D, times: [0, 0.35, 0.8, 1], ease: 'easeInOut' }}
+        animate={{ opacity: [0, 0.85, 0.85, 0] }}
+        transition={{ duration: D, times: [0, 0.3, 0.82, 1], ease: 'easeInOut' }}
       />
 
-      {/* 종이(글) — 그을려 어두워지며 떠올라 사라짐 */}
+      {/* 연기 — 부드러운 회색 연기가 위로 피어오름 */}
+      {Array.from({ length: SMOKE }).map((_, i) => {
+        const x = -28 + i * 20
+        return (
+          <motion.span
+            key={`s${i}`}
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: 70,
+              width: 60,
+              height: 60,
+              marginLeft: x - 30,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(190,190,195,0.34) 0%, rgba(190,190,195,0) 70%)',
+              filter: 'blur(5px)',
+              pointerEvents: 'none',
+            }}
+            initial={{ y: 40, opacity: 0, scale: 0.6 }}
+            animate={{ y: [-40, -150], opacity: [0, 0.5, 0], scale: [0.6, 1.3, 1.7] }}
+            transition={{ duration: 2.6, delay: 0.5 + (i % 4) * 0.5, repeat: Infinity, ease: 'easeOut' }}
+          />
+        )
+      })}
+
+      {/* 종이(글) — 아래에서부터 clipPath로 깎여 사라짐 (진짜 타서 없어지는 느낌) */}
       <motion.div
         style={{
           position: 'absolute',
@@ -45,119 +70,108 @@ export default function Burn({ text, onDone }: RitualProps) {
           padding: '24px 20px',
           borderRadius: 6,
           background: 'var(--paper, #fbf7f4)',
-          boxShadow: '0 12px 36px rgba(0,0,0,0.25)',
+          boxShadow: '0 12px 36px rgba(0,0,0,0.22)',
           fontFamily: 'var(--batang)',
           fontSize: 14,
           lineHeight: 1.8,
           color: 'var(--ink)',
           textAlign: 'left',
           whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
           overflow: 'hidden',
         }}
-        initial={{ opacity: 1, filter: 'brightness(1)' }}
-        animate={{
-          opacity: [1, 1, 1, 0],
-          filter: [
-            'brightness(1)',
-            'brightness(0.82) sepia(0.5)',
-            'brightness(0.4) sepia(1)',
-            'brightness(0)',
-          ],
-          y: [0, -6, -18, -44],
-        }}
-        transition={{ duration: D, times: [0, 0.4, 0.78, 1], ease: 'easeIn' }}
+        initial={{ clipPath: 'inset(0% 0 0% 0)' }}
+        animate={{ clipPath: ['inset(0% 0 0% 0)', 'inset(0% 0 100% 0)'] }}
+        transition={{ duration: D, ease: 'easeIn' }}
         onAnimationComplete={onDone}
       >
         {text}
+      </motion.div>
 
-        {/* 타들어가는 검은 그을림 front — 아래에서 위로, 윗변에 이글거리는 잉걸 */}
-        <motion.div
+      {/* 타는 경계(front) — 아래에서 위로 올라가며: 그을림 + 잉걸 + 불꽃 */}
+      <motion.div
+        style={{ position: 'absolute', left: 0, right: 0, height: 0, pointerEvents: 'none' }}
+        initial={{ bottom: '0%' }}
+        animate={{ bottom: ['0%', '100%'] }}
+        transition={{ duration: D, ease: 'easeIn' }}
+      >
+        {/* 그을림 — 경계 위쪽 종이가 갈색→검정으로 그을려 감 */}
+        <div
           style={{
             position: 'absolute',
             left: 0,
             right: 0,
-            bottom: 0,
-            transformOrigin: 'bottom',
+            bottom: -2,
+            height: 56,
             background:
-              'linear-gradient(0deg, #140c10 0%, #140c10 55%, rgba(20,12,16,0) 100%)',
-            pointerEvents: 'none',
+              'linear-gradient(0deg, #2a1408 0%, rgba(58,30,16,0.78) 26%, rgba(96,54,28,0.32) 58%, rgba(96,54,28,0) 100%)',
+            filter: 'blur(1px)',
           }}
-          initial={{ height: '0%' }}
-          animate={{ height: ['0%', '28%', '108%'] }}
-          transition={{ duration: D, times: [0, 0.4, 1], ease: 'easeIn' }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              top: -4,
-              left: 0,
-              right: 0,
-              height: 8,
-              background: 'linear-gradient(0deg, #ff5a1f 0%, #ffd24d 100%)',
-              filter: 'blur(2px)',
-              boxShadow: '0 0 14px 4px rgba(255,130,40,0.85)',
-            }}
-          />
-        </motion.div>
-      </motion.div>
-
-      {/* 불꽃 갈래 — 바닥에서 일렁임 (그룹 opacity로 등장/소멸, 개별 flicker는 무한 반복) */}
-      <motion.div
-        style={{ position: 'absolute', left: 0, right: 0, bottom: 6, height: 0, pointerEvents: 'none' }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 1, 1, 0] }}
-        transition={{ duration: D, times: [0, 0.25, 0.78, 1], ease: 'easeInOut' }}
-      >
+        />
+        {/* 잉걸(타는 선) — 이글거리는 주황 경계 */}
+        <div
+          style={{
+            position: 'absolute',
+            left: -4,
+            right: -4,
+            bottom: -2,
+            height: 6,
+            borderRadius: 4,
+            background: 'linear-gradient(0deg, #ff7a2f 0%, #ffd770 100%)',
+            filter: 'blur(1.2px)',
+            boxShadow: '0 0 16px 5px rgba(255,160,70,0.75)',
+          }}
+        />
+        {/* 잔잔한 불꽃 갈래 — 경계에서 위로 (개별 flicker 무한 반복) */}
         {FLAMES.map((f, i) => (
           <motion.div
             key={i}
             style={{
               position: 'absolute',
               left: '50%',
-              bottom: 0,
+              bottom: -2,
               width: f.w,
               height: f.h,
               marginLeft: f.dx - f.w / 2,
               transformOrigin: 'bottom center',
-              borderRadius: '50% 50% 50% 50% / 70% 70% 42% 42%',
+              borderRadius: '50% 50% 48% 48% / 72% 72% 40% 40%',
               background:
-                'radial-gradient(50% 62% at 50% 72%, #ffe98a 0%, #ff9a3d 46%, #ff5a1f 74%, rgba(255,90,31,0) 100%)',
-              filter: 'blur(1px)',
+                'radial-gradient(52% 60% at 50% 74%, #fff0b8 0%, #ffd270 38%, #ffa64d 68%, rgba(255,166,77,0) 100%)',
+              filter: 'blur(1.2px)',
+              opacity: 0.92,
             }}
             animate={{
-              scaleY: [0.85, 1.18, 0.92, 1.12, 0.85],
-              scaleX: [1, 0.86, 1.06, 0.9, 1],
-              x: [0, -3, 2, -2, 0],
-              opacity: [0.85, 1, 0.9, 1, 0.85],
+              scaleY: [0.82, 1.14, 0.92, 1.08, 0.82],
+              scaleX: [1, 0.88, 1.05, 0.92, 1],
+              x: [0, -2, 2, -1, 0],
+              opacity: [0.8, 0.96, 0.86, 0.96, 0.8],
             }}
             transition={{ duration: f.flick, repeat: Infinity, ease: 'easeInOut' }}
           />
         ))}
       </motion.div>
 
-      {/* 불티(ember) — 위로 흩날리며 사라짐 */}
+      {/* 불티(ember) — 위로 흩날리며 사라짐 (잔잔히) */}
       {Array.from({ length: EMBERS }).map((_, i) => {
-        const dx = ((i % 5) - 2) * 26 + (i % 2 ? 8 : -8)
-        const rise = 150 + (i % 4) * 40
+        const dx = ((i % 5) - 2) * 22 + (i % 2 ? 6 : -6)
+        const rise = 140 + (i % 4) * 36
         return (
           <motion.span
-            key={i}
+            key={`e${i}`}
             style={{
               position: 'absolute',
               left: '50%',
-              bottom: 30,
-              width: 4,
-              height: 4,
-              marginLeft: -2,
+              bottom: 40,
+              width: 3.5,
+              height: 3.5,
+              marginLeft: -1.75,
               borderRadius: '50%',
-              background: '#ffd24d',
-              boxShadow: '0 0 6px 2px rgba(255,150,50,0.8)',
+              background: '#ffd770',
+              boxShadow: '0 0 6px 2px rgba(255,160,70,0.75)',
               pointerEvents: 'none',
             }}
             initial={{ x: 0, y: 0, opacity: 0 }}
             animate={{ x: [0, dx * 0.5, dx], y: [0, -rise * 0.6, -rise], opacity: [0, 1, 0] }}
-            transition={{ duration: 1.4, delay: 0.5 + (i % 6) * 0.18, ease: 'easeOut' }}
+            transition={{ duration: 1.5, delay: 0.6 + (i % 6) * 0.2, repeat: Infinity, ease: 'easeOut' }}
           />
         )
       })}
