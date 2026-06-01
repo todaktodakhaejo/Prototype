@@ -33,14 +33,15 @@ export default function App() {
   return (
     <>
       <div className="app-frame" data-tod={tod}>
-        <AnimatePresence mode="wait">
+        {/* mode="wait" 제거: 새 화면이 즉시 마운트되어 전환 중 빈 화면이 생기지 않음 */}
+        <AnimatePresence>
           <motion.div
             key={step}
             className="screen"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.6, ease: 'easeInOut' }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
           >
             <Screen />
           </motion.div>
