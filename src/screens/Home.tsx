@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '../store'
 import { formatToday } from '../hooks/useTimeOfDay'
-import { COMFORT_MESSAGES } from '../constants'
+import { COMFORT_MESSAGES, rotatingMessage } from '../constants'
 import JellyBall from '../components/JellyBall'
 import { addBallActive } from '../analytics'
 
@@ -13,8 +13,8 @@ export default function Home() {
   const proceedFromHome = useStore((s) => s.proceedFromHome)
   const releaseCount = useStore((s) => s.releaseCount)
   const [cleared, setCleared] = useState(false)
-  // 멘트는 진입 시 1개 고정 (releaseCount로 순환 — 매번 같지 않게)
-  const message = COMFORT_MESSAGES[releaseCount % COMFORT_MESSAGES.length]
+  // 홈에 들어올 때마다 8개 멘트를 순서대로 번갈아 노출 (마운트 시 1회 선택)
+  const [message] = useState(() => rotatingMessage('home', COMFORT_MESSAGES))
 
   return (
     <>
