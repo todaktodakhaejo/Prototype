@@ -63,17 +63,18 @@ export default function Home() {
         onPlayActive={(ms) => addBallActive(ms)}
       />
 
-      <AnimatePresence>
-        {cleared && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.6 }}
-            transition={{ duration: 1.2, delay: 0.4 }}
-            style={{ position: 'absolute', bottom: 120, color: 'var(--on-bg)', fontSize: 13 }}
-          >
-            공을 지그시 누르면, 다음으로 넘어가요
-          </motion.p>
-        )}
+      {/* 하단 힌트 — 첫 터치 전: 만져보기 안내 / 첫 터치 후: 다음으로 안내 */}
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={cleared ? 'press' : 'touch'}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.6 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          style={{ position: 'absolute', bottom: 120, color: 'var(--on-bg)', fontSize: 13 }}
+        >
+          {cleared ? '공을 지그시 누르면 다음으로 넘어가요' : '감정말랑이를 마음껏 만져보세요'}
+        </motion.p>
       </AnimatePresence>
 
       {/* 하단: 해소 카운터 */}

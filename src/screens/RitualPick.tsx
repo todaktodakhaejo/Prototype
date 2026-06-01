@@ -14,12 +14,14 @@ export default function RitualPick() {
 
   return (
     <>
-      <p className="serif" style={{ color: 'var(--on-bg)', fontSize: 20, marginBottom: 6 }}>
-        {done === 0 ? '어떻게 흘려보낼까요' : '또 흘려보낼까요?'}
+      <p className="serif" style={{ color: 'var(--on-bg)', fontSize: 20, marginBottom: done === 0 ? 26 : 6 }}>
+        {done === 0 ? '감정을 어떻게 흘려보낼까요' : '또 흘려보낼까요?'}
       </p>
-      <p className="muted" style={{ color: 'var(--on-bg)', opacity: 0.6, marginBottom: 26 }}>
-        {done === 0 ? '고르면 흘려보내요' : `지금까지 ${done}번 흘려보냈어요 · 여러 번 해도 괜찮아요`}
-      </p>
+      {done > 0 && (
+        <p className="muted" style={{ color: 'var(--on-bg)', opacity: 0.6, marginBottom: 26 }}>
+          {`지금까지 ${done}번 흘려보냈어요 · 여러 번 해도 괜찮아요`}
+        </p>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 92px)', gap: 16, justifyContent: 'center' }}>
         {RITUALS.map((r, idx) => (

@@ -19,7 +19,7 @@ export default function MoodScale({ title, onSubmit }: Props) {
       transition={{ duration: 0.6 }}
       style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22, width: '100%', maxWidth: 340 }}
     >
-      <p className="serif" style={{ color: 'var(--on-bg)', fontSize: 21, lineHeight: 1.5, whiteSpace: 'nowrap' }}>
+      <p className="serif" style={{ color: 'var(--on-bg)', fontSize: 18, lineHeight: 1.5, maxWidth: 320 }}>
         {title}
       </p>
 
