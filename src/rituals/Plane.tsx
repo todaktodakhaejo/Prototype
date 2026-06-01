@@ -130,7 +130,7 @@ export default function Plane({ text, onDone }: RitualProps) {
             opacity: [1, 1, 0],
             rotate: [0, dir.x * 16, dir.x * 26],
           }}
-          transition={{ duration: 1.6, times: [0, 0.25, 1], ease: 'easeOut' }}
+          transition={{ duration: 2.8, times: [0, 0.22, 1], ease: 'easeOut' }}
           onAnimationComplete={() => onDone()}
         >
           <div style={{ position: 'relative' }}>
@@ -182,7 +182,7 @@ export default function Plane({ text, onDone }: RitualProps) {
           style={{ position: 'absolute', left: 0, right: 0, bottom: 16, textAlign: 'center', color: 'var(--on-bg)', fontSize: 16, whiteSpace: 'pre-line', pointerEvents: 'none' }}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.7 }}
+          transition={{ duration: 0.8, delay: 1.3 }}
         >
           {msg}
         </motion.p>

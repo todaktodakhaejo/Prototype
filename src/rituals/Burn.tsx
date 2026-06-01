@@ -3,8 +3,8 @@ import { motion } from 'framer-motion'
 import type { RitualProps } from './index'
 import { rotatingMessage, BURN_MESSAGES } from '../constants'
 
-const HOLD_SEC = 1.8 // 꾹 누르고 있어야 다 타는 시간
-const HOLD_MSG = 1.7 // 잿더미 + 멘트 머무는 시간
+const HOLD_SEC = 3.2 // 꾹 누르고 있어야 다 타는 시간 (충분히 머물며 태우도록 길게)
+const HOLD_MSG = 2.6 // 잿더미 + 멘트 머무는 여운
 const FLAMES = [
   { dx: -30, w: 20, h: 34, flick: 0.46 },
   { dx: -10, w: 26, h: 46, flick: 0.52 },

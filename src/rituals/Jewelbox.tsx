@@ -45,7 +45,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
     if (info.offset.y > DROP && !fired.current) {
       fired.current = true
       setStored(true)
-      setTimeout(finish, 2700) // 폴백
+      setTimeout(finish, 4000) // 폴백
     }
     // 덜 내리고 놓으면 dragSnapToOrigin으로 복귀 → 다시 시도
   }
@@ -69,7 +69,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
         }}
         initial={{ opacity: 0, scale: 0.3 }}
         animate={stored ? { opacity: [0, 0.9, 0], scale: [0.3, 1.1, 1.45] } : {}}
-        transition={{ duration: 1.2, delay: 1.2, ease: 'easeOut' }}
+        transition={{ duration: 1.6, delay: 2.0, ease: 'easeOut' }}
         onAnimationComplete={() => {
           if (stored) finish()
         }}
@@ -98,7 +98,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
               }}
               initial={{ x: 0, y: 0, opacity: 0, scale: 0.4 }}
               animate={{ x: Math.cos(angle) * dist, y: Math.sin(angle) * dist, opacity: [0, 1, 0], scale: [0.4, 1, 0.6] }}
-              transition={{ duration: 1.3, delay: 1.25, ease: 'easeOut' }}
+              transition={{ duration: 1.4, delay: 2.05, ease: 'easeOut' }}
             />
           )
         })}
@@ -188,7 +188,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
             style={{ position: 'absolute', left: '50%', top: 12, marginLeft: -43, zIndex: 4, pointerEvents: 'none' }}
             initial={{ y: 0, scale: 0.7, opacity: 1, rotate: -4 }}
             animate={{ y: [0, 150, 168], scale: [0.7, 0.5, 0.16], opacity: [1, 1, 0], rotate: [-4, 0, 0] }}
-            transition={{ duration: 0.7, times: [0, 0.75, 1], ease: 'easeIn' }}
+            transition={{ duration: 1.2, times: [0, 0.78, 1], ease: 'easeIn' }}
           >
             <Gem />
           </motion.div>
@@ -212,7 +212,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
             }}
             initial={{ y: -58, rotate: -24, opacity: 0 }}
             animate={{ y: [-58, -58, 0], rotate: [-24, -24, 0], opacity: [0, 1, 1] }}
-            transition={{ duration: 0.55, delay: 0.6, times: [0, 0.2, 1], ease: 'easeIn' }}
+            transition={{ duration: 0.7, delay: 1.1, times: [0, 0.2, 1], ease: 'easeIn' }}
           >
             <div
               style={{
@@ -270,7 +270,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           style={{ position: 'absolute', left: 0, right: 0, bottom: 4, textAlign: 'center', color: 'var(--on-bg)', fontSize: 16, whiteSpace: 'pre-line', pointerEvents: 'none' }}
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 1.3 }}
+          transition={{ duration: 0.8, delay: 2.4 }}
         >
           {msg}
         </motion.p>

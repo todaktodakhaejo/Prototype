@@ -5,8 +5,8 @@ import { rotatingMessage, SHRED_MESSAGES } from '../constants'
 
 const CONFETTI = 30
 const COLORS = ['#f4b8c7', '#d8b15a', '#fbf7f4', '#c9a7e0', '#9ad0d8']
-const GRIND_DIST = 600 // 이만큼(px) 문질러야 다 갈림
-const TAP_BUMP = 0.05 // 탭/클릭 한 번마다 조금씩 갈림
+const GRIND_DIST = 1200 // 이만큼(px) 문질러야 다 갈림 (충분히 문지르며 몰입하도록 길게)
+const TAP_BUMP = 0.035 // 탭/클릭 한 번마다 조금씩 갈림
 
 const rnd = (n: number) => {
   const x = Math.sin(n * 12.9898) * 43758.5453
@@ -29,7 +29,7 @@ export default function Shred({ text, onDone }: RitualProps) {
       fired.current = true
       setDone(true)
       setGrinding(false)
-      const t = setTimeout(onDone, 2700)
+      const t = setTimeout(onDone, 3400)
       return () => clearTimeout(t)
     }
   }, [progress, onDone])
