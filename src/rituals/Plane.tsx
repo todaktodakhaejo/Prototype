@@ -1,10 +1,23 @@
 import { useRef, useState } from 'react'
 import { motion, type PanInfo } from 'framer-motion'
 import type { RitualProps } from './index'
+import Gauge from './Gauge'
 import { rotatingMessage, PLANE_MESSAGES } from '../constants'
 
 const MOTES = 6
 const MAXPULL = 170 // 이만큼 당기면 파워 100%
+
+// 슬링샷 물리: 당긴 '반대' 방향으로, 항상 하늘(위)을 향해 사선 발사
+function launchVec(px: number, py: number) {
+  let dx = -px
+  let dy = -py
+  if (Math.hypot(dx, dy) < 20) {
+    dx = 0
+    dy = -1
+  } // 거의 안 당기고 놓으면 위로
+  const m = Math.hypot(dx, dy) || 1
+  return { x: dx / m, y: Math.min(dy / m, -0.3) } // 항상 위로 향함
+}
 
 // 종이비행기 SVG
 function PaperPlane() {
@@ -29,20 +42,15 @@ export default function Plane({ text, onDone }: RitualProps) {
   const onThrow = (_e: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
     if (fired.current) return
     fired.current = true
-    let dx = info.offset.x
-    let dy = info.offset.y
-    if (Math.hypot(dx, dy) < 20) {
-      dx = 30
-      dy = -60
-    } // 거의 안 움직이고 놓으면 기본으로 위로
-    const m = Math.hypot(dx, dy) || 1
-    setDir({ x: dx / m, y: Math.min(dy / m, -0.3) }) // 항상 살짝 위로
+    const m = Math.hypot(info.offset.x, info.offset.y)
+    setDir(launchVec(info.offset.x, info.offset.y)) // 당긴 반대 방향으로 발사
     setThrowPower(0.65 + Math.min(1, m / MAXPULL) * 0.85) // 세게 당길수록 멀리
     setPhase('flying')
   }
 
   const power = Math.min(1, Math.hypot(pull.x, pull.y) / MAXPULL)
-  const angleDeg = (Math.atan2(pull.y, pull.x) * 180) / Math.PI
+  const aim = launchVec(pull.x, pull.y) // 미리보기: 실제 발사 방향(당긴 반대·위로)
+  const angleDeg = (Math.atan2(aim.y, aim.x) * 180) / Math.PI
 
   return (
     <div style={{ position: 'relative', width: 240, height: 320, touchAction: 'none' }}>
@@ -195,44 +203,14 @@ export default function Plane({ text, onDone }: RitualProps) {
         </div>
       )}
 
-      {/* 파워 게이지 — 오른쪽 세로 bar (당긴 세기) */}
-      {phase === 'plane' && (
-        <div
-          style={{
-            position: 'absolute',
-            right: -30,
-            top: 40,
-            bottom: 40,
-            width: 10,
-            borderRadius: 999,
-            background: 'rgba(255,255,255,0.14)',
-            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.28)',
-            overflow: 'hidden',
-            zIndex: 6,
-            pointerEvents: 'none',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: `${power * 100}%`,
-              borderRadius: 999,
-              background: 'linear-gradient(0deg, #5b8fd6 0%, #aee0e8 100%)',
-              boxShadow: '0 0 10px rgba(140,200,230,0.7)',
-              transition: 'height 0.05s linear',
-            }}
-          />
-        </div>
-      )}
+      {/* 파워 게이지 — 당긴 세기 */}
+      {phase === 'plane' && <Gauge value={power} from="#5b8fd6" to="#aee0e8" />}
 
       {/* 상단 행위 안내 캡션 */}
       {phase !== 'flying' && (
         <div style={{ position: 'absolute', top: -44, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
           <span style={{ background: 'rgba(30,22,40,0.55)', color: '#fff', fontSize: 13, padding: '6px 14px', borderRadius: 999, whiteSpace: 'nowrap' }}>
-            {phase === 'paper' ? '👆 종이를 탭하면 비행기로 접혀요' : '✈️ 당겼다 놓으면 그 방향으로 날아가요'}
+            {phase === 'paper' ? '👆 종이를 탭하면 비행기로 접혀요' : '✈️ 당겼다 놓으면 그 반대로 날아가요'}
           </span>
         </div>
       )}
