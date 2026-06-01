@@ -5,7 +5,8 @@ import { rotatingMessage, SHRED_MESSAGES } from '../constants'
 
 const CONFETTI = 30
 const COLORS = ['#f4b8c7', '#d8b15a', '#fbf7f4', '#c9a7e0', '#9ad0d8']
-const GRIND_DIST = 900 // 이만큼(px) 문질러야 다 갈림
+const GRIND_DIST = 600 // 이만큼(px) 문질러야 다 갈림
+const TAP_BUMP = 0.05 // 탭/클릭 한 번마다 조금씩 갈림
 
 const rnd = (n: number) => {
   const x = Math.sin(n * 12.9898) * 43758.5453
@@ -45,10 +46,22 @@ export default function Shred({ text, onDone }: RitualProps) {
 
   const start = (e: React.PointerEvent) => {
     if (done) return
+    // 포인터 캡처: 손가락/마우스가 요소 밖으로 나가도 move가 계속 잡힘(연속 드래그)
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      /* noop */
+    }
     setGrinding(true)
     last.current = { x: e.clientX, y: e.clientY }
+    setProgress((v) => Math.min(1, v + TAP_BUMP)) // 탭만 해도 조금씩 갈림
   }
-  const stop = () => {
+  const stop = (e: React.PointerEvent) => {
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+    } catch {
+      /* noop */
+    }
     setGrinding(false)
     last.current = null
   }
