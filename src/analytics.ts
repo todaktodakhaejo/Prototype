@@ -118,13 +118,15 @@ function appendRound(round: RoundSummary) {
 function sendRound(round: RoundSummary) {
   if (!ENDPOINT) return
   const body = JSON.stringify(round)
+  // text/plain = CORS 안전목록 타입 → 교차출처 POST가 프리플라이트 없이 전송됨
+  // (구글 Apps Script 웹앱 등 doPost 엔드포인트로 바로 적재 가능). 본문은 JSON 문자열.
   try {
     if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
-      navigator.sendBeacon(ENDPOINT, new Blob([body], { type: 'application/json' }))
+      navigator.sendBeacon(ENDPOINT, new Blob([body], { type: 'text/plain;charset=UTF-8' }))
     } else {
       void fetch(ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
         body,
         keepalive: true,
       }).catch(() => {})
