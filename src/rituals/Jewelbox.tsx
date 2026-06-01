@@ -170,76 +170,79 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
         </motion.div>
       )}
 
-      {/* store 단계: 보석이 나타나(접힘 완성) 함 속으로 쏙 들어감 */}
+      {/* store 단계: 보석이 나타나(접힘 완성) 함 속으로 들어가고, 그 뒤 뚜껑이 닫힌다.
+          (뚜껑을 fold 단계엔 렌더하지 않아 접히는 종이를 가리지 않음) */}
       {phase === 'store' && (
-        <motion.div
-          style={{ position: 'absolute', left: '50%', top: 12, marginLeft: -43, zIndex: 4, pointerEvents: 'none' }}
-          initial={{ y: 0, scale: 0.5, opacity: 0, rotate: -6 }}
-          animate={{ y: [0, 0, 150, 168], scale: [0.5, 1, 0.5, 0.16], opacity: [0, 1, 1, 0], rotate: [-6, 0, 0, 0] }}
-          transition={{ duration: 1.0, times: [0, 0.26, 0.85, 1], ease: 'easeIn' }}
-        >
-          <Gem />
-        </motion.div>
-      )}
+        <>
+          <motion.div
+            style={{ position: 'absolute', left: '50%', top: 12, marginLeft: -43, zIndex: 4, pointerEvents: 'none' }}
+            initial={{ y: 0, scale: 0.5, opacity: 0, rotate: -6 }}
+            animate={{ y: [0, 0, 150, 168], scale: [0.5, 1, 0.5, 0.16], opacity: [0, 1, 1, 0], rotate: [-6, 0, 0, 0] }}
+            transition={{ duration: 1.0, times: [0, 0.26, 0.85, 1], ease: 'easeIn' }}
+          >
+            <Gem />
+          </motion.div>
 
-      {/* 뚜껑 — 보석이 담긴 뒤 위에서 내려와 닫힘 */}
-      <motion.div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          bottom: 118,
-          width: 168,
-          height: 60,
-          marginLeft: -84,
-          zIndex: 5,
-          borderRadius: '16px 16px 6px 6px',
-          background: PINK_LID,
-          boxShadow:
-            '0 -2px 12px rgba(231,201,122,0.3), inset 0 3px 0 rgba(255,255,255,0.7), inset -8px -8px 18px rgba(176,80,110,0.3)',
-          transformOrigin: '50% 100%',
-          overflow: 'hidden',
-        }}
-        initial={{ y: -58, rotate: -24, opacity: 1 }}
-        animate={{ y: [-58, -58, 0], rotate: [-24, -24, 0] }}
-        transition={{ duration: 0.55, delay: F + 0.9, times: [0, 0.2, 1], ease: 'easeIn' }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            left: 14,
-            top: 8,
-            width: 90,
-            height: 16,
-            borderRadius: '50%',
-            background: 'radial-gradient(ellipse at 40% 40%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 70%)',
-            filter: 'blur(1px)',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            left: 8,
-            right: 8,
-            bottom: 2,
-            height: 5,
-            borderRadius: 3,
-            background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 55%, #c9a24f 100%)`,
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            left: '50%',
-            bottom: -4,
-            marginLeft: -5,
-            width: 10,
-            height: 12,
-            borderRadius: '3px 3px 5px 5px',
-            background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 60%, #b8923f 100%)`,
-            boxShadow: '0 2px 4px rgba(0,0,0,0.25)',
-          }}
-        />
-      </motion.div>
+          {/* 뚜껑 — 보석이 담긴 뒤 위에서 내려와 닫힘 */}
+          <motion.div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              bottom: 118,
+              width: 168,
+              height: 60,
+              marginLeft: -84,
+              zIndex: 5,
+              borderRadius: '16px 16px 6px 6px',
+              background: PINK_LID,
+              boxShadow:
+                '0 -2px 12px rgba(231,201,122,0.3), inset 0 3px 0 rgba(255,255,255,0.7), inset -8px -8px 18px rgba(176,80,110,0.3)',
+              transformOrigin: '50% 100%',
+              overflow: 'hidden',
+            }}
+            initial={{ y: -58, rotate: -24, opacity: 0 }}
+            animate={{ y: [-58, -58, 0], rotate: [-24, -24, 0], opacity: [0, 1, 1] }}
+            transition={{ duration: 0.55, delay: 0.9, times: [0, 0.2, 1], ease: 'easeIn' }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                left: 14,
+                top: 8,
+                width: 90,
+                height: 16,
+                borderRadius: '50%',
+                background: 'radial-gradient(ellipse at 40% 40%, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0) 70%)',
+                filter: 'blur(1px)',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                left: 8,
+                right: 8,
+                bottom: 2,
+                height: 5,
+                borderRadius: 3,
+                background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 55%, #c9a24f 100%)`,
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                left: '50%',
+                bottom: -4,
+                marginLeft: -5,
+                width: 10,
+                height: 12,
+                borderRadius: '3px 3px 5px 5px',
+                background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 60%, #b8923f 100%)`,
+                boxShadow: '0 2px 4px rgba(0,0,0,0.25)',
+              }}
+            />
+          </motion.div>
+        </>
+      )}
 
       {/* 마무리 멘트 */}
       <motion.p
