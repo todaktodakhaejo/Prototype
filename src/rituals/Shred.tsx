@@ -7,7 +7,7 @@ const COLORS = ['#f4b8c7', '#d8b15a', '#fbf7f4', '#c9a7e0', '#9ad0d8']
 // 파쇄기:
 //  STEP1 종이가 파쇄기 위에 → STEP2 종이가 투입구로 빨려 들어가며 파쇄기가 갈림(진동)
 //  STEP3 파쇄된 종이 조각이 투입구에서 폭죽처럼 사방으로 터짐
-export default function Shred({ onDone }: RitualProps) {
+export default function Shred({ text, onDone }: RitualProps) {
   return (
     <div style={{ position: 'relative', width: 240, height: 280 }}>
       {/* 종이(글) — 투입구로 내려가며 파쇄기 뒤로 사라짐 */}
@@ -36,7 +36,9 @@ export default function Shred({ onDone }: RitualProps) {
         initial={{ y: 0, opacity: 1 }}
         animate={{ y: [0, 120, 150], opacity: [1, 1, 0] }}
         transition={{ duration: 1.2, times: [0, 0.7, 1], ease: 'easeIn' }}
-      />
+      >
+        {text}
+      </motion.div>
 
       {/* 파쇄기 본체 — 종이가 들어갈 때 진동 */}
       <motion.div

@@ -70,15 +70,16 @@ export default function Plane({ text, onDone }: RitualProps) {
           justifyContent: 'center',
           pointerEvents: 'none',
         }}
-        initial={{ x: 0, y: 0, rotate: 0, scale: 1, opacity: 0 }}
+        // 종이가 다 접힐 때(t≈0.4)까지 숨어 있다가, 그 자리에서 비행기로 나타나 날아간다 (겹침 방지)
+        initial={{ x: 0, y: 0, rotate: 0, scale: 0.92, opacity: 0 }}
         animate={{
-          x: [0, 0, 44, 150, 300],
-          y: [0, 0, -52, -150, -286],
-          rotate: [0, -8, -16, -20, -24],
-          scale: [0.9, 0.95, 0.72, 0.46, 0.22],
-          opacity: [0, 1, 1, 1, 0],
+          x: [0, 0, 0, 150, 300],
+          y: [0, 0, 0, -150, -286],
+          rotate: [0, 0, 0, -16, -24],
+          scale: [0.92, 0.92, 0.98, 0.5, 0.22],
+          opacity: [0, 0, 1, 1, 0],
         }}
-        transition={{ duration: D, times: [0, 0.4, 0.58, 0.8, 1], ease: 'easeInOut' }}
+        transition={{ duration: D, times: [0, 0.4, 0.46, 0.8, 1], ease: 'easeInOut' }}
         onAnimationComplete={onDone}
       >
         <div style={{ position: 'relative' }}>
