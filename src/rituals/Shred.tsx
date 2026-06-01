@@ -1,45 +1,72 @@
-import { useEffect, useState } from 'react'
+import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { RitualProps } from './index'
 import { rotatingMessage, SHRED_MESSAGES } from '../constants'
 
-const TOTAL = 3.9 // 파쇄 + 폭죽 + 멘트 머무는 총 시간
-const CONFETTI = 30 // 폭죽 조각 수
+const CONFETTI = 30
+const COLORS = ['#f4b8c7', '#d8b15a', '#fbf7f4', '#c9a7e0', '#9ad0d8']
+const GRIND_DIST = 900 // 이만큼(px) 문질러야 다 갈림
 
-// 조각별로 제각각인 값(팝콘처럼)을 위한 결정적 의사난수 0~1
 const rnd = (n: number) => {
   const x = Math.sin(n * 12.9898) * 43758.5453
   return x - Math.floor(x)
 }
-const COLORS = ['#f4b8c7', '#d8b15a', '#fbf7f4', '#c9a7e0', '#9ad0d8']
 
-// 파쇄기:
-//  STEP1 종이가 파쇄기 위에 → STEP2 종이가 투입구로 빨려 들어가며 파쇄기가 갈림(진동)
-//  STEP3 파쇄된 종이 조각이 투입구에서 폭죽처럼 사방으로 터짐
+// 파쇄기 — 사용자가 손가락을 좌우로 '마구 문질러' 종이를 갈아 넣는다(직접 행위).
+//  세게/많이 문지를수록 본체가 격하게 떨리고 종이가 빨려 들어간다. 다 갈리면 팝콘처럼 터짐.
 export default function Shred({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('shred', SHRED_MESSAGES))
-  useEffect(() => {
-    const t = setTimeout(onDone, TOTAL * 1000)
-    return () => clearTimeout(t)
-  }, [onDone])
+  const [progress, setProgress] = useState(0)
+  const [grinding, setGrinding] = useState(false)
+  const [done, setDone] = useState(false)
+  const last = useRef<{ x: number; y: number } | null>(null)
+
+  const finish = () => {
+    setDone(true)
+    setGrinding(false)
+    setTimeout(onDone, 2700)
+  }
+
+  const onMove = (e: React.PointerEvent) => {
+    if (!grinding || done) return
+    const p = { x: e.clientX, y: e.clientY }
+    if (last.current) {
+      const d = Math.abs(p.x - last.current.x) + Math.abs(p.y - last.current.y)
+      setProgress((v) => {
+        const nv = Math.min(1, v + d / GRIND_DIST)
+        if (nv >= 1) finish()
+        return nv
+      })
+    }
+    last.current = p
+  }
+
+  const start = (e: React.PointerEvent) => {
+    if (done) return
+    setGrinding(true)
+    last.current = { x: e.clientX, y: e.clientY }
+  }
+  const stop = () => {
+    setGrinding(false)
+    last.current = null
+  }
+
+  const fed = progress * 150 // 종이가 슬롯으로 들어간 정도(px)
 
   return (
-    <div style={{ position: 'relative', width: 240, height: 280 }}>
-      {/* 종이(글) 투입 — 슬롯 높이(140)에서 클립. 내려갈수록 투입구로 빨려 들어가 사라지고,
-          파쇄기 아래로는 빠져나오지 않는다. */}
+    <div
+      style={{ position: 'relative', width: 240, height: 280, touchAction: 'none', cursor: done ? 'default' : 'grab' }}
+      onPointerDown={start}
+      onPointerMove={onMove}
+      onPointerUp={stop}
+      onPointerLeave={stop}
+      onPointerCancel={stop}
+    >
+      {/* 종이(글) — 슬롯 높이에서 클립. 문지른 만큼 투입구로 빨려 들어감 */}
       <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          height: 140,
-          overflow: 'hidden',
-          zIndex: 1,
-          pointerEvents: 'none',
-        }}
+        style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 140, overflow: 'hidden', zIndex: 1, pointerEvents: 'none' }}
       >
-        <motion.div
+        <div
           style={{
             position: 'absolute',
             left: '50%',
@@ -59,16 +86,14 @@ export default function Shred({ text, onDone }: RitualProps) {
             overflow: 'hidden',
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-word',
+            transform: `translateY(${fed}px)`,
           }}
-          initial={{ y: 0 }}
-          animate={{ y: [0, 150] }}
-          transition={{ duration: 1.0, delay: 0.15, ease: 'easeIn' }}
         >
           {text}
-        </motion.div>
+        </div>
       </div>
 
-      {/* 파쇄기 본체 — 종이가 들어갈 때 진동 */}
+      {/* 파쇄기 본체 — 가는 동안 격하게 흔들림 */}
       <motion.div
         style={{
           position: 'absolute',
@@ -83,14 +108,13 @@ export default function Shred({ text, onDone }: RitualProps) {
           border: '1px solid rgba(255,255,255,0.12)',
           boxShadow: '0 16px 30px rgba(0,0,0,0.35)',
         }}
-        initial={{ x: 0, rotate: 0 }}
-        animate={{
-          x: [0, -8, 8, -9, 9, -7, 8, -6, 5, -3, 0],
-          rotate: [0, -1.6, 1.6, -1.6, 1.4, -1.2, 1, 0],
-        }}
-        transition={{ duration: 0.85, delay: 0.6, ease: 'linear' }}
+        animate={
+          grinding
+            ? { x: [0, -8, 8, -9, 9, -7, 7, -4, 0], rotate: [0, -1.6, 1.6, -1.4, 1.2, -1, 0] }
+            : { x: 0, rotate: 0 }
+        }
+        transition={grinding ? { duration: 0.38, repeat: Infinity, ease: 'linear' } : { duration: 0.15 }}
       >
-        {/* 투입구 (어두운 슬롯) */}
         <div
           style={{
             position: 'absolute',
@@ -104,7 +128,6 @@ export default function Shred({ text, onDone }: RitualProps) {
             boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.6)',
           }}
         />
-        {/* 작은 작동 표시등 */}
         <div
           style={{
             position: 'absolute',
@@ -113,50 +136,50 @@ export default function Shred({ text, onDone }: RitualProps) {
             width: 8,
             height: 8,
             borderRadius: '50%',
-            background: '#7ee0a0',
-            boxShadow: '0 0 8px 2px rgba(126,224,160,0.7)',
+            background: grinding ? '#ffd24d' : '#7ee0a0',
+            boxShadow: grinding ? '0 0 10px 3px rgba(255,200,80,0.9)' : '0 0 8px 2px rgba(126,224,160,0.7)',
           }}
         />
       </motion.div>
 
-      {/* 폭죽 — 투입구에서 파쇄 조각이 사방으로 터짐 */}
-      {Array.from({ length: CONFETTI }).map((_, i) => {
-        // 팝콘처럼: 제각각 시점에 위로 톡 튀어올라(up) 좌우로 흩어지며(sx) 포물선으로 떨어짐(fall)
-        const sx = (rnd(i) - 0.5) * 200 // 좌우 흩뿌림 -100~100
-        const up = 120 + rnd(i + 7) * 140 // 튀어오르는 높이 120~260
-        const fall = 80 + rnd(i + 13) * 90 // 떨어지는 깊이 80~170
-        const dly = 1.0 + rnd(i + 3) * 0.8 // 터지는 시점 제각각(팝-팝-팝)
-        const dur = 1.1 + rnd(i + 5) * 0.5
-        const spin = (rnd(i + 9) < 0.5 ? -1 : 1) * (300 + rnd(i + 11) * 280)
-        return (
-          <motion.span
-            key={i}
-            style={{
-              position: 'absolute',
-              left: '50%',
-              bottom: 142, // 투입구 부근
-              width: 6,
-              height: 15,
-              marginLeft: -3,
-              borderRadius: 2,
-              background: COLORS[i % COLORS.length],
-              zIndex: 3,
-            }}
-            initial={{ x: 0, y: 0, opacity: 0, rotate: 0, scale: 0.5 }}
-            animate={{
-              x: [0, sx * 0.5, sx * 0.85, sx],
-              y: [0, -up, -up * 0.25, fall], // 톡 튀어올랐다가(peak) 포물선으로 떨어짐
-              opacity: [0, 1, 1, 0],
-              rotate: [0, spin * 0.4, spin * 0.8, spin], // 텀블링
-              scale: [0.5, 1.15, 1, 0.85],
-            }}
-            transition={{ duration: dur, delay: dly, times: [0, 0.32, 0.66, 1], ease: 'easeOut' }}
-          />
-        )
-      })}
+      {/* 폭죽 — 다 갈리면 팝콘처럼 터짐 */}
+      {done &&
+        Array.from({ length: CONFETTI }).map((_, i) => {
+          const sx = (rnd(i) - 0.5) * 200
+          const up = 120 + rnd(i + 7) * 140
+          const fall = 80 + rnd(i + 13) * 90
+          const dly = rnd(i + 3) * 0.7
+          const dur = 1.1 + rnd(i + 5) * 0.5
+          const spin = (rnd(i + 9) < 0.5 ? -1 : 1) * (300 + rnd(i + 11) * 280)
+          return (
+            <motion.span
+              key={i}
+              style={{
+                position: 'absolute',
+                left: '50%',
+                bottom: 142,
+                width: 6,
+                height: 15,
+                marginLeft: -3,
+                borderRadius: 2,
+                background: COLORS[i % COLORS.length],
+                zIndex: 3,
+              }}
+              initial={{ x: 0, y: 0, opacity: 0, rotate: 0, scale: 0.5 }}
+              animate={{
+                x: [0, sx * 0.5, sx * 0.85, sx],
+                y: [0, -up, -up * 0.25, fall],
+                opacity: [0, 1, 1, 0],
+                rotate: [0, spin * 0.4, spin * 0.8, spin],
+                scale: [0.5, 1.15, 1, 0.85],
+              }}
+              transition={{ duration: dur, delay: dly, times: [0, 0.32, 0.66, 1], ease: 'easeOut' }}
+            />
+          )
+        })}
 
-      {/* 마무리 멘트 — 폭죽과 함께 */}
-      <motion.p
+      {/* 안내 / 마무리 멘트 */}
+      <p
         className="serif"
         style={{
           position: 'absolute',
@@ -165,15 +188,13 @@ export default function Shred({ text, onDone }: RitualProps) {
           bottom: 12,
           textAlign: 'center',
           color: 'var(--on-bg)',
-          fontSize: 16,
-          whiteSpace: 'pre-line',
+          fontSize: done ? 16 : 14,
+          opacity: 0.85,
+          pointerEvents: 'none',
         }}
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: [0, 1], y: [6, 0] }}
-        transition={{ duration: 0.7, delay: 1.9, ease: 'easeOut' }}
       >
-        {msg}
-      </motion.p>
+        {done ? msg : progress > 0.02 ? '더 세게 문질러요' : '좌우로 마구 문질러 갈아요'}
+      </p>
     </div>
   )
 }

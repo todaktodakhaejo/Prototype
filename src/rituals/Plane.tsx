@@ -1,29 +1,32 @@
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { motion, type PanInfo } from 'framer-motion'
 import type { RitualProps } from './index'
 import { rotatingMessage, PLANE_MESSAGES } from '../constants'
 
-const FOLD_MS = 1200 // 종이가 접혀 사라지는 시간
-const FLY = 2.6 // 비행기가 형태를 갖춰 날아가는 시간(초)
 const MOTES = 6
+const FLICK = 450 // 이 속도(px/s) 이상으로 튕겨야 날아감
 
-// 날리기 — 'fold' 단계(종이 접힘)와 'fly' 단계(비행기 비행)를 state로 분리한다.
-//  종이는 fly 단계가 되면 DOM에서 완전히 제거되므로, 비행 중 직사각형 종이가 남지 않는다.
+// 날리기 — 사용자가 종이를 잡고 '휙 던지면(플릭)' 그 방향·세기로 날아간다(직접 행위).
 export default function Plane({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('plane', PLANE_MESSAGES))
-  const [phase, setPhase] = useState<'fold' | 'fly'>('fold')
+  const [flying, setFlying] = useState(false)
+  const [dir, setDir] = useState({ x: 0.6, y: -1 })
 
-  useEffect(() => {
-    const t1 = setTimeout(() => setPhase('fly'), FOLD_MS) // 접힘 끝 → 종이 언마운트, 비행기 등장
-    const t2 = setTimeout(onDone, FOLD_MS + FLY * 1000 + 300)
-    return () => {
-      clearTimeout(t1)
-      clearTimeout(t2)
+  const onDragEnd = (_e: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
+    const vx = info.velocity.x
+    const vy = info.velocity.y
+    const speed = Math.hypot(vx, vy)
+    if (speed > FLICK && !flying) {
+      const m = speed || 1
+      setDir({ x: vx / m, y: Math.min(vy / m, -0.35) }) // 항상 살짝 위로 날아가게
+      setFlying(true)
+      setTimeout(onDone, 2600)
     }
-  }, [onDone])
+    // 약하게 놓으면 dragSnapToOrigin으로 제자리 복귀 → 다시 시도
+  }
 
   return (
-    <div style={{ position: 'relative', width: 240, height: 320 }}>
+    <div style={{ position: 'relative', width: 240, height: 320, touchAction: 'none' }}>
       {/* 떠다니는 빛 입자 */}
       {Array.from({ length: MOTES }).map((_, i) => {
         const left = 18 + ((i * 47) % 200)
@@ -49,9 +52,14 @@ export default function Plane({ text, onDone }: RitualProps) {
         )
       })}
 
-      {/* fold 단계: 종이(글)가 한 점으로 접혀 사라짐. fly 단계가 되면 이 노드는 사라짐(언마운트). */}
-      {phase === 'fold' && (
+      {/* ready: 종이(글)를 잡고 휙 던질 수 있음 */}
+      {!flying && (
         <motion.div
+          drag
+          dragSnapToOrigin
+          dragElastic={0.6}
+          onDragEnd={onDragEnd}
+          whileDrag={{ scale: 1.04, cursor: 'grabbing' }}
           style={{
             position: 'absolute',
             inset: 0,
@@ -66,41 +74,30 @@ export default function Plane({ text, onDone }: RitualProps) {
             textAlign: 'left',
             whiteSpace: 'pre-wrap',
             overflow: 'hidden',
-            transformOrigin: 'center',
+            cursor: 'grab',
+            touchAction: 'none',
           }}
-          initial={{ scaleX: 1, scaleY: 1, rotate: 0, opacity: 1 }}
-          animate={{ scaleX: [1, 0.5, 0.12], scaleY: [1, 0.74, 0.4], rotate: [0, -5, -10], opacity: [1, 1, 0.2] }}
-          transition={{ duration: FOLD_MS / 1000, times: [0, 0.55, 1], ease: 'easeInOut' }}
         >
           {text}
         </motion.div>
       )}
 
-      {/* fly 단계: 종이가 사라진 자리에서 비행기 형태로 펼쳐져 날아감 (종이는 이미 언마운트됨) */}
-      {phase === 'fly' && (
+      {/* flying: 던진 방향·세기로 날아감 */}
+      {flying && (
         <>
           <motion.div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              pointerEvents: 'none',
-            }}
-            initial={{ x: 0, y: 0, rotate: 0, scaleX: 0.45, scaleY: 0.26, opacity: 0 }}
+            style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}
+            initial={{ x: 0, y: 0, scale: 0.55, opacity: 0, rotate: 0 }}
             animate={{
-              opacity: [0, 1, 1, 0],
-              scaleX: [0.45, 1, 0.6, 0.26], // 접힌 사리 → 가로로 펼쳐지며 비행기 형태
-              scaleY: [0.26, 1, 0.6, 0.26],
-              x: [0, 0, 150, 300],
-              y: [0, 0, -150, -286],
-              rotate: [0, -6, -16, -24],
+              x: [0, dir.x * 110, dir.x * 620],
+              y: [0, dir.y * 110, dir.y * 600],
+              scale: [0.55, 1, 0.18],
+              opacity: [0, 1, 0],
+              rotate: [0, dir.x * 18, dir.x * 26],
             }}
-            transition={{ duration: FLY, times: [0, 0.18, 0.7, 1], ease: 'easeInOut' }}
+            transition={{ duration: 1.7, times: [0, 0.22, 1], ease: 'easeOut' }}
           >
             <div style={{ position: 'relative' }}>
-              {/* 후광 */}
               <div
                 style={{
                   position: 'absolute',
@@ -113,7 +110,6 @@ export default function Plane({ text, onDone }: RitualProps) {
                   background: 'radial-gradient(circle, rgba(255,236,180,0.5) 0%, rgba(255,236,180,0) 70%)',
                 }}
               />
-              {/* 빛 꼬리 */}
               <div
                 style={{
                   position: 'absolute',
@@ -129,35 +125,16 @@ export default function Plane({ text, onDone }: RitualProps) {
                   filter: 'blur(2px)',
                 }}
               />
-              {/* 종이비행기 */}
               <svg width={120} height={90} viewBox="0 0 120 90" aria-hidden style={{ position: 'relative' }}>
                 <polygon points="10,82 112,8 60,56" fill="#ffffff" />
                 <polygon points="112,8 60,56 80,82" fill="#efe7dd" />
               </svg>
             </div>
           </motion.div>
-
-          {/* 사라지는 자리의 반짝임 */}
-          <motion.div
-            style={{
-              position: 'absolute',
-              right: -20,
-              top: 10,
-              width: 16,
-              height: 16,
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, #fff 0%, rgba(255,236,180,0) 70%)',
-              boxShadow: '0 0 16px 5px rgba(255,236,180,0.9)',
-              pointerEvents: 'none',
-            }}
-            initial={{ opacity: 0, scale: 0.4 }}
-            animate={{ opacity: [0, 1, 0], scale: [0.4, 1.3, 0.6] }}
-            transition={{ duration: FLY, times: [0.55, 0.75, 1], ease: 'easeOut' }}
-          />
         </>
       )}
 
-      {/* 마무리 멘트 — 비행기가 멀어지며 */}
+      {/* 안내 / 마무리 멘트 */}
       <motion.p
         className="serif"
         style={{
@@ -169,12 +146,13 @@ export default function Plane({ text, onDone }: RitualProps) {
           color: 'var(--on-bg)',
           fontSize: 16,
           whiteSpace: 'pre-line',
+          opacity: 0.85,
+          pointerEvents: 'none',
         }}
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: [0, 1], y: [6, 0] }}
-        transition={{ duration: 0.7, delay: FOLD_MS / 1000 + FLY * 0.4, ease: 'easeOut' }}
+        animate={{ opacity: flying ? [0, 1] : 0.85 }}
+        transition={{ duration: 0.7, delay: flying ? 0.9 : 0 }}
       >
-        {msg}
+        {flying ? msg : '종이를 잡고 휙 던져 보내세요'}
       </motion.p>
     </div>
   )

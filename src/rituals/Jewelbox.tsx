@@ -1,54 +1,47 @@
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { motion, type PanInfo } from 'framer-motion'
 import type { RitualProps } from './index'
 import { rotatingMessage, JEWELBOX_MESSAGES } from '../constants'
 
-const FOLD_MS = 1100 // 종이가 보석 모양으로 접히는 시간
-const TOTAL = 4100 // 전체(접기 + 담기 + 뚜껑 + 빛 + 멘트)
 const PARTICLES = 12
 const GOLD = '#e7c97a'
 const PINK_LID = 'linear-gradient(160deg, #fcd9e3 0%, #f4b9c8 52%, #e89cb0 100%)'
 const PINK_BODY = 'linear-gradient(165deg, #f6c2d1 0%, #ecabbd 58%, #df93a8 100%)'
 const BLUSH = 'linear-gradient(180deg, #fff5f7 0%, #f6dde4 100%)'
+const DROP = 110 // 이만큼 아래로 끌어내리면 함에 담김
 
-// 면이 진 로즈 보석(다이아) — 종이가 이 모양으로 접힌다.
 function Gem({ size = 86 }: { size?: number }) {
   return (
     <svg width={size} height={(size * 96) / 88} viewBox="0 0 88 96" aria-hidden>
       <g stroke="rgba(150,80,110,0.4)" strokeWidth={0.8} strokeLinejoin="round">
-        {/* 크라운(윗면) */}
         <polygon points="30,10 58,10 48,38 40,38" fill="#f8d6e0" />
         <polygon points="30,10 40,38 6,38" fill="#edb0c2" />
         <polygon points="58,10 48,38 82,38" fill="#edb0c2" />
-        {/* 퍼빌리언(아래 뾰족) */}
         <polygon points="6,38 40,38 44,92" fill="#cf86a0" />
         <polygon points="40,38 48,38 44,92" fill="#e6a0b6" />
         <polygon points="48,38 82,38 44,92" fill="#cf86a0" />
-        {/* 윗면 광택 */}
         <polygon points="30,10 40,38 25,30" fill="rgba(255,255,255,0.45)" stroke="none" />
       </g>
     </svg>
   )
 }
 
-// 보석함 — 종이를 보석 모양으로 접어(fold), 함에 담고(store), 뚜껑을 닫아 간직한다.
+// 보석함 — 사용자가 종이를 '보석함으로 끌어내리면' 보석으로 접혀 담기고 뚜껑이 닫힌다(직접 행위).
 export default function Jewelbox({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('jewelbox', JEWELBOX_MESSAGES))
-  const [phase, setPhase] = useState<'fold' | 'store'>('fold')
-  const F = FOLD_MS / 1000
+  const [stored, setStored] = useState(false)
 
-  useEffect(() => {
-    const t1 = setTimeout(() => setPhase('store'), FOLD_MS) // 접힘 끝 → 종이 언마운트, 보석 등장
-    const t2 = setTimeout(onDone, TOTAL)
-    return () => {
-      clearTimeout(t1)
-      clearTimeout(t2)
+  const onDragEnd = (_e: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
+    if (info.offset.y > DROP && !stored) {
+      setStored(true)
+      setTimeout(onDone, 2600)
     }
-  }, [onDone])
+    // 덜 내리고 놓으면 dragSnapToOrigin으로 복귀 → 다시 시도
+  }
 
   return (
-    <div style={{ position: 'relative', width: 240, height: 300 }}>
-      {/* 후광 — 담긴 뒤 보석함 뒤에서 퍼짐 */}
+    <div style={{ position: 'relative', width: 240, height: 300, touchAction: 'none' }}>
+      {/* 후광 */}
       <motion.div
         style={{
           position: 'absolute',
@@ -64,36 +57,37 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           pointerEvents: 'none',
         }}
         initial={{ opacity: 0, scale: 0.3 }}
-        animate={{ opacity: [0, 0.9, 0], scale: [0.3, 1.1, 1.45] }}
-        transition={{ duration: 1.2, delay: F + 1.5, ease: 'easeOut' }}
+        animate={stored ? { opacity: [0, 0.9, 0], scale: [0.3, 1.1, 1.45] } : {}}
+        transition={{ duration: 1.2, delay: 1.2, ease: 'easeOut' }}
       />
 
       {/* 빛 입자 */}
-      {Array.from({ length: PARTICLES }).map((_, i) => {
-        const angle = (i / PARTICLES) * Math.PI * 2
-        const dist = 92 + (i % 3) * 16
-        return (
-          <motion.span
-            key={i}
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: '58%',
-              width: 6,
-              height: 6,
-              marginLeft: -3,
-              marginTop: -3,
-              borderRadius: '50%',
-              background: 'rgba(255,250,235,0.95)',
-              boxShadow: '0 0 9px 2px rgba(231,201,122,0.8)',
-              pointerEvents: 'none',
-            }}
-            initial={{ x: 0, y: 0, opacity: 0, scale: 0.4 }}
-            animate={{ x: Math.cos(angle) * dist, y: Math.sin(angle) * dist, opacity: [0, 1, 0], scale: [0.4, 1, 0.6] }}
-            transition={{ duration: 1.3, delay: F + 1.55, ease: 'easeOut' }}
-          />
-        )
-      })}
+      {stored &&
+        Array.from({ length: PARTICLES }).map((_, i) => {
+          const angle = (i / PARTICLES) * Math.PI * 2
+          const dist = 92 + (i % 3) * 16
+          return (
+            <motion.span
+              key={i}
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '58%',
+                width: 6,
+                height: 6,
+                marginLeft: -3,
+                marginTop: -3,
+                borderRadius: '50%',
+                background: 'rgba(255,250,235,0.95)',
+                boxShadow: '0 0 9px 2px rgba(231,201,122,0.8)',
+                pointerEvents: 'none',
+              }}
+              initial={{ x: 0, y: 0, opacity: 0, scale: 0.4 }}
+              animate={{ x: Math.cos(angle) * dist, y: Math.sin(angle) * dist, opacity: [0, 1, 0], scale: [0.4, 1, 0.6] }}
+              transition={{ duration: 1.3, delay: 1.25, ease: 'easeOut' }}
+            />
+          )
+        })}
 
       {/* 보석함 본체 */}
       <div
@@ -137,9 +131,14 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
         />
       </div>
 
-      {/* fold 단계: 종이(글)가 접히며 보석 모양으로 모임 → store 단계가 되면 언마운트 */}
-      {phase === 'fold' && (
+      {/* ready: 종이(글)를 잡고 보석함으로 끌어내림 (끌수록 작게 접힘) */}
+      {!stored && (
         <motion.div
+          drag
+          dragSnapToOrigin
+          dragElastic={0.5}
+          onDragEnd={onDragEnd}
+          whileDrag={{ scale: 0.78, cursor: 'grabbing' }}
           style={{
             position: 'absolute',
             left: '50%',
@@ -160,30 +159,27 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
             overflow: 'hidden',
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-word',
-            transformOrigin: 'center',
+            cursor: 'grab',
+            touchAction: 'none',
           }}
-          initial={{ scaleX: 1, scaleY: 1, rotate: 0, opacity: 1 }}
-          animate={{ scaleX: [1, 0.62, 0.5], scaleY: [1, 0.86, 0.96], rotate: [0, 6, 0], opacity: [1, 1, 0.15] }}
-          transition={{ duration: F, times: [0, 0.6, 1], ease: 'easeInOut' }}
         >
           {text}
         </motion.div>
       )}
 
-      {/* store 단계: 보석이 나타나(접힘 완성) 함 속으로 들어가고, 그 뒤 뚜껑이 닫힌다.
-          (뚜껑을 fold 단계엔 렌더하지 않아 접히는 종이를 가리지 않음) */}
-      {phase === 'store' && (
+      {/* stored: 보석으로 접혀 함 속으로 들어가고 뚜껑이 닫힘 */}
+      {stored && (
         <>
           <motion.div
             style={{ position: 'absolute', left: '50%', top: 12, marginLeft: -43, zIndex: 4, pointerEvents: 'none' }}
-            initial={{ y: 0, scale: 0.5, opacity: 0, rotate: -6 }}
-            animate={{ y: [0, 0, 150, 168], scale: [0.5, 1, 0.5, 0.16], opacity: [0, 1, 1, 0], rotate: [-6, 0, 0, 0] }}
-            transition={{ duration: 1.0, times: [0, 0.26, 0.85, 1], ease: 'easeIn' }}
+            initial={{ y: 0, scale: 0.7, opacity: 1, rotate: -4 }}
+            animate={{ y: [0, 150, 168], scale: [0.7, 0.5, 0.16], opacity: [1, 1, 0], rotate: [-4, 0, 0] }}
+            transition={{ duration: 0.7, times: [0, 0.75, 1], ease: 'easeIn' }}
           >
             <Gem />
           </motion.div>
 
-          {/* 뚜껑 — 보석이 담긴 뒤 위에서 내려와 닫힘 */}
+          {/* 뚜껑 */}
           <motion.div
             style={{
               position: 'absolute',
@@ -202,7 +198,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
             }}
             initial={{ y: -58, rotate: -24, opacity: 0 }}
             animate={{ y: [-58, -58, 0], rotate: [-24, -24, 0], opacity: [0, 1, 1] }}
-            transition={{ duration: 0.55, delay: 0.9, times: [0, 0.2, 1], ease: 'easeIn' }}
+            transition={{ duration: 0.55, delay: 0.6, times: [0, 0.2, 1], ease: 'easeIn' }}
           >
             <div
               style={{
@@ -244,7 +240,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
         </>
       )}
 
-      {/* 마무리 멘트 */}
+      {/* 안내 / 마무리 멘트 */}
       <motion.p
         className="serif"
         style={{
@@ -256,12 +252,13 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           color: 'var(--on-bg)',
           fontSize: 16,
           whiteSpace: 'pre-line',
+          opacity: 0.85,
+          pointerEvents: 'none',
         }}
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: [0, 1], y: [6, 0] }}
-        transition={{ duration: 0.7, delay: F + 1.6, ease: 'easeOut' }}
+        animate={{ opacity: stored ? [0, 1] : 0.85 }}
+        transition={{ duration: 0.7, delay: stored ? 1.3 : 0 }}
       >
-        {msg}
+        {stored ? msg : '보석함으로 끌어내려 담아보세요'}
       </motion.p>
     </div>
   )
