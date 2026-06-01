@@ -12,11 +12,27 @@
  *    [배포] → 권한 승인 → "웹 앱 URL"(.../exec) 복사
  * 4) 프로토타입 폴더에 .env.local 만들고:  VITE_KPI_ENDPOINT=<복사한 URL>  → dev 서버 재시작
  *
+ * ── 어느 탭에 쌓이나 ────────────────────────────────────────
+ * 항상 SHEET_NAME(기본 'KPI') 탭에 기록한다. 탭 순서를 바꾸거나 앞에 새 시트를 끼워도 안전.
+ * 'KPI' 탭이 없으면 자동 생성한다. 기존에 쌓인 데이터를 계속 쓰려면 그 탭 이름을
+ * 'KPI'로 바꾸면 된다(탭 더블클릭 → 이름 변경).
+ *
  * ── 헤더 메모(설명) 입히기 ──────────────────────────────────
- * 이미 데이터(헤더 행)가 있는 시트라면, 편집기 상단 함수 목록에서 'applyHeaderNotes' 선택 →
- * [실행] 한 번 누르면 헤더 1행 각 셀에 설명 메모가 붙는다(셀에 마우스 올리면 보임).
- * (새 빈 시트는 첫 데이터가 들어올 때 자동으로 헤더+메모가 생성됨)
+ * 편집기 상단 함수 목록에서 'applyHeaderNotes' 선택 → [실행] 한 번 누르면 'KPI' 탭
+ * 헤더 1행 각 셀에 설명 메모가 붙는다(셀에 마우스 올리면 보임).
+ * (데이터가 처음 들어올 때도 자동으로 헤더+메모가 생성됨)
  */
+
+// 데이터가 쌓일 탭 이름. 탭(시트) 순서가 바뀌거나 앞에 새 시트를 끼워도 항상 이 탭에 기록한다.
+// (이 이름의 탭이 없으면 자동 생성) — 기존 데이터를 쓰려면 데이터 탭 이름을 이 값으로 바꾸면 됨.
+var SHEET_NAME = 'KPI';
+
+function getSheet_() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
+  return sheet;
+}
 
 var HEADERS = [
   '받은시각', 'uid', 'sessionId', 'roundIndex', 'roundType',
@@ -63,17 +79,16 @@ function ensureHeader_(sheet) {
   if (sheet.getLastRow() === 0) setHeaderNotes_(sheet);
 }
 
-// ▶ 기존 시트에 헤더 설명 메모를 입히고 싶을 때 편집기에서 직접 실행하는 함수
+// ▶ 헤더 설명 메모를 입히고 싶을 때 편집기에서 직접 실행하는 함수 (KPI 탭 대상)
 function applyHeaderNotes() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
-  setHeaderNotes_(sheet);
+  setHeaderNotes_(getSheet_());
 }
 
 function doPost(e) {
   var lock = LockService.getScriptLock();
   lock.waitLock(30000); // 동시 전송 시 행 꼬임 방지
   try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+    var sheet = getSheet_(); // 'KPI' 탭 (없으면 생성) — 탭 순서와 무관
     ensureHeader_(sheet); // 첫 행에 헤더 + 설명 메모
 
     var d = JSON.parse(e.postData.contents); // 본문은 JSON 문자열(text/plain로 전송됨)
