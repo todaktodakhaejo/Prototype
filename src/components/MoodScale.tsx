@@ -10,8 +10,7 @@ interface Props {
 // 0~MOOD_MAX 슬라이더(정수 스냅, 연속 밀기 X) — 밀어서 고르고 [확인]으로 제출.
 // 양 끝 캡션(0=마음이 가벼움 / 10=마음이 무거움)으로 '기분 좋다고 10 체크'하는 오인을 방지.
 export default function MoodScale({ title, onSubmit }: Props) {
-  const mid = Math.round(MOOD_MAX / 2)
-  const [value, setValue] = useState(mid)
+  const [value, setValue] = useState(0)
 
   return (
     <motion.div
@@ -20,7 +19,7 @@ export default function MoodScale({ title, onSubmit }: Props) {
       transition={{ duration: 0.6 }}
       style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22, width: '100%', maxWidth: 340 }}
     >
-      <p className="serif" style={{ color: 'var(--on-bg)', fontSize: 20, lineHeight: 1.5 }}>
+      <p className="serif" style={{ color: 'var(--on-bg)', fontSize: 21, lineHeight: 1.5, whiteSpace: 'nowrap' }}>
         {title}
       </p>
 
@@ -29,8 +28,9 @@ export default function MoodScale({ title, onSubmit }: Props) {
         {value}
       </div>
 
-      {/* 슬라이더 — step=1이라 0~10 정수에만 멈춤(연속 X) */}
+      {/* 슬라이더 — step=1이라 0~10 정수에만 멈춤(연속 X), 시작값 0 */}
       <input
+        className="mood-slider"
         type="range"
         min={0}
         max={MOOD_MAX}
@@ -38,7 +38,6 @@ export default function MoodScale({ title, onSubmit }: Props) {
         value={value}
         onChange={(e) => setValue(Number(e.target.value))}
         aria-label="기분 점수 (0~10)"
-        style={{ width: '100%', accentColor: 'var(--jelly-pink)', cursor: 'pointer' }}
       />
 
       {/* 양 끝 캡션 — 폴라리티 오인 방지 */}

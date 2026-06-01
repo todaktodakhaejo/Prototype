@@ -73,3 +73,49 @@ body {
   color: var(--ink-mute);
   font-size: 12px;
 }
+
+/* 기분 슬라이더 — 윤곽선 없이, 파인 홈(트랙) + 입체 젤리 구슬(thumb) */
+.mood-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 16px;
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(180deg, #cfc6dd 0%, #ece6f1 60%, #f4f0f7 100%);
+  box-shadow:
+    inset 0 3px 6px rgba(40, 28, 60, 0.35),
+    inset 0 -2px 0 rgba(255, 255, 255, 0.55);
+}
+.mood-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: radial-gradient(circle at 34% 28%, #ffffff 0%, var(--jelly-pink) 52%, #db8aa6 100%);
+  box-shadow:
+    0 6px 14px rgba(150, 70, 95, 0.45),
+    inset -4px -5px 9px rgba(176, 80, 110, 0.55),
+    inset 4px 4px 8px rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+}
+.mood-slider::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: radial-gradient(circle at 34% 28%, #ffffff 0%, var(--jelly-pink) 52%, #db8aa6 100%);
+  box-shadow:
+    0 6px 14px rgba(150, 70, 95, 0.45),
+    inset -4px -5px 9px rgba(176, 80, 110, 0.55),
+    inset 4px 4px 8px rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+}
+.mood-slider::-moz-range-track {
+  height: 16px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #cfc6dd 0%, #ece6f1 60%, #f4f0f7 100%);
+  box-shadow: inset 0 3px 6px rgba(40, 28, 60, 0.35);
+}
