@@ -20,7 +20,8 @@ const env = (import.meta as unknown as { env?: Record<string, string | undefined
 export const KPI_ENABLED = env.VITE_KPI_ENABLED !== 'false'
 const ENDPOINT = env.VITE_KPI_ENDPOINT
 
-export type RoundType = 'full' | 'ball_only' | 'abandoned'
+// full=의식 1개+ / write_only=글만 쓰고 의식 0 / ball_only=공놀이만 / abandoned=중간 이탈
+export type RoundType = 'full' | 'write_only' | 'ball_only' | 'abandoned'
 
 interface RitualStat {
   count: number
@@ -38,8 +39,10 @@ export interface RoundSummary {
   roundType: RoundType
   ballPlayActiveMs: number // (1) 공놀이 활성 시간 합 (idle 제외)
   ballPlayCount: number // 공놀이 상호작용(누름) 횟수
-  rituals: Record<string, RitualStat> // (2) 의식별 시간/횟수
-  ritualId: string | null // 이 라운드에서 완료한 의식 (full)
+  rituals: Record<string, RitualStat> // (2) 의식별 시간/횟수 (세션 내 여러 의식 누적)
+  ritualId: string | null // 마지막으로 완료한 의식
+  ritualCount: number // 세션 내 완료한 의식 총 횟수
+  ritualSequence: string[] // 의식을 한 순서 (예: ['burn','tear','jewelbox'])
   isTextWritten: boolean
   textLength: number
   moodPre: number | null // (+) 공놀이 전 기분
@@ -84,6 +87,7 @@ interface CurrentRound {
   ballPlayCount: number
   rituals: Record<string, RitualStat>
   ritualId: string | null
+  ritualSequence: string[]
   isTextWritten: boolean
   textLength: number
   moodPre: number | null
@@ -147,6 +151,7 @@ export function startRound() {
     ballPlayCount: 0,
     rituals: {},
     ritualId: null,
+    ritualSequence: [],
     isTextWritten: false,
     textLength: 0,
     moodPre: null,
@@ -194,17 +199,22 @@ export function ritualEnd(id: string) {
   stat.totalMs += ms
   current.rituals[id] = stat
   current.ritualId = id
+  current.ritualSequence.push(id)
   current.ritualStartTs = null
   current.ritualStartId = null
 }
 
-export function endRound(roundType: RoundType) {
-  if (!current) return
+// force를 주면 그 유형으로(예: 'abandoned'), 아니면 세션 내용으로 자동 판정.
+export function endRound(force?: RoundType): RoundSummary | null {
+  if (!current) return null
   const endedAt = Date.now()
+  const ritualCount = current.ritualSequence.length
   const moodDelta =
     current.moodPre !== null && current.moodPost !== null
       ? current.moodPre - current.moodPost
       : null
+  const roundType: RoundType =
+    force ?? (ritualCount > 0 ? 'full' : current.isTextWritten ? 'write_only' : 'ball_only')
   const summary: RoundSummary = {
     schema: 'heulim.kpi.round.v1',
     uid: UID,
@@ -218,6 +228,8 @@ export function endRound(roundType: RoundType) {
     ballPlayCount: current.ballPlayCount,
     rituals: current.rituals,
     ritualId: current.ritualId,
+    ritualCount,
+    ritualSequence: current.ritualSequence,
     isTextWritten: current.isTextWritten,
     textLength: current.textLength,
     moodPre: current.moodPre,
@@ -234,6 +246,7 @@ export function endRound(roundType: RoundType) {
   } catch {
     /* noop */
   }
+  return summary
 }
 
 // ── 디버그/회수용 (테스트 진행자가 콘솔에서 사용) ──
