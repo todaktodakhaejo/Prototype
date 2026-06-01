@@ -3,8 +3,14 @@ import { motion } from 'framer-motion'
 import type { RitualProps } from './index'
 import { rotatingMessage, SHRED_MESSAGES } from '../constants'
 
-const TOTAL = 3.4 // 파쇄 + 폭죽 + 멘트 머무는 총 시간
+const TOTAL = 3.9 // 파쇄 + 폭죽 + 멘트 머무는 총 시간
 const CONFETTI = 30 // 폭죽 조각 수
+
+// 조각별로 제각각인 값(팝콘처럼)을 위한 결정적 의사난수 0~1
+const rnd = (n: number) => {
+  const x = Math.sin(n * 12.9898) * 43758.5453
+  return x - Math.floor(x)
+}
 const COLORS = ['#f4b8c7', '#d8b15a', '#fbf7f4', '#c9a7e0', '#9ad0d8']
 
 // 파쇄기:
@@ -102,10 +108,13 @@ export default function Shred({ text, onDone }: RitualProps) {
 
       {/* 폭죽 — 투입구에서 파쇄 조각이 사방으로 터짐 */}
       {Array.from({ length: CONFETTI }).map((_, i) => {
-        const angle = (i / CONFETTI) * Math.PI * 2 + (i % 2 ? 0.18 : -0.18)
-        const dist = 138 + (i % 5) * 26
-        const dx = Math.cos(angle) * dist
-        const dy = Math.sin(angle) * dist - 54 // 위로 솟구치는 폭죽 느낌
+        // 팝콘처럼: 제각각 시점에 위로 톡 튀어올라(up) 좌우로 흩어지며(sx) 포물선으로 떨어짐(fall)
+        const sx = (rnd(i) - 0.5) * 200 // 좌우 흩뿌림 -100~100
+        const up = 120 + rnd(i + 7) * 140 // 튀어오르는 높이 120~260
+        const fall = 80 + rnd(i + 13) * 90 // 떨어지는 깊이 80~170
+        const dly = 1.0 + rnd(i + 3) * 0.8 // 터지는 시점 제각각(팝-팝-팝)
+        const dur = 1.1 + rnd(i + 5) * 0.5
+        const spin = (rnd(i + 9) < 0.5 ? -1 : 1) * (300 + rnd(i + 11) * 280)
         return (
           <motion.span
             key={i}
@@ -120,15 +129,15 @@ export default function Shred({ text, onDone }: RitualProps) {
               background: COLORS[i % COLORS.length],
               zIndex: 3,
             }}
-            initial={{ x: 0, y: 0, opacity: 0, rotate: 0, scale: 0.4 }}
+            initial={{ x: 0, y: 0, opacity: 0, rotate: 0, scale: 0.5 }}
             animate={{
-              x: [0, dx * 0.96, dx, dx], // 순간적으로 빠르게 튀어나감
-              y: [0, dy, dy + 46, dy + 96], // 솟구쳤다가 중력으로 떨어짐
+              x: [0, sx * 0.5, sx * 0.85, sx],
+              y: [0, -up, -up * 0.25, fall], // 톡 튀어올랐다가(peak) 포물선으로 떨어짐
               opacity: [0, 1, 1, 0],
-              rotate: [0, (i % 2 ? 1 : -1) * 170, (i % 2 ? 1 : -1) * 330, (i % 2 ? 1 : -1) * 380],
-              scale: [0.4, 1.3, 1, 0.7],
+              rotate: [0, spin * 0.4, spin * 0.8, spin], // 텀블링
+              scale: [0.5, 1.15, 1, 0.85],
             }}
-            transition={{ duration: 1.4, delay: 1.2, times: [0, 0.16, 0.62, 1], ease: [0.1, 0.85, 0.3, 1] }}
+            transition={{ duration: dur, delay: dly, times: [0, 0.32, 0.66, 1], ease: 'easeOut' }}
           />
         )
       })}
@@ -148,7 +157,7 @@ export default function Shred({ text, onDone }: RitualProps) {
         }}
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: [0, 1], y: [6, 0] }}
-        transition={{ duration: 0.7, delay: 1.5, ease: 'easeOut' }}
+        transition={{ duration: 0.7, delay: 1.9, ease: 'easeOut' }}
       >
         {msg}
       </motion.p>
