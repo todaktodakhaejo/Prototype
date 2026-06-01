@@ -4,6 +4,7 @@ import type { RitualProps } from './index'
 import { rotatingMessage, PLANE_MESSAGES } from '../constants'
 
 const MOTES = 6
+const MAXPULL = 170 // 이만큼 당기면 파워 100%
 
 // 종이비행기 SVG
 function PaperPlane() {
@@ -21,6 +22,8 @@ export default function Plane({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('plane', PLANE_MESSAGES))
   const [phase, setPhase] = useState<'paper' | 'plane' | 'flying'>('paper')
   const [dir, setDir] = useState({ x: 0.5, y: -1 })
+  const [pull, setPull] = useState({ x: 0, y: 0 }) // 당기는 동안의 오프셋(미리보기)
+  const [throwPower, setThrowPower] = useState(1) // 던진 세기(비행 거리 배율)
   const fired = useRef(false)
 
   const onThrow = (_e: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
@@ -34,8 +37,12 @@ export default function Plane({ text, onDone }: RitualProps) {
     } // 거의 안 움직이고 놓으면 기본으로 위로
     const m = Math.hypot(dx, dy) || 1
     setDir({ x: dx / m, y: Math.min(dy / m, -0.3) }) // 항상 살짝 위로
+    setThrowPower(0.65 + Math.min(1, m / MAXPULL) * 0.85) // 세게 당길수록 멀리
     setPhase('flying')
   }
+
+  const power = Math.min(1, Math.hypot(pull.x, pull.y) / MAXPULL)
+  const angleDeg = (Math.atan2(pull.y, pull.x) * 180) / Math.PI
 
   return (
     <div style={{ position: 'relative', width: 240, height: 320, touchAction: 'none' }}>
@@ -98,6 +105,7 @@ export default function Plane({ text, onDone }: RitualProps) {
           drag
           dragSnapToOrigin
           dragElastic={0.5}
+          onDrag={(_e, info) => setPull({ x: info.offset.x, y: info.offset.y })}
           onDragEnd={onThrow}
           whileDrag={{ cursor: 'grabbing' }}
           style={{
@@ -124,8 +132,8 @@ export default function Plane({ text, onDone }: RitualProps) {
           style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}
           initial={{ x: 0, y: 0, scale: 1, opacity: 1, rotate: 0 }}
           animate={{
-            x: [0, dir.x * 110, dir.x * 620],
-            y: [0, dir.y * 110, dir.y * 600],
+            x: [0, dir.x * 110, dir.x * 620 * throwPower],
+            y: [0, dir.y * 110, dir.y * 600 * throwPower],
             scale: [1, 0.9, 0.16],
             opacity: [1, 1, 0],
             rotate: [0, dir.x * 16, dir.x * 26],
@@ -166,11 +174,65 @@ export default function Plane({ text, onDone }: RitualProps) {
         </motion.div>
       )}
 
+      {/* 당기는 동안: 방향 화살표 (슬링샷처럼 — 당긴 방향·세기 미리보기) */}
+      {phase === 'plane' && power > 0.04 && (
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            width: 40 + power * 120,
+            height: 6,
+            marginTop: -3,
+            transformOrigin: '0% 50%',
+            transform: `rotate(${angleDeg}deg)`,
+            pointerEvents: 'none',
+            zIndex: 6,
+          }}
+        >
+          <div style={{ position: 'absolute', left: 0, top: 0, right: 14, bottom: 0, borderRadius: 3, background: 'linear-gradient(90deg, rgba(174,224,232,0.15), rgba(174,224,232,0.95))' }} />
+          <div style={{ position: 'absolute', right: 0, top: -5, width: 0, height: 0, borderLeft: '16px solid rgba(174,224,232,0.95)', borderTop: '8px solid transparent', borderBottom: '8px solid transparent' }} />
+        </div>
+      )}
+
+      {/* 파워 게이지 — 오른쪽 세로 bar (당긴 세기) */}
+      {phase === 'plane' && (
+        <div
+          style={{
+            position: 'absolute',
+            right: -30,
+            top: 40,
+            bottom: 40,
+            width: 10,
+            borderRadius: 999,
+            background: 'rgba(255,255,255,0.14)',
+            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.28)',
+            overflow: 'hidden',
+            zIndex: 6,
+            pointerEvents: 'none',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: `${power * 100}%`,
+              borderRadius: 999,
+              background: 'linear-gradient(0deg, #5b8fd6 0%, #aee0e8 100%)',
+              boxShadow: '0 0 10px rgba(140,200,230,0.7)',
+              transition: 'height 0.05s linear',
+            }}
+          />
+        </div>
+      )}
+
       {/* 상단 행위 안내 캡션 */}
       {phase !== 'flying' && (
         <div style={{ position: 'absolute', top: -44, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
           <span style={{ background: 'rgba(30,22,40,0.55)', color: '#fff', fontSize: 13, padding: '6px 14px', borderRadius: 999, whiteSpace: 'nowrap' }}>
-            {phase === 'paper' ? '👆 종이를 탭하면 비행기로 접혀요' : '✈️ 비행기를 휙 던지세요'}
+            {phase === 'paper' ? '👆 종이를 탭하면 비행기로 접혀요' : '✈️ 당겼다 놓으면 그 방향으로 날아가요'}
           </span>
         </div>
       )}

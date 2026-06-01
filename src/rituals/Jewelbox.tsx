@@ -30,8 +30,10 @@ function Gem({ size = 86 }: { size?: number }) {
 export default function Jewelbox({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('jewelbox', JEWELBOX_MESSAGES))
   const [stored, setStored] = useState(false)
+  const [pull, setPull] = useState(0) // 아래로 끌어내린 정도(px)
   const fired = useRef(false)
   const doneRef = useRef(false)
+  const nearness = Math.min(1, pull / DROP) // 담기는 지점에 얼마나 가까운지(0~1)
 
   // onDone을 한 번만 호출 (후광 애니메이션 끝 + 타이머 폴백 둘 중 먼저)
   const finish = () => {
@@ -46,6 +48,8 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
       fired.current = true
       setStored(true)
       setTimeout(finish, 4000) // 폴백
+    } else {
+      setPull(0) // 덜 내리고 놓으면 복귀 → 입구 빛도 가라앉음
     }
     // 덜 내리고 놓으면 dragSnapToOrigin으로 복귀 → 다시 시도
   }
@@ -103,6 +107,47 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           )
         })}
 
+      {/* 입구 강조 — 종이를 가까이 끌수록 보석함 입구가 빛나고 빛기둥이 올라옴 */}
+      {!stored && nearness > 0.02 && (
+        <>
+          {/* 입구에서 위로 솟는 빛기둥 */}
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              marginLeft: -42,
+              bottom: 116,
+              width: 84,
+              height: 24 + nearness * 86,
+              borderRadius: '42px 42px 0 0',
+              background: 'linear-gradient(0deg, rgba(255,247,224,0.6) 0%, rgba(255,247,224,0) 100%)',
+              filter: 'blur(5px)',
+              opacity: nearness,
+              zIndex: 3,
+              pointerEvents: 'none',
+            }}
+          />
+          {/* 입구 표면의 밝은 타원 (벌어지듯 가로로 커짐) */}
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              marginLeft: -60,
+              bottom: 116,
+              width: 120,
+              height: 20,
+              borderRadius: '50%',
+              background: 'radial-gradient(ellipse at 50% 50%, rgba(255,250,235,0.95) 0%, rgba(231,201,122,0) 72%)',
+              opacity: nearness,
+              transform: `scaleX(${0.7 + nearness * 0.5}) scaleY(${0.8 + nearness * 0.4})`,
+              filter: 'blur(1px)',
+              zIndex: 3,
+              pointerEvents: 'none',
+            }}
+          />
+        </>
+      )}
+
       {/* 보석함 본체 */}
       <div
         style={{
@@ -151,6 +196,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           drag
           dragSnapToOrigin
           dragElastic={0.5}
+          onDrag={(_e, info) => setPull(Math.max(0, info.offset.y))}
           onDragEnd={onDragEnd}
           whileDrag={{ scale: 0.78, cursor: 'grabbing' }}
           style={{
@@ -258,7 +304,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
       {!stored && (
         <div style={{ position: 'absolute', top: -44, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
           <span style={{ background: 'rgba(30,22,40,0.55)', color: '#fff', fontSize: 13, padding: '6px 14px', borderRadius: 999, whiteSpace: 'nowrap' }}>
-            💎 종이를 보석함으로 끌어내려 담아보세요
+            {nearness > 0.8 ? '여기예요 — 놓으면 담겨요' : '💎 종이를 보석함으로 끌어내려 담아보세요'}
           </span>
         </div>
       )}
