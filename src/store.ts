@@ -21,10 +21,13 @@ function readCount(): number {
   }
 }
 
-// 라운드 시작점(KPI 모드면 기분 pre부터, 아니면 홈) 결정
+// 라운드 시작점 — KPI 모드면 공놀이 전 기분(MOOD_PRE)부터, 아니면 홈
 function entryStep(): Step {
   if (!readBool(LS_ONBOARDED)) return 'ONBOARDING'
-  if (KPI_ENABLED) kpi.startRound()
+  if (KPI_ENABLED) {
+    kpi.startRound()
+    return 'MOOD_PRE'
+  }
   return 'HOME'
 }
 
@@ -88,20 +91,20 @@ export const useStore = create<AppState>((set, get) => {
         /* noop */
       }
       if (KPI_ENABLED) kpi.startRound()
-      set({ onboarded: true, step: 'HOME' })
+      set({ onboarded: true, step: KPI_ENABLED ? 'MOOD_PRE' : 'HOME' })
     },
 
-    // 기분 pre는 '리츄얼까지' 선택 후 글쓰기 직전에 물음 → 응답하면 글쓰기로
+    // 기분 pre는 공놀이 시작 전(공통)에 물음 → 응답하면 홈(공놀이)으로
     submitMoodPre: (value) => {
       kpi.setMoodPre(value)
-      set({ step: 'WRITE' })
+      set({ step: 'HOME' })
     },
 
     // 공놀이를 마치고 다음으로 — KPI면 분기 팝업, 아니면 곧장 글쓰기
     proceedFromHome: () => set({ step: KPI_ENABLED ? 'RITUAL_PROMPT' : 'WRITE' }),
 
-    // 팝업: 리츄얼까지 → (기분 pre) → 글쓰기·의식 진행
-    chooseRitual: () => set({ step: KPI_ENABLED ? 'MOOD_PRE' : 'WRITE' }),
+    // 팝업: 리츄얼까지 → 글쓰기·의식 진행 (pre는 이미 시작 전에 받음)
+    chooseRitual: () => set({ step: 'WRITE' }),
 
     // 팝업: 오늘은 여기까지 → 공놀이만 한 라운드의 기분 post(KPI) → 응답 시 홈으로
     chooseEndNow: () => set({ step: 'MOOD_POST', postRoundType: 'ball_only' }),
@@ -148,9 +151,14 @@ export const useStore = create<AppState>((set, get) => {
         }
         set({ releaseCount: next })
       }
-      // 응답 후 새 라운드를 시작하며 홈(시작)으로 복귀 — 기분 질문이 곧바로 또 뜨지 않음
+      // 응답 후 새 라운드 시작 → 처음(공놀이 전 기분 pre)으로 복귀
       if (KPI_ENABLED) kpi.startRound()
-      set({ step: 'HOME', draftText: '', selectedRitual: null, postRoundType: null })
+      set({
+        step: KPI_ENABLED ? 'MOOD_PRE' : 'HOME',
+        draftText: '',
+        selectedRitual: null,
+        postRoundType: null,
+      })
     },
 
     resetHome: () => resetForNext(true),

@@ -9,8 +9,8 @@ export const LONG_PRESS_MS = 800
 
 // ── KPI 모드(프로토타입 한정) 기분 측정 ──
 export const MOOD_MAX = 10 // 0~10 척도
-export const MOOD_PRE_TITLE = '지금 마음의 무게는 어느 정도인가요?'
-export const MOOD_POST_TITLE = '지금 마음의 무게는 어느 정도인가요?'
+export const MOOD_PRE_TITLE = '시작하기 전, 지금 마음의 무게는 어느 정도인가요?'
+export const MOOD_POST_TITLE = '마치고 난 지금, 마음의 무게는 어느 정도인가요?'
 export const MOOD_LOW_LABEL = '가벼움'
 export const MOOD_HIGH_LABEL = '무거움'
 
