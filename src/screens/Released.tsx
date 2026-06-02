@@ -27,7 +27,7 @@ export default function Released() {
           style={{ color: 'var(--on-bg)', textAlign: 'center' }}
         >
           <h1 className="serif" style={{ fontSize: 30, marginBottom: 10 }}>
-            다 보냈어요
+            환기가 끝났어요
           </h1>
           <p style={{ opacity: 0.7, fontSize: 14 }}>처음으로 돌아가요</p>
         </motion.div>

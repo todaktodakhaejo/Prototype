@@ -1,11 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useStore } from '../store'
 
 // 시작 시 오른쪽 하단에서 잔잔하게 나오는 이용 환경 안내 말풍선.
-//  잠시 보였다가 스스로 사라지고, × 로 바로 닫을 수도 있다. (앱 로드당 1회)
+//  '시작화면'(앱을 열었을 때의 첫 화면)에서만 보이고, 다음 화면으로 넘어가면 사라진다. × 로 바로 닫을 수도 있다.
 //  말랑이의 촉감(진동/햅틱) 안내 + 직접 확인 버튼 포함 — 무음·절전 모드면 진동이 꺼질 수 있어 미리 점검.
 export default function StartupNotice() {
-  const [show, setShow] = useState(true)
+  const step = useStore((s) => s.step)
+  const [initialStep] = useState(step) // 앱을 열었을 때의 첫 화면(시작화면)
+  const [dismissed, setDismissed] = useState(false)
+  const show = !dismissed && step === initialStep // 시작화면을 벗어나면 자동으로 사라짐
   const canVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function'
   const [vibeMsg, setVibeMsg] = useState('')
 
@@ -21,11 +25,6 @@ export default function StartupNotice() {
     }
     setVibeMsg('진동이 안 느껴지면 무음·방해금지·절전 모드를 꺼 주세요.')
   }
-
-  useEffect(() => {
-    const t = setTimeout(() => setShow(false), 20000) // 잔잔히 머물다 자동으로 사라짐(진동 점검 여유)
-    return () => clearTimeout(t)
-  }, [])
 
   return (
     <AnimatePresence>
@@ -55,7 +54,7 @@ export default function StartupNotice() {
           }}
         >
           <button
-            onClick={() => setShow(false)}
+            onClick={() => setDismissed(true)}
             aria-label="닫기"
             style={{
               position: 'absolute',

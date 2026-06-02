@@ -15,8 +15,8 @@ export const MOOD_LOW_LABEL = '마음이 가벼움'
 export const MOOD_HIGH_LABEL = '마음이 무거움'
 
 // 공놀이 후 분기 팝업 (종이/리츄얼 진입 전)
-export const RITUAL_PROMPT_TITLE = '감정을 적어\n의식과 함께 흘려보낼까요?'
-export const RITUAL_PROMPT_YES = '리츄얼까지 해볼래요'
+export const RITUAL_PROMPT_TITLE = '오늘의 마음,\n환기해볼까요?'
+export const RITUAL_PROMPT_YES = '네, 환기해볼래요'
 export const RITUAL_PROMPT_NO = '오늘은 여기까지 할래요'
 
 // ── 의식 완료 멘트 (의식별 3종, 할 때마다 번갈아 노출) ──
