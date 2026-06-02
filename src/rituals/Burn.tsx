@@ -3,6 +3,9 @@ import { motion, type PanInfo } from 'framer-motion'
 import type { RitualProps } from './index'
 import Gauge from './Gauge'
 import { rotatingMessage, BURN_MESSAGES } from '../constants'
+import { hapticBurnPulse, stopVibration } from '../haptics'
+
+const BURN_HAPTIC_MS = 130 // 타오르는 진동 펄스 간격
 
 const HOLD_SEC = 3.2 // 불붙은 뒤 다 타는 데 걸리는 시간
 const HOLD_MSG = 2.6 // 잿더미 + 멘트 머무는 여운
@@ -24,6 +27,8 @@ export default function Burn({ text, onDone }: RitualProps) {
   const last = useRef(0)
   const fired = useRef(false)
   const litRef = useRef(false)
+  const progressRef = useRef(0) // 햅틱 인터벌에서 최신 진행도 읽기용
+  progressRef.current = progress
 
   const ignite = () => {
     if (!litRef.current) {
@@ -50,6 +55,16 @@ export default function Burn({ text, onDone }: RitualProps) {
     return () => {
       cancelAnimationFrame(id)
       last.current = 0
+    }
+  }, [lit, done])
+
+  // 타오르는 동안 약→강으로 점점 강해지는 진동 (진행도에 따라 펄스 길이 증가)
+  useEffect(() => {
+    if (!lit || done) return
+    const id = setInterval(() => hapticBurnPulse(progressRef.current), BURN_HAPTIC_MS)
+    return () => {
+      clearInterval(id)
+      stopVibration()
     }
   }, [lit, done])
 

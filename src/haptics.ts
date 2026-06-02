@@ -49,3 +49,44 @@ export function hapticRelease(): void {
 export function hapticRubTick(): void {
   vibrate(5)
 }
+
+// ── 의식(리츄얼) 단계 햅틱 ──────────────────────────────────────────
+
+// 파쇄기 — 갈리는 동안 잘게 끊기는 단발(호출 빈도로 갈림 강도 표현).
+export function hapticShredTick(): void {
+  vibrate(4)
+}
+
+// 파쇄기 — 다 갈려 폭죽처럼 터질 때 성공 진동(들썩이는 리듬).
+export function hapticShredBurst(): void {
+  vibrate([30, 24, 18, 30, 14, 36, 24])
+}
+
+// 태우기 — 아래에서 위로 타오르는 진행도(0~1)에 따라 약→강으로 길어지는 펄스.
+//   짧은 간격으로 반복 호출해 "점점 차오르는" 느낌을 만든다.
+export function hapticBurnPulse(progress: number): void {
+  const p = clamp(progress, 0, 1)
+  vibrate(Math.round(3 + p * 22))
+}
+
+// 날리기 — 당기는 동안의 긴장감. 당김 세기(0~1)에 따라 살짝 길어지는 약한 펄스.
+export function hapticTension(power: number): void {
+  const p = clamp(power, 0, 1)
+  vibrate(Math.round(3 + p * 7))
+}
+
+// 날리기 — 손을 놓아 발사되는 순간의 짧은 한 방(세기에 비례).
+export function hapticLaunch(power: number): void {
+  const p = clamp(power, 0, 1)
+  vibrate(Math.round(12 + p * 22))
+}
+
+// 보석함 — 편지를 함에 넣는 순간의 부드러운 진동(여린 두 톡).
+export function hapticJewelStore(): void {
+  vibrate([10, 30, 16])
+}
+
+// 보석함 — 후광이 빛날 때 심장박동(lub-dub) 같은 따뜻한 두 박자.
+export function hapticHeartbeat(): void {
+  vibrate([25, 60, 18, 500, 25, 60, 18])
+}

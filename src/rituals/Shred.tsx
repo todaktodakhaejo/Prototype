@@ -3,6 +3,9 @@ import { motion } from 'framer-motion'
 import type { RitualProps } from './index'
 import Gauge from './Gauge'
 import { rotatingMessage, SHRED_MESSAGES } from '../constants'
+import { hapticShredTick, hapticShredBurst, stopVibration } from '../haptics'
+
+const GRIND_HAPTIC_PX = 26 // 갈기 진동 1펄스당 이동거리(px) — 빠를수록 촘촘
 
 const CONFETTI = 30
 const COLORS = ['#f4b8c7', '#d8b15a', '#fbf7f4', '#c9a7e0', '#9ad0d8']
@@ -23,6 +26,7 @@ export default function Shred({ text, onDone }: RitualProps) {
   const [done, setDone] = useState(false)
   const last = useRef<{ x: number; y: number } | null>(null)
   const fired = useRef(false)
+  const grindAcc = useRef(0) // 갈기 햅틱용 이동 누적거리
 
   // 다 갈리면 마무리 (fired 가드 + done deps 제외 → 타이머가 취소되지 않음)
   useEffect(() => {
@@ -30,10 +34,14 @@ export default function Shred({ text, onDone }: RitualProps) {
       fired.current = true
       setDone(true)
       setGrinding(false)
+      hapticShredBurst() // 폭죽처럼 터질 때 성공 진동
       const t = setTimeout(onDone, 3400)
       return () => clearTimeout(t)
     }
   }, [progress, onDone])
+
+  // 화면 이탈 시 진동 정리
+  useEffect(() => () => stopVibration(), [])
 
   const onMove = (e: React.PointerEvent) => {
     if (!grinding || done) return
@@ -41,6 +49,12 @@ export default function Shred({ text, onDone }: RitualProps) {
     if (last.current) {
       const d = Math.abs(p.x - last.current.x) + Math.abs(p.y - last.current.y)
       setProgress((v) => Math.min(1, v + d / GRIND_DIST))
+      // 갈리는 동안 잘게 끊기는 진동 — 이동 누적거리마다 한 펄스
+      grindAcc.current += d
+      if (grindAcc.current >= GRIND_HAPTIC_PX) {
+        grindAcc.current = 0
+        hapticShredTick()
+      }
     }
     last.current = p
   }

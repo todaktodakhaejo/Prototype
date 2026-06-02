@@ -1,7 +1,10 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, type PanInfo } from 'framer-motion'
 import type { RitualProps } from './index'
 import { rotatingMessage, JEWELBOX_MESSAGES } from '../constants'
+import { hapticJewelStore, hapticHeartbeat, stopVibration } from '../haptics'
+
+const HEARTBEAT_DELAY_MS = 2000 // 후광이 빛나기 시작하는 시점(후광 delay 2.0s)과 맞춤
 
 const PARTICLES = 12
 const GOLD = '#e7c97a'
@@ -49,7 +52,17 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
   const [pull, setPull] = useState(0) // 아래로 끌어내린 정도(px)
   const fired = useRef(false)
   const doneRef = useRef(false)
+  const beatRef = useRef<number | null>(null) // 심장박동 햅틱 타이머
   const nearness = Math.min(1, pull / DROP) // 담기는 지점에 얼마나 가까운지(0~1)
+
+  // 화면 이탈 시 진동·예약 타이머 정리
+  useEffect(
+    () => () => {
+      if (beatRef.current !== null) window.clearTimeout(beatRef.current)
+      stopVibration()
+    },
+    [],
+  )
 
   // onDone을 한 번만 호출 (후광 애니메이션 끝 + 타이머 폴백 둘 중 먼저)
   const finish = () => {
@@ -63,6 +76,9 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
     if (info.offset.y > DROP && !fired.current) {
       fired.current = true
       setStored(true)
+      hapticJewelStore() // 함에 넣는 순간 부드러운 진동
+      // 후광이 빛나기 시작할 때 따뜻한 심장박동 진동
+      beatRef.current = window.setTimeout(hapticHeartbeat, HEARTBEAT_DELAY_MS)
       setTimeout(finish, 4000) // 폴백
     } else {
       setPull(0) // 덜 내리고 놓으면 복귀 → 입구 빛도 가라앉음

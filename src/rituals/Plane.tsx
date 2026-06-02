@@ -4,6 +4,9 @@ import type { RitualProps } from './index'
 import Gauge from './Gauge'
 import { useTimeOfDay } from '../hooks/useTimeOfDay'
 import { rotatingMessage, PLANE_MESSAGES } from '../constants'
+import { hapticTension, hapticLaunch, stopVibration } from '../haptics'
+
+const PULL_HAPTIC_PX = 12 // 당기는 긴장감 진동 1펄스당 당김 변화량(px)
 
 const MOTES = 6
 const MAXPULL = 170 // 이만큼 당기면 파워 100%
@@ -68,6 +71,23 @@ export default function Plane({ text, onDone }: RitualProps) {
   const [pull, setPull] = useState({ x: 0, y: 0 }) // 당기는 동안의 오프셋(미리보기)
   const [throwPower, setThrowPower] = useState(1) // 던진 세기(비행 거리 배율)
   const fired = useRef(false)
+  const pullMag = useRef(0) // 긴장감 햅틱: 직전 당김 크기
+  const pullAcc = useRef(0) // 긴장감 햅틱: 당김 변화 누적
+
+  // 화면 이탈 시 진동 정리
+  useEffect(() => () => stopVibration(), [])
+
+  // 당기는 동안 긴장감 — 당김 변화가 쌓일 때마다 세기에 비례한 약한 펄스
+  const onPull = (info: PanInfo) => {
+    setPull({ x: info.offset.x, y: info.offset.y })
+    const m = Math.hypot(info.offset.x, info.offset.y)
+    pullAcc.current += Math.abs(m - pullMag.current)
+    pullMag.current = m
+    if (pullAcc.current >= PULL_HAPTIC_PX) {
+      pullAcc.current = 0
+      hapticTension(Math.min(1, m / MAXPULL))
+    }
+  }
 
   const tod = useTimeOfDay()
   // 배경이 밝은/노란 톤(일출·낮)이면 하얀 별빛, 어두운 시간대엔 연한 파스텔 노랑
@@ -88,6 +108,9 @@ export default function Plane({ text, onDone }: RitualProps) {
     const m = Math.hypot(info.offset.x, info.offset.y)
     setDir(launchVec(info.offset.x, info.offset.y)) // 당긴 반대 방향으로 발사
     setThrowPower(0.65 + Math.min(1, m / MAXPULL) * 0.85) // 세게 당길수록 멀리
+    hapticLaunch(Math.min(1, m / MAXPULL)) // 발사 순간 짧은 한 방
+    pullAcc.current = 0
+    pullMag.current = 0
     setPhase('flying')
   }
 
@@ -157,7 +180,7 @@ export default function Plane({ text, onDone }: RitualProps) {
           drag
           dragSnapToOrigin
           dragElastic={0.5}
-          onDrag={(_e, info) => setPull({ x: info.offset.x, y: info.offset.y })}
+          onDrag={(_e, info) => onPull(info)}
           onDragEnd={onThrow}
           whileDrag={{ cursor: 'grabbing' }}
           style={{
