@@ -107,7 +107,7 @@ export default function Plane({ text, onDone }: RitualProps) {
     fired.current = true
     const m = Math.hypot(info.offset.x, info.offset.y)
     setDir(launchVec(info.offset.x, info.offset.y)) // 당긴 반대 방향으로 발사
-    setThrowPower(0.65 + Math.min(1, m / MAXPULL) * 0.85) // 세게 당길수록 멀리
+    setThrowPower(1.1 + Math.min(1, m / MAXPULL) * 1.2) // 세게 당길수록 더 힘차게 멀리
     hapticLaunch(Math.min(1, m / MAXPULL)) // 발사 순간 짧은 한 방
     pullAcc.current = 0
     pullMag.current = 0
@@ -210,13 +210,13 @@ export default function Plane({ text, onDone }: RitualProps) {
           style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}
           initial={{ x: 0, y: 0, scale: 1, opacity: 1, rotate: 0 }}
           animate={{
-            x: [0, dir.x * 110, dir.x * 620 * throwPower],
-            y: [0, dir.y * 110, dir.y * 600 * throwPower],
-            scale: [1, 0.9, 0.16],
+            x: [0, dir.x * 200, dir.x * 940 * throwPower],
+            y: [0, dir.y * 200, dir.y * 900 * throwPower],
+            scale: [1, 0.82, 0.1],
             opacity: [1, 1, 0],
-            rotate: [0, dir.x * 16, dir.x * 26],
+            rotate: [0, dir.x * 14, dir.x * 22],
           }}
-          transition={{ duration: 2.8, times: [0, 0.22, 1], ease: 'easeOut' }}
+          transition={{ duration: 1.7, times: [0, 0.16, 1], ease: 'easeOut' }}
           onAnimationComplete={() => setPhase('star')}
         >
           <div style={{ position: 'relative', transform: `rotate(${dirAngle + 38}deg)` }}>

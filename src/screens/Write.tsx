@@ -8,7 +8,7 @@ export default function Write() {
   return (
     <>
       <p className="serif" style={{ color: 'var(--on-bg)', fontSize: 17, marginBottom: 20, opacity: 0.85, whiteSpace: 'nowrap' }}>
-        지금 마음을 있는 그대로 털어놓아 볼까요
+        지금 마음을 있는 그대로 털어놓아 보세요
       </p>
 
       <textarea

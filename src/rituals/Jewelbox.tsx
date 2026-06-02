@@ -41,7 +41,8 @@ function LidDecor() {
 }
 
 // 뚜껑이 들려 열린 상태의 변형(이미지처럼 위로 들려 비스듬히)
-const LID_OPEN = { x: 20, y: -98, rotate: -44 }
+// 뚜껑은 '왼쪽 모서리'를 경첩 삼아 열린다(왼쪽 끝이 상자 왼쪽과 딱 맞물려 어긋나지 않게).
+const LID_OPEN_DEG = -52
 
 // 보석함 — 닫힌 상자에서 시작, 종이를 드래그하는 순간 뚜껑이 들려 열리고,
 //  종이를 끌어내려 담으면 보석으로 접혀 들어가고 뚜껑이 다시 닫힌다(직접 행위).
@@ -225,22 +226,22 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
         />
       </div>
 
-      {/* 뚜껑 — 닫힌 채 시작, 드래그하는 순간 위로 들려 비스듬히 열림(이미지 참고) */}
+      {/* 뚜껑 — 닫힌 채 시작, 드래그하는 순간 왼쪽 모서리를 축으로 열림(상자 왼쪽과 정렬) */}
       {!stored && (
         <div
           style={{
             position: 'absolute',
             left: '50%',
-            bottom: 84,
-            width: 170,
-            height: 40,
-            marginLeft: -85,
+            bottom: 92,
+            width: 162,
+            height: 36,
+            marginLeft: -81,
             zIndex: 3,
             borderRadius: '14px 14px 6px 6px',
             background: PINK_LID,
             boxShadow: '0 -2px 12px rgba(231,201,122,0.3), inset 0 3px 0 rgba(255,255,255,0.7), inset -8px -8px 18px rgba(176,80,110,0.3)',
-            transformOrigin: '50% 100%',
-            transform: open ? `translate(${LID_OPEN.x}px, ${LID_OPEN.y}px) rotate(${LID_OPEN.rotate}deg)` : 'none',
+            transformOrigin: '0% 100%', // 왼쪽-아래 모서리(=상자 왼쪽 끝)를 경첩으로
+            transform: open ? `rotate(${LID_OPEN_DEG}deg)` : 'none',
             transition: 'transform 0.28s ease-out',
             overflow: 'hidden',
             pointerEvents: 'none',
@@ -300,25 +301,25 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
             <Gem />
           </motion.div>
 
-          {/* 뚜껑 — 열린 상태에서 다시 닫힘 */}
+          {/* 뚜껑 — 열린 상태(왼쪽 경첩)에서 다시 닫힘 */}
           <motion.div
             style={{
               position: 'absolute',
               left: '50%',
-              bottom: 84,
-              width: 170,
-              height: 40,
-              marginLeft: -85,
+              bottom: 92,
+              width: 162,
+              height: 36,
+              marginLeft: -81,
               zIndex: 5,
               borderRadius: '14px 14px 6px 6px',
               background: PINK_LID,
               boxShadow:
                 '0 -2px 12px rgba(231,201,122,0.3), inset 0 3px 0 rgba(255,255,255,0.7), inset -8px -8px 18px rgba(176,80,110,0.3)',
-              transformOrigin: '50% 100%',
+              transformOrigin: '0% 100%',
               overflow: 'hidden',
             }}
-            initial={{ x: LID_OPEN.x, y: LID_OPEN.y, rotate: LID_OPEN.rotate, opacity: 1 }}
-            animate={{ x: [LID_OPEN.x, LID_OPEN.x, 0], y: [LID_OPEN.y, LID_OPEN.y, 0], rotate: [LID_OPEN.rotate, LID_OPEN.rotate, 0] }}
+            initial={{ rotate: LID_OPEN_DEG, opacity: 1 }}
+            animate={{ rotate: [LID_OPEN_DEG, LID_OPEN_DEG, 0] }}
             transition={{ duration: 0.8, delay: 0.9, times: [0, 0.2, 1], ease: 'easeIn' }}
           >
             <LidDecor />
