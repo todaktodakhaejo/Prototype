@@ -30,13 +30,14 @@ export default function StartupNotice() {
     <AnimatePresence>
       {show && (
         <motion.div
-          initial={{ opacity: 0, y: -14 }}
-          animate={{ opacity: 1, y: 0, transition: { duration: 0.7, delay: 0.8, ease: 'easeOut' } }}
-          exit={{ opacity: 0, transition: { duration: 0.12 } }} // 시작화면을 벗어나면 즉시 사라짐(공과 안 겹치게)
+          // 중앙 하단 배치 — 가운데 정렬은 x:'-50%'로(애니메이션이 transform을 덮지 않게)
+          initial={{ opacity: 0, x: '-50%', y: 14 }}
+          animate={{ opacity: 1, x: '-50%', y: 0, transition: { duration: 0.7, delay: 0.8, ease: 'easeOut' } }}
+          exit={{ opacity: 0, x: '-50%', transition: { duration: 0.12 } }} // 시작화면을 벗어나면 즉시 사라짐
           style={{
             position: 'fixed',
-            right: 14,
-            top: 14,
+            left: '50%',
+            bottom: 14,
             zIndex: 50,
             maxWidth: 232,
             padding: '11px 24px 11px 13px',
