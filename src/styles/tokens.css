@@ -5,7 +5,9 @@
   --jelly-pink: #f4b8c7;
   --paper: #fbf7f4;
 
-  --serif: 'Instrument Serif', serif;
+  /* Instrument Serif는 라틴(영문·숫자) 전용 → 한글은 Gowun Batang으로 폴백시켜 기기별 기본 serif로
+     떨어지지 않게(노트북/폰 글꼴 통일). 라틴은 Instrument Serif, 한글은 Gowun Batang으로 렌더링됨. */
+  --serif: 'Instrument Serif', 'Gowun Batang', serif;
   --batang: 'Gowun Batang', serif;
 }
 

@@ -30,13 +30,13 @@ export default function StartupNotice() {
     <AnimatePresence>
       {show && (
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: -14 }}
           animate={{ opacity: 1, y: 0, transition: { duration: 0.7, delay: 0.8, ease: 'easeOut' } }}
           exit={{ opacity: 0, transition: { duration: 0.12 } }} // 시작화면을 벗어나면 즉시 사라짐(공과 안 겹치게)
           style={{
             position: 'fixed',
             right: 14,
-            bottom: 14,
+            top: 14,
             zIndex: 50,
             maxWidth: 232,
             padding: '11px 24px 11px 13px',
