@@ -79,7 +79,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
       hapticJewelStore() // 함에 넣는 순간 부드러운 진동
       // 후광이 빛나기 시작할 때 따뜻한 심장박동 진동
       beatRef.current = window.setTimeout(hapticHeartbeat, HEARTBEAT_DELAY_MS)
-      setTimeout(finish, 4000) // 폴백
+      setTimeout(finish, 5000) // 폴백(후광 종료 4.6s 이후) — onAnimationComplete가 먼저 끝냄
     } else {
       setPull(0) // 덜 내리고 놓으면 복귀 → 입구 빛도 가라앉음
       setOpen(false) // 뚜껑 다시 닫힘
@@ -105,9 +105,10 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           pointerEvents: 'none',
         }}
         initial={{ opacity: 0, scale: 0.3 }}
-        // 심장박동 3회(두근…두근…두근)에 맞춰 밝기가 세 번 부풀어 오름. 진동 길이(≈1.7s)에 맞춰 지속도 늘림.
-        animate={stored ? { opacity: [0, 0.95, 0.4, 0.95, 0.4, 0.95, 0], scale: [0.4, 0.72, 0.85, 1.0, 1.15, 1.32, 1.5] } : {}}
-        transition={{ duration: 2.0, delay: 2.0, times: [0, 0.05, 0.25, 0.42, 0.62, 0.78, 1], ease: 'easeInOut' }}
+        // 심장박동 3회(두근…두근…두근)에 맞춰 밝기가 은은하게 세 번 차올랐다 잦아듦.
+        //   대비를 부드럽게(0.42~0.78), 진동 길이(≈2.1s)에 맞춰 느긋하게(duration 2.6s).
+        animate={stored ? { opacity: [0, 0.78, 0.42, 0.78, 0.42, 0.78, 0.28, 0], scale: [0.5, 0.72, 0.82, 0.95, 1.05, 1.2, 1.32, 1.45] } : {}}
+        transition={{ duration: 2.6, delay: 2.0, times: [0, 0.05, 0.2, 0.38, 0.55, 0.75, 0.9, 1], ease: 'easeInOut' }}
         onAnimationComplete={() => {
           if (stored) finish()
         }}
