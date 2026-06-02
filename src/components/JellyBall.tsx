@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValue, useVelocity, useSpring, useTransform } from 'framer-motion'
 import { LONG_PRESS_MS } from '../constants'
+import { hapticPress, hapticRelease, hapticRubTick, hapticWallHit, stopVibration } from '../haptics'
+
+// 문지름 햅틱: 이동 누적거리 이만큼마다 1펄스 (작을수록 촘촘 = 빠를수록 빈도↑)
+const RUB_STEP_PX = 14
+// 벽 충돌 강도 정규화 기준 속도(px/s) — 이 속도면 강도 1(최대 진동 길이)
+const WALL_VMAX = 2600
+// 충돌 래치 해제 여백(px) — 경계 안으로 이만큼 들어와야 다음 충돌을 다시 인식
+const WALL_RESET_MARGIN = 10
 
 interface Props {
   onLongPress?: () => void // 800ms 이상 누르고 있으면 발화 (글쓰기 진입)
@@ -42,6 +50,12 @@ export default function JellyBall({ onLongPress, onPressStart, onPlayActive, fai
   const rippleSeq = useRef(0)
   const timerRef = useRef<number | null>(null)
 
+  // 햅틱: 포인터가 눌려 있는지 / 충돌 경계(드래그 오프셋 한계) / 충돌 래치
+  const isDownRef = useRef(false)
+  const boundsRef = useRef<{ minX: number; maxX: number; minY: number; maxY: number } | null>(null)
+  const hitXRef = useRef(false)
+  const hitYRef = useRef(false)
+
   // 드래그 위치 → 속도 → (부드럽게) 물성 변형
   const x = useMotionValue(0)
   const y = useMotionValue(0)
@@ -76,7 +90,7 @@ export default function JellyBall({ onLongPress, onPressStart, onPlayActive, fai
     }
   }
 
-  // 누름 도중 화면이 바뀌어 언마운트되면(롱프레스로 글쓰기 진입 등) 남은 구간 회수
+  // 누름 도중 화면이 바뀌어 언마운트되면(롱프레스로 글쓰기 진입 등) 남은 구간 회수 + 진동 정리
   useEffect(() => {
     return () => {
       if (activeStartRef.current !== null) {
@@ -84,8 +98,64 @@ export default function JellyBall({ onLongPress, onPressStart, onPlayActive, fai
         activeStartRef.current = null
         if (ms > 0) onPlayActiveRef.current?.(ms)
       }
+      stopVibration()
     }
   }, [])
+
+  // 햅틱: 드래그 오프셋(x/y) 변화를 구독해 (3)문지름 + (1)벽 충돌을 발화.
+  //   문지름 — 누른 채 이동한 누적거리 RUB_STEP_PX마다 약한 펄스(빠를수록 빈도↑).
+  //   벽 충돌 — 오프셋이 경계를 넘는 순간 1회, 그때의 속도로 강도 차등. 안으로 복귀하면 래치 해제.
+  useEffect(() => {
+    if (!interactive) return
+    let lx = x.get()
+    let ly = y.get()
+    let rubAcc = 0
+
+    const onChange = () => {
+      const cx = x.get()
+      const cy = y.get()
+
+      // (3) 문지름 — 누르고 있는 동안 이동할 때만
+      if (isDownRef.current) {
+        rubAcc += Math.hypot(cx - lx, cy - ly)
+        if (rubAcc >= RUB_STEP_PX) {
+          rubAcc = 0
+          hapticRubTick()
+        }
+      }
+      lx = cx
+      ly = cy
+
+      // (1) 벽 충돌 — 측정된 경계 밖으로 나가는 순간만(래치)
+      const b = boundsRef.current
+      if (!b) return
+
+      if (cx <= b.minX || cx >= b.maxX) {
+        if (!hitXRef.current) {
+          hitXRef.current = true
+          hapticWallHit(Math.abs(vx.get()) / WALL_VMAX)
+        }
+      } else if (cx > b.minX + WALL_RESET_MARGIN && cx < b.maxX - WALL_RESET_MARGIN) {
+        hitXRef.current = false
+      }
+
+      if (cy <= b.minY || cy >= b.maxY) {
+        if (!hitYRef.current) {
+          hitYRef.current = true
+          hapticWallHit(Math.abs(vy.get()) / WALL_VMAX)
+        }
+      } else if (cy > b.minY + WALL_RESET_MARGIN && cy < b.maxY - WALL_RESET_MARGIN) {
+        hitYRef.current = false
+      }
+    }
+
+    const ux = x.on('change', onChange)
+    const uy = y.on('change', onChange)
+    return () => {
+      ux()
+      uy()
+    }
+  }, [interactive, x, y, vx, vy])
 
   // 원형 게이지 기하
   const ringSize = size + 20
@@ -105,10 +175,35 @@ export default function JellyBall({ onLongPress, onPressStart, onPlayActive, fai
     setPressing(false)
   }
 
-  // 누름 해제(떼기/취소/이탈) — 활성 구간 마감 후 게이지 리셋
+  // 누름 해제(떼기/취소/이탈) — 활성 구간 마감 후 게이지 리셋 + (2b)해제 햅틱
   const endPressAndActive = () => {
+    if (isDownRef.current) {
+      isDownRef.current = false
+      hapticRelease() // "삐-용" — 누름과 구분되는 두 박자
+    }
     closeActive()
     endPress()
+  }
+
+  // 드래그 오프셋(x/y)이 프레임 경계에 닿는 한계치를 현재 위치 기준으로 측정.
+  // (왼/오른/위/아래 가장자리에 공의 해당 변이 닿는 지점을 오프셋 좌표로 환산)
+  const measureBounds = (el: HTMLElement) => {
+    const ball = el.getBoundingClientRect()
+    const frame = (el.closest('.app-frame') ?? el.parentElement)?.getBoundingClientRect()
+    if (!frame) {
+      boundsRef.current = null
+      return
+    }
+    const x0 = x.get()
+    const y0 = y.get()
+    boundsRef.current = {
+      minX: x0 - (ball.left - frame.left),
+      maxX: x0 + (frame.right - ball.right),
+      minY: y0 - (ball.top - frame.top),
+      maxY: y0 + (frame.bottom - ball.bottom),
+    }
+    hitXRef.current = false
+    hitYRef.current = false
   }
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -116,6 +211,11 @@ export default function JellyBall({ onLongPress, onPressStart, onPlayActive, fai
 
     // 공놀이 활성 구간 시작
     activeStartRef.current = Date.now()
+
+    // 햅틱: 누름 시작 + 충돌 경계 측정 + (2a)누름 햅틱
+    isDownRef.current = true
+    measureBounds(e.currentTarget)
+    hapticPress() // 매우 짧은 톡
 
     const rect = e.currentTarget.getBoundingClientRect()
     const px = e.clientX - rect.left
