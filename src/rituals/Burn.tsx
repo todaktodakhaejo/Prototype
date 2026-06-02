@@ -3,9 +3,11 @@ import { motion, type PanInfo } from 'framer-motion'
 import type { RitualProps } from './index'
 import Gauge from './Gauge'
 import { rotatingMessage, BURN_MESSAGES } from '../constants'
-import { hapticBurnPulse, stopVibration } from '../haptics'
+import { hapticBurnTick, stopVibration } from '../haptics'
 
-const BURN_HAPTIC_MS = 130 // 타오르는 진동 펄스 간격
+// 타오르는 진동 간격: 아래(느림)→위(잦음). 진행도 0→1에서 이 사이로 좁혀진다.
+const BURN_GAP_SLOW_MS = 300 // 막 붙었을 때(아래) — 드문드문
+const BURN_GAP_FAST_MS = 70 // 다 타갈 때(위) — 다다닥
 
 const HOLD_SEC = 3.2 // 불붙은 뒤 다 타는 데 걸리는 시간
 const HOLD_MSG = 2.6 // 잿더미 + 멘트 머무는 여운
@@ -58,12 +60,23 @@ export default function Burn({ text, onDone }: RitualProps) {
     }
   }, [lit, done])
 
-  // 타오르는 동안 약→강으로 점점 강해지는 진동 (진행도에 따라 펄스 길이 증가)
+  // 타오르는 동안: 위로 갈수록 진동 '빈도'가 잦아짐(간격이 짧아짐). 세기는 일정.
+  //   self-scheduling 타이머 — 매 펄스 직후 현재 진행도로 다음 간격을 다시 계산.
   useEffect(() => {
     if (!lit || done) return
-    const id = setInterval(() => hapticBurnPulse(progressRef.current), BURN_HAPTIC_MS)
+    let id = 0
+    let alive = true
+    const loop = () => {
+      if (!alive) return
+      const p = Math.max(0, Math.min(1, progressRef.current))
+      hapticBurnTick()
+      const gap = Math.round(BURN_GAP_SLOW_MS - p * (BURN_GAP_SLOW_MS - BURN_GAP_FAST_MS))
+      id = window.setTimeout(loop, gap)
+    }
+    loop()
     return () => {
-      clearInterval(id)
+      alive = false
+      window.clearTimeout(id)
       stopVibration()
     }
   }, [lit, done])

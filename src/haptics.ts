@@ -62,11 +62,10 @@ export function hapticShredBurst(): void {
   vibrate([30, 24, 18, 30, 14, 36, 24])
 }
 
-// 태우기 — 아래에서 위로 타오르는 진행도(0~1)에 따라 약→강으로 길어지는 펄스.
-//   짧은 간격으로 반복 호출해 "점점 차오르는" 느낌을 만든다.
-export function hapticBurnPulse(progress: number): void {
-  const p = clamp(progress, 0, 1)
-  vibrate(Math.round(3 + p * 22))
+// 태우기 — 일정한 짧은 톡. 세기는 그대로 두고 '호출 간격'을 위로 갈수록 좁혀
+//   진동 빈도가 점점 잦아지게 한다(호출 측에서 간격 제어).
+export function hapticBurnTick(): void {
+  vibrate(12)
 }
 
 // 날리기 — 당기는 동안의 긴장감. 당김 세기(0~1)에 따라 살짝 길어지는 약한 펄스.
@@ -86,7 +85,8 @@ export function hapticJewelStore(): void {
   vibrate([10, 30, 16])
 }
 
-// 보석함 — 후광이 빛날 때 심장박동(lub-dub) 같은 따뜻한 두 박자.
+// 보석함 — 후광이 빛날 때 심장박동(두근). 두근(lub-dub) × 3회로, 사이 간격을 충분히 두어
+//   "두근 … 두근 … 두근" 으로 또렷이 느껴지게. 전체 ≈ 1.7s.
 export function hapticHeartbeat(): void {
-  vibrate([25, 60, 18, 500, 25, 60, 18])
+  vibrate([30, 100, 22, 620, 30, 100, 22, 620, 30, 100, 22])
 }

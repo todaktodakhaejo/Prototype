@@ -105,8 +105,9 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           pointerEvents: 'none',
         }}
         initial={{ opacity: 0, scale: 0.3 }}
-        animate={stored ? { opacity: [0, 0.9, 0], scale: [0.3, 1.1, 1.45] } : {}}
-        transition={{ duration: 1.6, delay: 2.0, ease: 'easeOut' }}
+        // 심장박동 3회(두근…두근…두근)에 맞춰 밝기가 세 번 부풀어 오름. 진동 길이(≈1.7s)에 맞춰 지속도 늘림.
+        animate={stored ? { opacity: [0, 0.95, 0.4, 0.95, 0.4, 0.95, 0], scale: [0.4, 0.72, 0.85, 1.0, 1.15, 1.32, 1.5] } : {}}
+        transition={{ duration: 2.0, delay: 2.0, times: [0, 0.05, 0.25, 0.42, 0.62, 0.78, 1], ease: 'easeInOut' }}
         onAnimationComplete={() => {
           if (stored) finish()
         }}
