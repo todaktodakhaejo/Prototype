@@ -27,6 +27,7 @@ const FLAMES = [
   { dx: 34, w: 28, h: 50, flick: 0.52, delay: 0.1 },
 ]
 const ASH = Array.from({ length: 34 }, (_, i) => i)
+const ASH_DRIFT = Array.from({ length: 9 }, (_, i) => i) // 타는 동안 날아오르는 잿조각
 // 결정적 의사난수(잿가루 분포용)
 const arnd = (n: number) => {
   const x = Math.sin(n * 41.17) * 8643.21
@@ -329,6 +330,26 @@ export default function Burn({ text, onDone }: RitualProps) {
                   }}
                   initial={{ y: 0, x: 0, opacity: 0 }}
                   animate={{ y: [0, -rise], x: [0, ex], opacity: [0, 1, 0], scale: [1, 0.4] }}
+                  transition={{ duration: dur, delay: dly, repeat: Infinity, ease: 'easeOut' }}
+                />
+              )
+            })}
+
+          {/* 재가 되어 바람에 잔잔히 날아가는 잿조각(회색, 옆으로 흩날림) */}
+          {flameOn &&
+            ASH_DRIFT.map((i) => {
+              const dx = 26 + arnd(i + 30) * 120 // 바람 방향(주로 오른쪽 위)
+              const rise = 110 + arnd(i + 31) * 90
+              const dur = 1.9 + arnd(i + 32) * 1.3
+              const dly = arnd(i + 33) * 1.8
+              const sz = 2 + arnd(i + 34) * 2.4
+              const sx = (arnd(i + 35) - 0.5) * 90
+              return (
+                <motion.span
+                  key={`ash${i}`}
+                  style={{ position: 'absolute', left: '50%', bottom: 2, width: sz, height: sz, marginLeft: sx, borderRadius: '50% 50% 40% 50%', background: 'rgba(150,140,138,0.7)', filter: 'blur(0.5px)', pointerEvents: 'none' }}
+                  initial={{ x: 0, y: 0, opacity: 0, rotate: 0 }}
+                  animate={{ x: [0, dx * 0.5, dx], y: [0, -rise * 0.5, -rise], opacity: [0, 0.65, 0], rotate: [0, 80, 170] }}
                   transition={{ duration: dur, delay: dly, repeat: Infinity, ease: 'easeOut' }}
                 />
               )

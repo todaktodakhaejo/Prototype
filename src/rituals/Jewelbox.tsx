@@ -361,8 +361,9 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           <motion.div
             style={{ position: 'absolute', left: '50%', top: 60, marginLeft: -52, zIndex: 7, pointerEvents: 'none' }}
             initial={{ y: 44, scale: 0.18, opacity: 0, rotate: -16 }}
-            // 반짝일 땐 뚜껑 위(z7), 상자로 내려갈 땐 뚜껑 아래(z3)로 바뀌어 '닫히는 뚜껑에 덮여' 사라짐(불투명 유지)
-            animate={{ y: [44, -16, -16, 70, 116], scale: [0.18, 1.0, 1.0, 0.7, 0.4], opacity: [0, 1, 1, 1, 1], rotate: [-16, 0, 0, 0, 0], zIndex: [7, 7, 3, 3, 3] }}
+            // 반짝이는 동안엔 계속 뚜껑 위(z7, 안 가림), 상자로 내려갈 때만 뚜껑 아래(z3)로 바뀌어
+            //  닫히는 뚜껑에 덮이고, 다 들어가면(끝) 가려진 채 사라져 보이지 않음.
+            animate={{ y: [44, -16, -16, 70, 116], scale: [0.18, 1.0, 1.0, 0.7, 0.4], opacity: [0, 1, 1, 1, 0], rotate: [-16, 0, 0, 0, 0], zIndex: [7, 7, 7, 3, 3] }}
             transition={{ duration: 3.3, times: [0, 0.2, 0.7, 0.92, 1], ease: 'easeInOut' }}
           >
             <Gem />
