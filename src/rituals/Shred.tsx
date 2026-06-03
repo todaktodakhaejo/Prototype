@@ -7,8 +7,8 @@ import { hapticShredTick, hapticShredBurst, stopVibration } from '../haptics'
 
 const GRIND_HAPTIC_PX = 26 // 갈기 진동 1펄스당 이동거리(px) — 빠를수록 촘촘
 
-const SPARKS = 48 // 불꽃놀이처럼 한 번에 사방으로 퍼지는 불티
-const SPARK_COLORS = ['#fff3c0', '#ffd24d', '#ff9a3c', '#ffffff', '#ffe08a']
+const SPARKS = 50 // 불꽃놀이 '모양'(사방 방사)으로 터지는 종이 조각
+const SPARK_COLORS = ['#ffffff', '#fbf7f4', '#f3ede3', '#efe7da', '#f7f2ea', '#e7ddcd']
 const GRIND_DIST = 2000 // 이만큼(px) 문질러야 다 갈림 (더 오래 문지르도록)
 const TAP_BUMP = 0.025 // 탭/클릭 한 번마다 조금씩 갈림
 
@@ -184,33 +184,26 @@ export default function Shred({ text, onDone }: RitualProps) {
         />
       </motion.div>
 
-      {/* 다 갈리면 — 불꽃놀이처럼 한 번에 사방으로 퍼지는 불티 */}
-      {done && (
-        <motion.div
-          style={{ position: 'absolute', left: '50%', bottom: 156, width: 90, height: 90, marginLeft: -45, marginTop: -45, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,245,200,0.95) 0%, rgba(255,200,90,0.5) 36%, rgba(255,200,90,0) 70%)', zIndex: 4, pointerEvents: 'none' }}
-          initial={{ scale: 0.2, opacity: 0 }}
-          animate={{ scale: [0.2, 1.4, 2], opacity: [0, 1, 0] }}
-          transition={{ duration: 0.45, ease: 'easeOut' }}
-        />
-      )}
+      {/* 다 갈리면 — 종이 조각이 불꽃놀이 '모양'(사방 방사)으로 한 번에 펑 → 아래로 흩날림 */}
       {done &&
         Array.from({ length: SPARKS }).map((_, i) => {
           const ang = (i / SPARKS) * Math.PI * 2 + (rnd(i) - 0.5) * 0.36
-          const speed = 80 + rnd(i + 5) * 120 // 사방 방사 거리
+          const speed = 80 + rnd(i + 5) * 130 // 사방 방사 거리
           const ex = Math.cos(ang) * speed
           const ey = Math.sin(ang) * speed
-          const grav = 50 + rnd(i + 9) * 90 // 퍼진 뒤 아래로 떨어짐(불티)
-          const dur = 0.9 + rnd(i + 7) * 0.7
-          const dly = rnd(i + 3) * 0.14 // 거의 동시(한 번 펑)
-          const sz = 2.5 + rnd(i + 11) * 2.5
-          const col = SPARK_COLORS[i % SPARK_COLORS.length]
+          const grav = 60 + rnd(i + 9) * 110 // 퍼진 뒤 아래로 떨어짐
+          const dur = 1.0 + rnd(i + 7) * 0.8
+          const dly = rnd(i + 3) * 0.12 // 거의 동시(한 번 펑)
+          const w = 2 + Math.round(rnd(i + 11) * 2) // 폭 2~4px
+          const len = 7 + Math.round(rnd(i + 13) * 8) // 길이 7~15px(종이 조각)
+          const spin = (rnd(i + 15) < 0.5 ? -1 : 1) * (260 + rnd(i + 17) * 280)
           return (
             <motion.span
               key={i}
-              style={{ position: 'absolute', left: '50%', bottom: 156, width: sz, height: sz, marginLeft: -sz / 2, borderRadius: '50%', background: col, boxShadow: `0 0 6px 1px ${col}`, zIndex: 3, pointerEvents: 'none' }}
-              initial={{ x: 0, y: 0, opacity: 0, scale: 0.5 }}
-              animate={{ x: [0, ex, ex], y: [0, ey, ey + grav], opacity: [0, 1, 0], scale: [0.6, 1, 0.4] }}
-              transition={{ duration: dur, delay: dly, times: [0, 0.45, 1], ease: 'easeOut' }}
+              style={{ position: 'absolute', left: '50%', bottom: 156, width: w, height: len, marginLeft: -w / 2, borderRadius: 1, background: SPARK_COLORS[i % SPARK_COLORS.length], boxShadow: '0 1px 1px rgba(0,0,0,0.12)', zIndex: 3, pointerEvents: 'none' }}
+              initial={{ x: 0, y: 0, opacity: 0, rotate: 0, scale: 0.5 }}
+              animate={{ x: [0, ex, ex], y: [0, ey, ey + grav], opacity: [0, 1, 0], rotate: [0, spin * 0.6, spin], scale: [0.5, 1, 0.9] }}
+              transition={{ duration: dur, delay: dly, times: [0, 0.42, 1], ease: 'easeOut' }}
             />
           )
         })}

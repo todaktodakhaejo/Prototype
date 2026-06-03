@@ -291,17 +291,19 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
             />
           ))}
 
-          {/* 보석이 꽂힌 뒤 뚜껑이 닫힘(위에서 덮음) */}
+          {/* 보석이 꽂힌 뒤(closing) 뚜껑이 닫힘 — 그 전엔 렌더하지 않아 보석을 가리지 않음 */}
+          {closing && (
           <motion.div
             style={{ position: 'absolute', left: '50%', bottom: 42, width: 204, height: 118, marginLeft: -102, zIndex: 9, transformOrigin: '50% 0%', transformPerspective: 620, borderRadius: '14px 14px 8px 8px', background: boxBg, boxShadow: '0 14px 26px rgba(20,26,45,0.4), inset 0 2px 0 rgba(255,255,255,0.4)', overflow: 'hidden' }}
             initial={{ rotateX: -92 }}
-            animate={{ rotateX: [-92, -92, 0] }}
-            transition={{ duration: 0.55, delay: 3.35, times: [0, 0.25, 1], ease: 'easeIn' }}
+            animate={{ rotateX: 0 }}
+            transition={{ duration: 0.5, ease: 'easeIn' }}
           >
             <div style={{ position: 'absolute', inset: 0, opacity: night ? 0.26 : 0.5, background: GRAIN }} />
             <div style={{ position: 'absolute', left: 10, right: 10, top: 8, height: 12, borderRadius: 8, background: 'linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0))' }} />
             <div style={{ position: 'absolute', left: '50%', bottom: 8, width: 30, height: 18, marginLeft: -15, borderRadius: 4, background: GOLD, boxShadow: '0 2px 4px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.6)' }} />
           </motion.div>
+          )}
 
           {/* 뾰로롱 — 닫히는 순간 작은 별 스파클 팝 */}
           {[
