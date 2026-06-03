@@ -11,64 +11,55 @@
 }
 
 /*
-  실제 시각 기반 5단계 배경 (data-tod). 기조: 위→아래 또렷한 그라데이션.
-  질감: 부드러운 구름빛 레이어 여러 겹(몽글몽글) + 윗쪽 글로시 채광으로 솜사탕 하늘 느낌.
+  실제 시각 기반 5단계 배경 (data-tod). 매끈한 다단계 그라데이션 + 위쪽 큰 글로시 채광 1겹
+  + (아래) 지평선 빛으로 솜사탕 하늘 느낌. 얼룩이 생기지 않게 작은 블롭은 쓰지 않음.
     dawn 05–07 · day 07–16 · dusk 16–19 · night 19–04 · pre-dawn 04–05
 */
 
-/* 일출 — 하늘색 → 살구빛, 솜털 구름 */
+/* 일출 — 하늘색 → 살구빛 */
 [data-tod='dawn'] {
   --on-bg: #3e3950;
   --bg:
-    radial-gradient(58% 36% at 22% 26%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 60%),
-    radial-gradient(52% 32% at 80% 20%, rgba(255, 226, 200, 0.45) 0%, rgba(255, 226, 200, 0) 62%),
-    radial-gradient(64% 40% at 66% 60%, rgba(255, 240, 222, 0.4) 0%, rgba(255, 240, 222, 0) 66%),
-    radial-gradient(130% 70% at 50% 114%, rgba(255, 190, 142, 0.7) 0%, rgba(255, 190, 142, 0) 58%),
-    linear-gradient(180deg, #84b4ec 0%, #aabfe4 24%, #cbc3d2 48%, #ebc5ab 78%, #f8cd92 100%);
+    radial-gradient(125% 78% at 50% -8%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 56%),
+    radial-gradient(135% 72% at 50% 116%, rgba(255, 190, 142, 0.6) 0%, rgba(255, 190, 142, 0) 60%),
+    linear-gradient(180deg, #8fbbef 0%, #aec3e8 22%, #cbc6d8 46%, #e7c9b2 74%, #f8cd92 100%);
 }
 
-/* 낮 — 분홍 → 라벤더, 보송한 구름 */
+/* 낮 — 분홍 → 라벤더 */
 [data-tod='day'] {
   --on-bg: #4f4360;
   --bg:
-    radial-gradient(70% 42% at 50% -4%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 56%),
-    radial-gradient(50% 34% at 20% 38%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 62%),
-    radial-gradient(52% 34% at 82% 52%, rgba(244, 224, 245, 0.5) 0%, rgba(244, 224, 245, 0) 64%),
-    linear-gradient(180deg, #f7bcd8 0%, #ecc2e6 42%, #cdc3f0 78%, #bcbdf0 100%);
+    radial-gradient(125% 74% at 50% -8%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 56%),
+    linear-gradient(180deg, #f7bcd8 0%, #edc4e6 40%, #d4c6ef 74%, #bcbdf0 100%);
 }
 
-/* 노을 — 짙은 남색 → 핑크·산호, 부드러운 노을 구름 */
+/* 노을 — 짙은 남색 → 핑크·산호 */
 [data-tod='dusk'] {
   --on-bg: #fceef0;
   --bg:
-    radial-gradient(60% 30% at 26% 60%, rgba(255, 200, 170, 0.4) 0%, rgba(255, 200, 170, 0) 60%),
-    radial-gradient(55% 30% at 76% 50%, rgba(255, 170, 150, 0.42) 0%, rgba(255, 170, 150, 0) 62%),
-    radial-gradient(70% 28% at 50% 18%, rgba(120, 120, 200, 0.3) 0%, rgba(120, 120, 200, 0) 64%),
-    radial-gradient(140% 60% at 50% 112%, rgba(248, 158, 108, 0.85) 0%, rgba(248, 158, 108, 0) 58%),
+    radial-gradient(130% 64% at 50% 4%, rgba(150, 150, 210, 0.2) 0%, rgba(150, 150, 210, 0) 56%),
+    radial-gradient(145% 62% at 50% 114%, rgba(248, 158, 108, 0.8) 0%, rgba(248, 158, 108, 0) 60%),
     linear-gradient(180deg, #1d2461 0%, #443e8c 28%, #7d5896 50%, #b96e8f 70%, #e2887f 86%, #f4a368 100%);
 }
 
-/* 밤 — 짙은 남색 + 별빛 + 솜털 달무리 */
+/* 밤 — 짙은 남색 + 별빛 + 위쪽 은은한 달빛 */
 [data-tod='night'] {
   --on-bg: #edf0fb;
   --bg:
     radial-gradient(1.8px 1.8px at 22% 18%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 100%),
-    radial-gradient(1.6px 1.6px at 68% 14%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0) 100%),
-    radial-gradient(1.5px 1.5px at 54% 26%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0) 100%),
-    radial-gradient(1.4px 1.4px at 82% 30%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(1.6px 1.6px at 68% 14%, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(1.5px 1.5px at 54% 26%, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(1.4px 1.4px at 82% 30%, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0) 100%),
     radial-gradient(1.3px 1.3px at 36% 36%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%),
-    radial-gradient(46% 30% at 30% 24%, rgba(150, 170, 230, 0.28) 0%, rgba(150, 170, 230, 0) 64%),
-    radial-gradient(72% 46% at 64% 60%, rgba(120, 134, 200, 0.26) 0%, rgba(120, 134, 200, 0) 64%),
+    radial-gradient(130% 75% at 50% 6%, rgba(150, 168, 230, 0.22) 0%, rgba(150, 168, 230, 0) 58%),
     linear-gradient(180deg, #0b1230 0%, #141d44 50%, #202a58 100%);
 }
 
-/* 새벽 — 진한 파랑 → 분홍 여명, 옅은 새벽 구름 */
+/* 새벽 — 진한 파랑 → 분홍 여명 */
 [data-tod='pre-dawn'] {
   --on-bg: #eef1ff;
   --bg:
-    radial-gradient(56% 30% at 28% 50%, rgba(180, 160, 220, 0.34) 0%, rgba(180, 160, 220, 0) 62%),
-    radial-gradient(52% 28% at 78% 64%, rgba(224, 150, 178, 0.4) 0%, rgba(224, 150, 178, 0) 62%),
-    radial-gradient(60% 26% at 50% 16%, rgba(120, 130, 200, 0.28) 0%, rgba(120, 130, 200, 0) 64%),
-    radial-gradient(125% 56% at 50% 114%, rgba(224, 142, 172, 0.78) 0%, rgba(224, 142, 172, 0) 58%),
+    radial-gradient(130% 66% at 50% 6%, rgba(140, 150, 210, 0.2) 0%, rgba(140, 150, 210, 0) 58%),
+    radial-gradient(130% 58% at 50% 116%, rgba(224, 142, 172, 0.72) 0%, rgba(224, 142, 172, 0) 58%),
     linear-gradient(180deg, #0e1f59 0%, #283779 36%, #5a4f8f 64%, #9a6d93 84%, #cf86a8 100%);
 }
