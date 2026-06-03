@@ -342,16 +342,16 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
               wordBreak: 'break-word',
               pointerEvents: 'none',
             }}
-            initial={{ scale: 0.78, opacity: 1, rotate: 0 }}
-            animate={{ scale: [0.78, 0.46, 0.12], opacity: [1, 0.7, 0], rotate: [0, 14, 34], filter: ['blur(0px)', 'blur(1.5px)', 'blur(4px)'] }}
-            transition={{ duration: 0.5, times: [0, 0.6, 1], ease: 'easeIn' }}
+            initial={{ y: 50, scale: 0.78, opacity: 1, rotate: 0 }}
+            animate={{ y: [50, 4, -16], scale: [0.78, 0.5, 0.12], opacity: [1, 0.8, 0], rotate: [0, 10, 28], filter: ['blur(0px)', 'blur(1.2px)', 'blur(4px)'] }}
+            transition={{ duration: 0.55, times: [0, 0.5, 1], ease: 'easeOut' }}
           >
             {text}
           </motion.div>
 
           {/* 변하는 순간 반짝 플래시 */}
           <motion.div
-            style={{ position: 'absolute', left: '50%', top: 112, width: 140, height: 140, marginLeft: -70, marginTop: -70, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(214,232,255,0.5) 30%, rgba(214,232,255,0) 66%)', zIndex: 6, pointerEvents: 'none' }}
+            style={{ position: 'absolute', left: '50%', top: 96, width: 140, height: 140, marginLeft: -70, marginTop: -70, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(214,232,255,0.5) 30%, rgba(214,232,255,0) 66%)', zIndex: 6, pointerEvents: 'none' }}
             initial={{ scale: 0.2, opacity: 0 }}
             animate={{ scale: [0.2, 1.3, 1.7], opacity: [0, 0.9, 0] }}
             transition={{ duration: 0.6, delay: 0.3, ease: 'easeOut' }}
@@ -360,20 +360,20 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           {/* 보석이 종이 자리(중앙)에서 피어나 ~2초 반짝인 뒤 함 속으로 떨어져 담김 */}
           <motion.div
             style={{ position: 'absolute', left: '50%', top: 60, marginLeft: -52, zIndex: 6, pointerEvents: 'none' }}
-            initial={{ y: 0, scale: 0.15, opacity: 0, rotate: -16 }}
-            animate={{ y: [0, 0, 0, 92, 116], scale: [0.15, 1.0, 1.0, 0.62, 0.16], opacity: [0, 1, 1, 1, 0], rotate: [-16, 0, 0, 0, 0] }}
-            transition={{ duration: 3.3, times: [0, 0.16, 0.7, 0.92, 1], ease: 'easeInOut' }}
+            initial={{ y: 44, scale: 0.18, opacity: 0, rotate: -16 }}
+            animate={{ y: [44, -16, -16, 70, 116], scale: [0.18, 1.0, 1.0, 0.66, 0.16], opacity: [0, 1, 1, 1, 0], rotate: [-16, 0, 0, 0, 0] }}
+            transition={{ duration: 3.3, times: [0, 0.2, 0.7, 0.92, 1], ease: 'easeInOut' }}
           >
             <Gem />
           </motion.div>
 
           {/* 중앙에서 반짝이는 동안의 작은 별빛들 */}
           {[
-            [50, 96],
-            [58, 122],
-            [42, 124],
-            [62, 108],
-            [40, 106],
+            [50, 54],
+            [60, 82],
+            [40, 116],
+            [64, 70],
+            [38, 100],
           ].map(([lx, ty], k) => (
             <motion.span
               key={`tw${k}`}
