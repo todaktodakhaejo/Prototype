@@ -69,18 +69,35 @@ function Star({ glow }: { glow: string }) {
 }
 
 // 분사한 연료가 모여 만들어진 구름 — 여러 겹 블롭 + 블러로 적당히 사실적인 뭉게구름
-const CLOUD_PUFFS = [
-  { x: 38, y: 58, r: 56 },
-  { x: 74, y: 40, r: 74 },
-  { x: 116, y: 38, r: 66 },
-  { x: 150, y: 56, r: 50 },
-  { x: 58, y: 62, r: 50 },
-  { x: 100, y: 64, r: 52 },
-  { x: 134, y: 62, r: 46 },
-  { x: 92, y: 28, r: 52 },
+type Puff = { x: number; y: number; r: number }
+// 구름 실루엣 변형 3종(획일적이지 않게) — 넓고 납작 / 둥글고 도톰 / 작고 흩어진
+const PUFFS_A: Puff[] = [
+  { x: 36, y: 60, r: 54 },
+  { x: 74, y: 38, r: 78 },
+  { x: 118, y: 40, r: 62 },
+  { x: 152, y: 58, r: 46 },
+  { x: 56, y: 64, r: 48 },
+  { x: 100, y: 64, r: 50 },
+  { x: 136, y: 62, r: 44 },
+  { x: 92, y: 26, r: 50 },
+]
+const PUFFS_B: Puff[] = [
+  { x: 52, y: 52, r: 66 },
+  { x: 98, y: 36, r: 86 },
+  { x: 142, y: 54, r: 56 },
+  { x: 74, y: 64, r: 52 },
+  { x: 120, y: 66, r: 52 },
+]
+const PUFFS_C: Puff[] = [
+  { x: 40, y: 48, r: 40 },
+  { x: 76, y: 40, r: 60 },
+  { x: 110, y: 50, r: 44 },
+  { x: 62, y: 60, r: 38 },
+  { x: 98, y: 58, r: 42 },
+  { x: 132, y: 56, r: 30 },
 ]
 
-function Cloud({ left, top, scale, opacity, delay, drift }: { left: string; top: string; scale: number; opacity: number; delay: number; drift: number }) {
+function Cloud({ left, top, scale, opacity, delay, drift, puffs }: { left: string; top: string; scale: number; opacity: number; delay: number; drift: number; puffs: Puff[] }) {
   return (
     <motion.div
       style={{ position: 'absolute', left, top, width: 196, height: 96, marginLeft: -98, marginTop: -48, pointerEvents: 'none', zIndex: 7, filter: 'blur(2.6px)' }}
@@ -88,7 +105,7 @@ function Cloud({ left, top, scale, opacity, delay, drift }: { left: string; top:
       animate={{ opacity: [0, opacity, opacity], x: [-drift, 0, drift], scale }}
       transition={{ duration: 2.6, delay, times: [0, 0.4, 1], ease: 'easeOut' }}
     >
-      {CLOUD_PUFFS.map((p, i) => (
+      {puffs.map((p, i) => (
         <div
           key={i}
           style={{
@@ -110,12 +127,13 @@ function Cloud({ left, top, scale, opacity, delay, drift }: { left: string; top:
 
 // 하늘에 고루 흩어 떠 있는 구름들 — 중앙(별빛 자리)은 비우고 상/중(모서리)/하로 분산
 const CLOUDS = [
-  { left: '22%', top: '11%', scale: 0.5, opacity: 0.84, delay: 0.1, drift: 11 },
-  { left: '80%', top: '13%', scale: 0.56, opacity: 0.86, delay: 0.0, drift: 14 },
-  { left: '9%', top: '38%', scale: 0.4, opacity: 0.7, delay: 0.45, drift: 8 },
-  { left: '91%', top: '42%', scale: 0.44, opacity: 0.72, delay: 0.5, drift: 9 },
-  { left: '34%', top: '64%', scale: 0.48, opacity: 0.8, delay: 0.3, drift: 11 },
-  { left: '68%', top: '68%', scale: 0.5, opacity: 0.82, delay: 0.38, drift: 12 },
+  { left: '15%', top: '11%', scale: 0.4, opacity: 0.6, delay: 0.12, drift: 11, puffs: PUFFS_C },
+  { left: '46%', top: '6%', scale: 0.72, opacity: 0.76, delay: 0.0, drift: 13, puffs: PUFFS_B },
+  { left: '85%', top: '14%', scale: 0.52, opacity: 0.68, delay: 0.2, drift: 14, puffs: PUFFS_A },
+  { left: '9%', top: '41%', scale: 0.34, opacity: 0.54, delay: 0.45, drift: 8, puffs: PUFFS_C },
+  { left: '92%', top: '40%', scale: 0.62, opacity: 0.7, delay: 0.5, drift: 9, puffs: PUFFS_B },
+  { left: '30%', top: '66%', scale: 0.46, opacity: 0.64, delay: 0.3, drift: 11, puffs: PUFFS_A },
+  { left: '71%', top: '70%', scale: 0.56, opacity: 0.66, delay: 0.38, drift: 12, puffs: PUFFS_C },
 ]
 
 // 슬링샷 물리: 당긴 '반대' 방향으로, 항상 하늘(위)을 향해 사선 발사
@@ -408,7 +426,7 @@ export default function Plane({ text, onDone }: RitualProps) {
 
       {/* star: 다 날아간 뒤 별빛으로 반짝 + 연료가 구름이 되어 하늘에 떠오름 */}
       {phase === 'star' && <Star glow={starGlow} />}
-      {phase === 'star' && CLOUDS.map((c, i) => <Cloud key={i} left={c.left} top={c.top} scale={c.scale} opacity={c.opacity} delay={c.delay} drift={c.drift} />)}
+      {phase === 'star' && CLOUDS.map((c, i) => <Cloud key={i} left={c.left} top={c.top} scale={c.scale} opacity={c.opacity} delay={c.delay} drift={c.drift} puffs={c.puffs} />)}
 
       {/* 당기는 동안: 방향 화살표 (슬링샷처럼 — 당긴 방향·세기 미리보기) */}
       {phase === 'plane' && power > 0.04 && (

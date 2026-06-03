@@ -70,19 +70,16 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('jewelbox', JEWELBOX_MESSAGES))
   const [stored, setStored] = useState(false)
   const [open, setOpen] = useState(false) // 뚜껑 열림(드래그 시작 시)
-  const [inBox, setInBox] = useState(false) // 보석이 상자로 내려가는 구간(이때만 뚜껑 뒤로)
   const [pull, setPull] = useState(0) // 아래로 끌어내린 정도(px)
   const fired = useRef(false)
   const doneRef = useRef(false)
   const beatRef = useRef<number | null>(null) // 심장박동 햅틱 타이머
-  const inBoxRef = useRef<number | null>(null) // z 전환 타이머
   const nearness = Math.min(1, pull / DROP) // 담기는 지점에 얼마나 가까운지(0~1)
 
   // 화면 이탈 시 진동·예약 타이머 정리
   useEffect(
     () => () => {
       if (beatRef.current !== null) window.clearTimeout(beatRef.current)
-      if (inBoxRef.current !== null) window.clearTimeout(inBoxRef.current)
       stopVibration()
     },
     [],
@@ -103,8 +100,6 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
       hapticJewelStore() // 함에 넣는 순간 부드러운 진동
       // 후광이 빛나기 시작할 때 따뜻한 심장박동 진동
       beatRef.current = window.setTimeout(hapticHeartbeat, HEARTBEAT_DELAY_MS)
-      // 중앙 반짝(약 2.3s) 동안은 z를 높여 뚜껑 위에, 이후 내려갈 때만 뚜껑 뒤로
-      inBoxRef.current = window.setTimeout(() => setInBox(true), 2300)
       setTimeout(finish, 6800) // 폴백(중앙 반짝 2s + 담기 + 후광 종료 이후)
     } else {
       setPull(0) // 덜 내리고 놓으면 복귀 → 입구 빛도 가라앉음
@@ -362,17 +357,18 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
             transition={{ duration: 0.6, delay: 0.3, ease: 'easeOut' }}
           />
 
-          {/* 보석이 종이 자리(중앙)에서 피어나 ~2초 반짝인 뒤 함 속으로 떨어져 담김 */}
-          <motion.div
-            // 반짝일 땐 z30(무조건 뚜껑·상자 앞), 내려갈 때(inBox)만 z3으로 내려 뚜껑에 덮임
-            style={{ position: 'absolute', left: '50%', top: 60, marginLeft: -52, zIndex: inBox ? 3 : 30, pointerEvents: 'none' }}
-            initial={{ y: 44, scale: 0.18, opacity: 0, rotate: -16 }}
-            // 불투명 유지(반투명 X). 최종엔 뚜껑 덮이는 영역(작게)으로 내려가 가려져 안 보임.
-            animate={{ y: [44, -16, -16, 44, 78], scale: [0.18, 1.0, 1.0, 0.5, 0.3], opacity: [0, 1, 1, 1, 1], rotate: [-16, 0, 0, 0, 0] }}
-            transition={{ duration: 3.3, times: [0, 0.2, 0.7, 0.92, 1], ease: 'easeInOut' }}
-          >
-            <Gem />
-          </motion.div>
+          {/* 보석이 중앙에서 피어나 ~2초 반짝인 뒤, 상자 입구(클립 경계 176px) 아래로 내려가
+              잘려 사라짐 = 상자 안으로 들어가 안 보임. 뚜껑이 가리는 게 아니라 z6로 앞에 있음. */}
+          <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 176, overflow: 'hidden', zIndex: 6, pointerEvents: 'none' }}>
+            <motion.div
+              style={{ position: 'absolute', left: '50%', top: 60, marginLeft: -52 }}
+              initial={{ y: 44, scale: 0.18, opacity: 0, rotate: -16 }}
+              animate={{ y: [44, -16, -16, 70, 120], scale: [0.18, 1.0, 1.0, 0.85, 0.7], opacity: [0, 1, 1, 1, 1], rotate: [-16, 0, 0, 0, 0] }}
+              transition={{ duration: 3.3, times: [0, 0.2, 0.7, 0.92, 1], ease: 'easeInOut' }}
+            >
+              <Gem />
+            </motion.div>
+          </div>
 
           {/* 중앙에서 반짝이는 동안의 작은 별빛들 */}
           {[

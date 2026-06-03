@@ -199,7 +199,7 @@ export default function Shred({ text, onDone }: RitualProps) {
           const dly = wave * 0.42 + rnd(i + 3) * 0.14 // 웨이브별 0.42s 간격, 각 웨이브는 촘촘히(팡!)
           const dur = 1.0 + rnd(i + 5) * 0.55
           const spin = (rnd(i + 9) < 0.5 ? -1 : 1) * (340 + rnd(i + 11) * 320)
-          const sz = 7 + Math.round(rnd(i + 17) * 6) // 더 큰 조각
+          const sz = 3 + Math.round(rnd(i + 17) * 3) // 작은 조각(3~6px)
           return (
             <motion.span
               key={i}
@@ -208,11 +208,10 @@ export default function Shred({ text, onDone }: RitualProps) {
                 left: '50%',
                 bottom: 156,
                 width: sz,
-                height: Math.round(sz * 2.1),
+                height: Math.round(sz * 1.7),
                 marginLeft: -sz / 2,
-                borderRadius: 2,
+                borderRadius: 1.5,
                 background: COLORS[i % COLORS.length],
-                boxShadow: '0 0 6px rgba(255,255,255,0.35)',
                 zIndex: 3,
               }}
               initial={{ x: 0, y: 0, opacity: 0, rotate: 0, scale: 0.4 }}
