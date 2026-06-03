@@ -118,7 +118,7 @@ function Cloud({ left, top, scale, opacity, delay, drift, puffs }: { left: strin
             marginLeft: -p.r / 2,
             marginTop: -(p.r * 0.92) / 2,
             borderRadius: '50%',
-            background: 'radial-gradient(circle at 50% 38%, #ffffff 0%, #f4f6fb 52%, rgba(244,246,251,0.5) 74%, rgba(244,246,251,0) 90%)',
+            background: 'radial-gradient(circle at 50% 30%, #ffffff 0%, #f4f7fc 44%, #e2e7f1 72%, rgba(214,221,235,0.45) 86%, rgba(214,221,235,0) 96%)',
           }}
         />
       ))}
@@ -155,9 +155,25 @@ function launchVec(px: number, py: number) {
 // 종이비행기 SVG
 function PaperPlane() {
   return (
-    <svg width={150} height={112} viewBox="0 0 120 90" aria-hidden style={{ position: 'relative' }}>
-      <polygon points="10,82 112,8 60,56" fill="#ffffff" />
-      <polygon points="112,8 60,56 80,82" fill="#efe7dd" />
+    <svg width={150} height={112} viewBox="0 0 120 90" aria-hidden style={{ position: 'relative', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.28))' }}>
+      <defs>
+        <linearGradient id="ppTop" x1="0" y1="0" x2="0.9" y2="1">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="62%" stopColor="#f3efe7" />
+          <stop offset="100%" stopColor="#e4ddcf" />
+        </linearGradient>
+        <linearGradient id="ppUnder" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#e6ded0" />
+          <stop offset="100%" stopColor="#c9c0ae" />
+        </linearGradient>
+      </defs>
+      {/* 윗 날개(밝은 면) */}
+      <polygon points="10,82 112,8 60,56" fill="url(#ppTop)" stroke="#d7cfbf" strokeWidth="0.5" />
+      {/* 아래 접힌 면(그늘) */}
+      <polygon points="112,8 60,56 80,82" fill="url(#ppUnder)" stroke="#c4baa6" strokeWidth="0.5" />
+      {/* 중앙 능선(접힌 선) + 보조 크레아스 */}
+      <line x1="112" y1="8" x2="46" y2="74" stroke="rgba(120,110,92,0.4)" strokeWidth="0.8" />
+      <line x1="112" y1="8" x2="60" y2="56" stroke="rgba(255,255,255,0.6)" strokeWidth="0.6" />
     </svg>
   )
 }
