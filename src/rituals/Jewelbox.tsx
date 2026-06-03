@@ -15,8 +15,9 @@ const CREAM_BOX = 'radial-gradient(125% 85% at 34% 22%, rgba(255,255,255,0.55) 0
 const SATIN = 'linear-gradient(180deg, #f3ebdb 0%, #e6d8c2 60%, #d8c8ad 100%)'
 const SATIN_DEEP = 'linear-gradient(180deg, #ece1cd 0%, #d7c6aa 100%)'
 const SATIN_NIGHT = 'linear-gradient(180deg, #efe1e8 0%, #ddc8d2 100%)'
-// 고급 골드(클래스프)
+// 고급 골드 / 실버(클래스프 — 크림 상자=골드, 네이비 상자=실버)
 const GOLD = 'linear-gradient(180deg, #fff0bf 0%, #ecca74 38%, #cf9f3e 70%, #a87a28 100%)'
+const SILVER = 'linear-gradient(180deg, #ffffff 0%, #dde2ea 36%, #b3bcc9 70%, #8a93a3 100%)'
 // 벨벳 결 + 은은한 마름모 패턴(로고 아님) — 가는 빛 격자 + 결
 const GRAIN =
   'repeating-linear-gradient(45deg, rgba(255,255,255,0.07) 0 1px, transparent 1px 19px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.07) 0 1px, transparent 1px 19px), repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, rgba(0,0,0,0.06) 1px 3px)'
@@ -46,14 +47,19 @@ function MiniGem({ color, size = 24 }: { color: string; size?: number }) {
 }
 
 // 고급 골드 클래스프(여밈쇠) — 광택 플레이트 + 중앙 여밈선 + 못
-function GoldClasp({ w = 34, h = 22 }: { w?: number; h?: number }) {
+function GoldClasp({ w = 34, h = 22, silver = false }: { w?: number; h?: number; silver?: boolean }) {
+  const plate = silver ? SILVER : GOLD
+  const seam = silver ? 'rgba(70,80,95,0.55)' : 'rgba(110,75,20,0.55)'
+  const hi = silver ? 'rgba(255,255,255,0.9)' : 'rgba(255,248,220,0.75)'
+  const stud = silver ? '#5e6878' : '#8a6a24'
+  const innerSh = silver ? 'rgba(70,80,95,0.5)' : 'rgba(120,80,20,0.55)'
   return (
     <div style={{ position: 'relative', width: w, height: h }}>
-      <div style={{ position: 'absolute', inset: 0, borderRadius: 5, background: GOLD, boxShadow: '0 2px 5px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.85), inset 0 -2px 4px rgba(120,80,20,0.55)' }} />
-      <div style={{ position: 'absolute', left: '50%', top: 4, bottom: 4, width: 2, marginLeft: -1, borderRadius: 1, background: 'rgba(110,75,20,0.55)', boxShadow: '1px 0 0 rgba(255,245,210,0.5)' }} />
-      <div style={{ position: 'absolute', left: 5, right: 5, top: 3, height: 3, borderRadius: 2, background: 'rgba(255,248,220,0.75)' }} />
-      <div style={{ position: 'absolute', left: 4, top: '50%', width: 3, height: 3, marginTop: -1.5, borderRadius: '50%', background: '#8a6a24' }} />
-      <div style={{ position: 'absolute', right: 4, top: '50%', width: 3, height: 3, marginTop: -1.5, borderRadius: '50%', background: '#8a6a24' }} />
+      <div style={{ position: 'absolute', inset: 0, borderRadius: 5, background: plate, boxShadow: `0 2px 5px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.85), inset 0 -2px 4px ${innerSh}` }} />
+      <div style={{ position: 'absolute', left: '50%', top: 4, bottom: 4, width: 2, marginLeft: -1, borderRadius: 1, background: seam, boxShadow: '1px 0 0 rgba(255,255,255,0.4)' }} />
+      <div style={{ position: 'absolute', left: 5, right: 5, top: 3, height: 3, borderRadius: 2, background: hi }} />
+      <div style={{ position: 'absolute', left: 4, top: '50%', width: 3, height: 3, marginTop: -1.5, borderRadius: '50%', background: stud }} />
+      <div style={{ position: 'absolute', right: 4, top: '50%', width: 3, height: 3, marginTop: -1.5, borderRadius: '50%', background: stud }} />
     </div>
   )
 }
@@ -96,8 +102,9 @@ const NEW_SEAT_Y = 188 // 새 보석이 꽂히는 중앙 자리(센터 기준 �
 
 export default function Jewelbox({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('jewelbox', JEWELBOX_MESSAGES))
-  // 어두운 배경(밤·새벽) → 크림 보석함 + 골드 보석 / 그 외 → 네이비 벨벳 + 화이트 다이아몬드
-  const night = useTimeOfDay() === 'night' || useTimeOfDay() === 'pre-dawn'
+  // 어두운/노을 배경(밤·새벽·노을) → 크림 보석함 + 골드 보석 / 그 외(일출·낮) → 네이비 벨벳 + 화이트 다이아 + 실버 클래스프
+  const tod = useTimeOfDay()
+  const night = tod === 'night' || tod === 'pre-dawn' || tod === 'dusk'
   const [stored, setStored] = useState(false)
   const [open, setOpen] = useState(false)
   const [closing, setClosing] = useState(false) // 뚜껑이 닫히기 시작(열린-뚜껑·내부 정리)
@@ -178,7 +185,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           <div style={{ position: 'absolute', left: 10, right: 10, top: 6, height: 12, borderRadius: 8, background: 'linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0))' }} />
           <div style={{ position: 'absolute', left: 0, right: 0, top: 42, height: 2, background: night ? 'rgba(150,120,80,0.3)' : 'rgba(0,0,0,0.3)', boxShadow: '0 1px 0 rgba(255,255,255,0.3)' }} />
           <div style={{ position: 'absolute', left: '50%', top: 34, marginLeft: -17 }}>
-            <GoldClasp />
+            <GoldClasp silver={!night} />
           </div>
         </div>
       )}
@@ -215,9 +222,9 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
                 <div key={i} style={{ position: 'absolute', left: 18 + i * 2, right: 18 + i * 2, top: ty, height: 6, borderRadius: 6, background: SATIN_DEEP, boxShadow: '0 1px 0 rgba(255,255,255,0.7), 0 -2px 3px rgba(120,90,60,0.25)' }} />
               ))}
             </div>
-            <div style={{ position: 'absolute', left: 10, right: 10, top: 106, height: 3, borderRadius: 2, background: GOLD, opacity: 0.85 }} />
+            <div style={{ position: 'absolute', left: 10, right: 10, top: 106, height: 3, borderRadius: 2, background: night ? GOLD : SILVER, opacity: 0.85 }} />
             <div style={{ position: 'absolute', left: '50%', top: 116, marginLeft: -17 }}>
-              <GoldClasp />
+              <GoldClasp silver={!night} />
             </div>
           </motion.div>
 
@@ -323,7 +330,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
             <div style={{ position: 'absolute', inset: 0, opacity: night ? 0.26 : 0.5, background: GRAIN }} />
             <div style={{ position: 'absolute', left: 10, right: 10, top: 8, height: 12, borderRadius: 8, background: 'linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0))' }} />
             <div style={{ position: 'absolute', left: '50%', bottom: 6, marginLeft: -17 }}>
-              <GoldClasp />
+              <GoldClasp silver={!night} />
             </div>
           </motion.div>
           )}
