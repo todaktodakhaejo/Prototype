@@ -11,7 +11,12 @@ const BURN_GAP_FAST_MS = 70 // 다 타갈 때(위) — 다다닥
 
 const HOLD_SEC = 3.2 // 불붙은 뒤 다 타는 데 걸리는 시간
 const HOLD_MSG = 2.6 // 잿더미 + 멘트 머무는 여운
-const IGNITE_DIST = 52 // 성냥을 이만큼 끌면 점화
+// 성냥 머리가 종이(컨테이너 0..220 × 0..300) 안에 들어오면 점화.
+//  성냥 머리의 '정지 시' 컨테이너 좌표(아래 배치 기준) — 여기에 드래그 오프셋을 더해 현재 위치를 계산.
+const HEAD_REST_X = -33 // 종이 왼쪽 바깥
+const HEAD_REST_Y = 215
+const PAPER_W = 220
+const PAPER_H = 300
 const FLAMES = [
   { dx: -30, w: 20, h: 34, flick: 0.46 },
   { dx: -10, w: 26, h: 46, flick: 0.52 },
@@ -38,8 +43,11 @@ export default function Burn({ text, onDone }: RitualProps) {
       setLit(true)
     }
   }
+  // 성냥 머리가 종이 영역 안으로 들어왔을 때만 점화(그 전엔 자유롭게 움직일 수 있음)
   const onMatchDrag = (_e: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
-    if (Math.hypot(info.offset.x, info.offset.y) > IGNITE_DIST) ignite()
+    const hx = HEAD_REST_X + info.offset.x
+    const hy = HEAD_REST_Y + info.offset.y
+    if (hx >= 0 && hx <= PAPER_W && hy >= 0 && hy <= PAPER_H) ignite()
   }
 
   // 불이 붙으면 자동으로 타오름

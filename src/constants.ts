@@ -10,7 +10,7 @@ export const LONG_PRESS_MS = 800
 // ── KPI 모드(프로토타입 한정) 기분 측정 ──
 export const MOOD_MAX = 10 // 0~10 척도 (0=매우 안 좋다 ~ 10=매우 좋다 — 높을수록 좋음)
 // (1) 공놀이 전(시작)
-export const MOOD_PRE_TITLE = '감정말랑이를\n만나기 전, 지금 기분이 어떤가요?'
+export const MOOD_PRE_TITLE = '시작 전, 지금 기분이 어떤가요?'
 // (2) 공놀이만 하고 마침
 export const MOOD_POST_BALL_TITLE = '감정말랑이를\n만나고 난 지금, 기분이 어떤가요?'
 // (3) 환기(리츄얼)까지 하고 마침

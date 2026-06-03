@@ -5,11 +5,12 @@ import { MOOD_MAX, MOOD_LOW_LABEL, MOOD_HIGH_LABEL } from '../constants'
 interface Props {
   title: string
   onSubmit: (value: number) => void
+  reserveBottom?: boolean // 시작화면: 하단 안내 말풍선과 겹치지 않게 콘텐츠를 위로 띄움
 }
 
 // 0~MOOD_MAX 슬라이더(정수 스냅, 연속 밀기 X) — 밀어서 고르고 [확인]으로 제출.
 // 양 끝 캡션(0=매우 안 좋다 / 10=매우 좋다)으로 방향(높을수록 좋음)을 명확히.
-export default function MoodScale({ title, onSubmit }: Props) {
+export default function MoodScale({ title, onSubmit, reserveBottom }: Props) {
   const [value, setValue] = useState(0)
 
   return (
@@ -17,7 +18,7 @@ export default function MoodScale({ title, onSubmit }: Props) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22, width: '100%', maxWidth: 340 }}
+      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22, width: '100%', maxWidth: 340, paddingBottom: reserveBottom ? 160 : 0 }}
     >
       <p className="serif" style={{ color: 'var(--on-bg)', fontSize: 18, lineHeight: 1.5, maxWidth: 320, whiteSpace: 'pre-line' }}>
         {title}
