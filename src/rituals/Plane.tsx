@@ -289,8 +289,8 @@ export default function Plane({ text, onDone }: RitualProps) {
   const angleDeg = (Math.atan2(aim.y, aim.x) * 180) / Math.PI
   const dirAngle = (Math.atan2(dir.y, dir.x) * 180) / Math.PI // 발사 후 비행 방향(코끝 유지용)
   // 화면 안 한 지점까지만 날아가 그 자리에서 별이 됨(세게 던질수록 조금 더 멀리, 화면 안 유지)
-  const flyDist = 120 + (throwPower - 1.1) * 22
-  const START_Y = 150 // 화면 하단(손가락 위치)에서부터 힘차게 날아오름
+  const flyDist = 132 + (throwPower - 1.1) * 30
+  const START_Y = 168 // 화면 하단(손가락 위치)에서부터 힘차게 솟구침
 
   return (
     <div style={{ position: 'relative', width: 240, height: 320, touchAction: 'none' }}>
@@ -384,16 +384,16 @@ export default function Plane({ text, onDone }: RitualProps) {
       {phase === 'flying' && (
         <motion.div
           style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}
-          initial={{ x: 0, y: START_Y, scale: 1.35, opacity: 1, rotate: 0 }}
+          initial={{ x: 0, y: START_Y, scale: 1.3, opacity: 1, rotate: 0 }}
           animate={{
-            // 화면 하단(START_Y)에서부터 궤적을 그리며 위쪽 한 지점(dir*flyDist)으로 힘차게 솟아 도착 → 별이 됨
+            // 화면 하단(START_Y)에서 위쪽 한 지점(dir*flyDist)으로 '슝' 쏘아져 도착 → 별이 됨
             x: [0, dir.x * flyDist * 0.5, dir.x * flyDist],
             y: [START_Y, (START_Y + dir.y * flyDist) / 2, dir.y * flyDist],
-            scale: [1.35, 1.1, 0.78],
+            scale: [1.3, 1.2, 1.02],
             opacity: [1, 1, 1],
             rotate: [0, dir.x * 12, dir.x * 18],
           }}
-          transition={{ duration: 0.82, times: [0, 0.32, 1], ease: 'easeOut' }}
+          transition={{ duration: 0.55, times: [0, 0.3, 1], ease: [0.1, 0.75, 0.2, 1] }}
           onAnimationComplete={() => setPhase('star')}
         >
           <div style={{ position: 'relative', transform: `rotate(${dirAngle + 38}deg)` }}>
@@ -440,8 +440,8 @@ export default function Plane({ text, onDone }: RitualProps) {
                 zIndex: 4,
               }}
               initial={{ opacity: 0, scale: 0.4 }}
-              animate={{ opacity: [0, 0.9, 0], scale: [0.4, 1, 0.8] }}
-              transition={{ duration: 0.7, delay: t * 0.6, ease: 'easeOut' }}
+              animate={{ opacity: [0, 0.95, 0], scale: [0.4, 1.1, 0.7] }}
+              transition={{ duration: 0.5, delay: t * 0.3, ease: 'easeOut' }}
             />
           )
         })}

@@ -7,10 +7,8 @@ import { hapticShredTick, hapticShredBurst, stopVibration } from '../haptics'
 
 const GRIND_HAPTIC_PX = 26 // 갈기 진동 1펄스당 이동거리(px) — 빠를수록 촘촘
 
-const CONFETTI = 88 // 4회 웨이브로 팡-팡-팡-팡 터짐
-const WAVES = 4
-// 잘게 찢긴 '종이' 색 — 흰/크림 위주(현실적), 아주 옅은 톤 약간
-const COLORS = ['#ffffff', '#fbf7f4', '#f3ede3', '#efe7da', '#f7f2ea', '#e7ddcd']
+const SPARKS = 48 // 불꽃놀이처럼 한 번에 사방으로 퍼지는 불티
+const SPARK_COLORS = ['#fff3c0', '#ffd24d', '#ff9a3c', '#ffffff', '#ffe08a']
 const GRIND_DIST = 2000 // 이만큼(px) 문질러야 다 갈림 (더 오래 문지르도록)
 const TAP_BUMP = 0.025 // 탭/클릭 한 번마다 조금씩 갈림
 
@@ -36,17 +34,13 @@ export default function Shred({ text, onDone }: RitualProps) {
       fired.current = true
       setDone(true)
       setGrinding(false)
-      // 폭죽 4회에 맞춰 성공 진동도 팡-팡-팡-팡(점점 세게)
+      // 불꽃 터지는 한 방 + 잔불 한 번
       hapticShredBurst()
-      const b1 = window.setTimeout(hapticShredBurst, 420)
-      const b2 = window.setTimeout(hapticShredBurst, 840)
-      const b3 = window.setTimeout(hapticShredBurst, 1260)
-      const t = setTimeout(onDone, 4600)
+      const b1 = window.setTimeout(hapticShredBurst, 280)
+      const t = setTimeout(onDone, 3000)
       return () => {
         clearTimeout(t)
         clearTimeout(b1)
-        clearTimeout(b2)
-        clearTimeout(b3)
       }
     }
   }, [progress, onDone])
@@ -190,42 +184,33 @@ export default function Shred({ text, onDone }: RitualProps) {
         />
       </motion.div>
 
-      {/* 폭죽 — 다 갈리면 팝콘처럼 터짐 */}
+      {/* 다 갈리면 — 불꽃놀이처럼 한 번에 사방으로 퍼지는 불티 */}
+      {done && (
+        <motion.div
+          style={{ position: 'absolute', left: '50%', bottom: 156, width: 90, height: 90, marginLeft: -45, marginTop: -45, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,245,200,0.95) 0%, rgba(255,200,90,0.5) 36%, rgba(255,200,90,0) 70%)', zIndex: 4, pointerEvents: 'none' }}
+          initial={{ scale: 0.2, opacity: 0 }}
+          animate={{ scale: [0.2, 1.4, 2], opacity: [0, 1, 0] }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+        />
+      )}
       {done &&
-        Array.from({ length: CONFETTI }).map((_, i) => {
-          const wave = i % WAVES // 0,1,2 — 세 번에 나눠 빵빵빵
-          const sx = (rnd(i) - 0.5) * 360 // 더 넓게 사방으로
-          const up = 160 + rnd(i + 7) * 200 // 더 높이
-          const fall = 120 + rnd(i + 13) * 140
-          const dly = wave * 0.42 + rnd(i + 3) * 0.14 // 웨이브별 0.42s 간격, 각 웨이브는 촘촘히(팡!)
-          const dur = 1.0 + rnd(i + 5) * 0.55
-          const spin = (rnd(i + 9) < 0.5 ? -1 : 1) * (340 + rnd(i + 11) * 320)
-          const sz = 2 + Math.round(rnd(i + 17) * 2) // 폭 2~4px
-          const len = 8 + Math.round(rnd(i + 19) * 9) // 길이 8~17px — 얇게 찢긴 종이 띠
+        Array.from({ length: SPARKS }).map((_, i) => {
+          const ang = (i / SPARKS) * Math.PI * 2 + (rnd(i) - 0.5) * 0.36
+          const speed = 80 + rnd(i + 5) * 120 // 사방 방사 거리
+          const ex = Math.cos(ang) * speed
+          const ey = Math.sin(ang) * speed
+          const grav = 50 + rnd(i + 9) * 90 // 퍼진 뒤 아래로 떨어짐(불티)
+          const dur = 0.9 + rnd(i + 7) * 0.7
+          const dly = rnd(i + 3) * 0.14 // 거의 동시(한 번 펑)
+          const sz = 2.5 + rnd(i + 11) * 2.5
+          const col = SPARK_COLORS[i % SPARK_COLORS.length]
           return (
             <motion.span
               key={i}
-              style={{
-                position: 'absolute',
-                left: '50%',
-                bottom: 156,
-                width: sz,
-                height: len,
-                marginLeft: -sz / 2,
-                borderRadius: 1,
-                background: COLORS[i % COLORS.length],
-                boxShadow: '0 1px 1px rgba(0,0,0,0.12)',
-                zIndex: 3,
-              }}
-              initial={{ x: 0, y: 0, opacity: 0, rotate: 0, scale: 0.4 }}
-              animate={{
-                x: [0, sx * 0.5, sx * 0.85, sx],
-                y: [0, -up, -up * 0.25, fall],
-                opacity: [0, 1, 1, 0],
-                rotate: [0, spin * 0.4, spin * 0.8, spin],
-                scale: [0.4, 1.3, 1.05, 0.85],
-              }}
-              transition={{ duration: dur, delay: dly, times: [0, 0.32, 0.66, 1], ease: 'easeOut' }}
+              style={{ position: 'absolute', left: '50%', bottom: 156, width: sz, height: sz, marginLeft: -sz / 2, borderRadius: '50%', background: col, boxShadow: `0 0 6px 1px ${col}`, zIndex: 3, pointerEvents: 'none' }}
+              initial={{ x: 0, y: 0, opacity: 0, scale: 0.5 }}
+              animate={{ x: [0, ex, ex], y: [0, ey, ey + grav], opacity: [0, 1, 0], scale: [0.6, 1, 0.4] }}
+              transition={{ duration: dur, delay: dly, times: [0, 0.45, 1], ease: 'easeOut' }}
             />
           )
         })}

@@ -46,7 +46,7 @@ function MiniGem({ color, size = 24 }: { color: string; size?: number }) {
 function Gem({ size = 96, tone = 'clear' }: { size?: number; tone?: 'clear' | 'gold' }) {
   const c =
     tone === 'gold'
-      ? { table: '#fff6db', crown: '#f1deb6', girdle: '#e6cf9c', pavL: '#e7d0a2', pavC: '#fbeecb', pavR: '#d9b86a', glow: 'rgba(255,226,150,0.9)', f1: 'rgba(255,210,150,0.25)', f2: 'rgba(255,235,180,0.3)' }
+      ? { table: '#ffe49a', crown: '#f0c860', girdle: '#cf9f3e', pavL: '#e6bd5c', pavC: '#fff0b0', pavR: '#b9882c', glow: 'rgba(255,196,70,0.95)', f1: 'rgba(255,180,70,0.3)', f2: 'rgba(255,150,40,0.25)' }
       : { table: '#eef5fd', crown: '#cfe0f1', girdle: '#bcd3ea', pavL: '#b6cde6', pavC: '#e3effb', pavR: '#a6c1df', glow: 'rgba(190,225,255,0.85)', f1: 'rgba(120,210,180,0.22)', f2: 'rgba(180,150,230,0.22)' }
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden style={{ filter: `drop-shadow(0 0 10px ${c.glow})` }}>
@@ -83,6 +83,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
   const night = useTimeOfDay() === 'night'
   const [stored, setStored] = useState(false)
   const [open, setOpen] = useState(false)
+  const [closing, setClosing] = useState(false) // 뚜껑이 닫히기 시작(열린-뚜껑·내부 정리)
   const [storedColors] = useState(() => pickPastels(4, night))
   const fired = useRef(false)
   const doneRef = useRef(false)
@@ -112,7 +113,8 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
       fired.current = true
       setStored(true)
       hapticJewelStore() // 담기 시작
-      // 뚜껑 닫히며 후광 뾰로롱 + 진동
+      // 뚜껑 닫히기 시작(열린 뚜껑·내부 정리) → 닫히며 후광 뾰로롱 + 진동
+      timers.current.push(window.setTimeout(() => setClosing(true), 3300))
       timers.current.push(window.setTimeout(hapticJewelStore, 3550))
       timers.current.push(window.setTimeout(hapticHeartbeat, HEARTBEAT_DELAY_MS))
       timers.current.push(window.setTimeout(finish, 7400))
@@ -165,16 +167,18 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
       {/* 열린 보석함(위에서 내려다본 내부) */}
       {showInside && (
         <>
-          {/* 뒤로 기대 선 뚜껑 */}
-          <div style={{ position: 'absolute', left: '50%', bottom: 156, width: 196, height: 80, marginLeft: -98, zIndex: 1, transformOrigin: '50% 100%', transform: 'perspective(560px) rotateX(34deg)', borderRadius: '12px 12px 4px 4px', background: boxBg, boxShadow: '0 -8px 18px rgba(20,26,45,0.4), inset 0 2px 0 rgba(255,255,255,0.16)', padding: 8 }}>
-            <div style={{ position: 'absolute', inset: 8, borderRadius: 8, background: innerSatin, boxShadow: 'inset 0 0 14px rgba(120,90,60,0.3)' }}>
-              <div style={{ position: 'absolute', left: 12, right: 12, top: 12, display: 'flex', justifyContent: 'space-between' }}>
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} style={{ width: 9, height: 24, borderRadius: '6px 6px 3px 3px', background: SATIN_DEEP, boxShadow: 'inset 0 2px 4px rgba(120,90,60,0.35)' }} />
-                ))}
+          {/* 뒤로 기대 선 뚜껑 — 닫히기 시작하면 감춤(원래 닫힌 모양으로) */}
+          {!closing && (
+            <div style={{ position: 'absolute', left: '50%', bottom: 156, width: 196, height: 80, marginLeft: -98, zIndex: 1, transformOrigin: '50% 100%', transform: 'perspective(560px) rotateX(34deg)', borderRadius: '12px 12px 4px 4px', background: boxBg, boxShadow: '0 -8px 18px rgba(20,26,45,0.4), inset 0 2px 0 rgba(255,255,255,0.16)', padding: 8 }}>
+              <div style={{ position: 'absolute', inset: 8, borderRadius: 8, background: innerSatin, boxShadow: 'inset 0 0 14px rgba(120,90,60,0.3)' }}>
+                <div style={{ position: 'absolute', left: 12, right: 12, top: 12, display: 'flex', justifyContent: 'space-between' }}>
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} style={{ width: 9, height: 24, borderRadius: '6px 6px 3px 3px', background: SATIN_DEEP, boxShadow: 'inset 0 2px 4px rgba(120,90,60,0.35)' }} />
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* 가죽/크림 본체 + 새틴 내부 */}
           <motion.div
@@ -250,11 +254,11 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           {/* 보석: 중앙에서 ~2초 반짝 → 빈자리로 내려가 '꾹 꽂히고'(스쿼시) 반동으로 안착 */}
           <motion.div
             style={{ position: 'absolute', left: '50%', top: 0, marginLeft: -48, zIndex: 7, pointerEvents: 'none' }}
-            initial={{ y: 60, scaleX: 0.18, scaleY: 0.18, opacity: 0, rotate: -16 }}
+            initial={{ y: 60, scale: 0.18, opacity: 0, rotate: -16 }}
+            // 납작해지지 않게 균일 스케일 유지. 가볍게 내려앉는 정도(작은 바운스)만.
             animate={{
-              y: [60, 44, 44, NEW_SEAT_Y - 48 + 12, NEW_SEAT_Y - 48 - 3, NEW_SEAT_Y - 48],
-              scaleX: [0.18, 1.0, 1.0, 0.95, 0.74, 0.78],
-              scaleY: [0.18, 1.0, 1.0, 0.5, 0.9, 0.78],
+              y: [60, 44, 44, NEW_SEAT_Y - 48 + 8, NEW_SEAT_Y - 48 - 2, NEW_SEAT_Y - 48],
+              scale: [0.18, 1.0, 1.0, 0.79, 0.77, 0.78],
               opacity: [0, 1, 1, 1, 1, 1],
               rotate: [-16, 0, 0, 0, 0, 0],
             }}

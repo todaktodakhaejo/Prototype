@@ -204,29 +204,44 @@ export default function Burn({ text, onDone }: RitualProps) {
           />
         ))}
 
-      {/* 종이(글) — 아래에서부터 탄 만큼 깎임(진행도로 clip) */}
+      {/* 종이(글) — 아래에서부터 탄 만큼 깎이고(clip), 타며 열로 일렁이고(skew), 진행될수록 윗부분이 말려 올라감(rotateX) */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          padding: '24px 20px',
-          borderRadius: 6,
-          background: 'var(--paper, #fbf7f4)',
-          boxShadow: '0 12px 36px rgba(0,0,0,0.22)',
-          fontFamily: 'var(--batang)',
-          fontSize: 14,
-          lineHeight: 1.8,
-          color: 'var(--ink)',
-          textAlign: 'left',
-          whiteSpace: 'pre-wrap',
-          overflow: 'hidden',
-          clipPath: `inset(0% 0 ${pct}% 0)`,
-          opacity: done ? 0 : 1,
-          transition: 'opacity 0.5s',
+          transformOrigin: 'top center',
+          transform: `perspective(440px) rotateX(${progress * 16}deg)`,
+          transition: 'transform 0.2s ease-out',
           pointerEvents: 'none',
         }}
       >
-        {text}
+        <motion.div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            padding: '24px 20px',
+            borderRadius: 6,
+            backgroundColor: 'var(--paper, #fbf7f4)',
+            // 구김 질감 — 미세한 결/접힌 음영
+            backgroundImage:
+              'repeating-linear-gradient(57deg, rgba(0,0,0,0.04) 0 1px, rgba(255,255,255,0) 1px 12px), repeating-linear-gradient(-49deg, rgba(0,0,0,0.03) 0 1px, rgba(255,255,255,0) 1px 15px), radial-gradient(120% 80% at 28% 18%, rgba(255,255,255,0.45), rgba(255,255,255,0) 60%)',
+            boxShadow: '0 12px 36px rgba(0,0,0,0.22)',
+            fontFamily: 'var(--batang)',
+            fontSize: 14,
+            lineHeight: 1.8,
+            color: 'var(--ink)',
+            textAlign: 'left',
+            whiteSpace: 'pre-wrap',
+            overflow: 'hidden',
+            clipPath: `inset(0% 0 ${pct}% 0)`,
+            opacity: done ? 0 : 1,
+            transition: 'opacity 0.5s',
+          }}
+          animate={flameOn ? { skewX: [0, 1.6, -1.3, 0.9, 0], scaleX: [1, 0.99, 1.012, 0.995, 1] } : { skewX: 0, scaleX: 1 }}
+          transition={flameOn ? { duration: 0.65, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.2 }}
+        >
+          {text}
+        </motion.div>
       </div>
 
       {/* 타는 경계(front) — 진행도 위치에 그을림 + 잉걸 + 불꽃 (점화되면 표시) */}
