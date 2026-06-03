@@ -184,26 +184,42 @@ export default function Shred({ text, onDone }: RitualProps) {
         />
       </motion.div>
 
-      {/* 다 갈리면 — 종이 조각이 불꽃놀이 '모양'(사방 방사)으로 한 번에 펑 → 아래로 흩날림 */}
+      {/* 다 갈리면 — 먼저 분수처럼 솟아오르고(상승) 정점에서 불꽃처럼 사방으로 팡 → 흩날림 */}
+      {done && (
+        <motion.div
+          style={{ position: 'absolute', left: '50%', bottom: 156, width: 84, height: 84, marginLeft: -42, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,252,242,0.95) 0%, rgba(255,235,195,0.5) 38%, rgba(255,235,195,0) 70%)', zIndex: 4, pointerEvents: 'none' }}
+          initial={{ y: 0, scale: 0.2, opacity: 0 }}
+          animate={{ y: [0, -118, -118], scale: [0.2, 0.4, 1.9], opacity: [0, 0.6, 0] }}
+          transition={{ duration: 0.72, times: [0, 0.55, 1], ease: 'easeOut' }}
+        />
+      )}
       {done &&
         Array.from({ length: SPARKS }).map((_, i) => {
-          const ang = (i / SPARKS) * Math.PI * 2 + (rnd(i) - 0.5) * 0.36
-          const speed = 80 + rnd(i + 5) * 130 // 사방 방사 거리
-          const ex = Math.cos(ang) * speed
-          const ey = Math.sin(ang) * speed
-          const grav = 60 + rnd(i + 9) * 110 // 퍼진 뒤 아래로 떨어짐
-          const dur = 1.0 + rnd(i + 7) * 0.8
-          const dly = rnd(i + 3) * 0.12 // 거의 동시(한 번 펑)
-          const w = 2 + Math.round(rnd(i + 11) * 2) // 폭 2~4px
-          const len = 7 + Math.round(rnd(i + 13) * 8) // 길이 7~15px(종이 조각)
-          const spin = (rnd(i + 15) < 0.5 ? -1 : 1) * (260 + rnd(i + 17) * 280)
+          const ang = (i / SPARKS) * Math.PI * 2 + (rnd(i) - 0.5) * 0.4
+          const spread = 70 + rnd(i + 5) * 100 // 정점에서 사방으로 퍼지는 거리
+          const ex = Math.cos(ang) * spread
+          const ey = Math.sin(ang) * spread
+          const riseH = 96 + rnd(i + 21) * 54 // 분수처럼 솟는 높이
+          const grav = 70 + rnd(i + 9) * 110 // 터진 뒤 아래로 떨어짐
+          const wob = (rnd(i + 23) - 0.5) * 26 // 솟을 때 좌우 흔들림
+          const dur = 1.4 + rnd(i + 7) * 0.7
+          const dly = rnd(i + 3) * 0.1
+          const w = 2 + Math.round(rnd(i + 11) * 2)
+          const len = 7 + Math.round(rnd(i + 13) * 8)
+          const spin = (rnd(i + 15) < 0.5 ? -1 : 1) * (240 + rnd(i + 17) * 260)
           return (
             <motion.span
               key={i}
               style={{ position: 'absolute', left: '50%', bottom: 156, width: w, height: len, marginLeft: -w / 2, borderRadius: 1, background: SPARK_COLORS[i % SPARK_COLORS.length], boxShadow: '0 1px 1px rgba(0,0,0,0.12)', zIndex: 3, pointerEvents: 'none' }}
               initial={{ x: 0, y: 0, opacity: 0, rotate: 0, scale: 0.5 }}
-              animate={{ x: [0, ex, ex], y: [0, ey, ey + grav], opacity: [0, 1, 0], rotate: [0, spin * 0.6, spin], scale: [0.5, 1, 0.9] }}
-              transition={{ duration: dur, delay: dly, times: [0, 0.42, 1], ease: 'easeOut' }}
+              animate={{
+                x: [0, wob, ex * 0.5, ex],
+                y: [0, -riseH, -riseH + ey * 0.4, -riseH + ey + grav],
+                opacity: [0, 1, 1, 0],
+                rotate: [0, spin * 0.25, spin * 0.65, spin],
+                scale: [0.5, 1, 1, 0.85],
+              }}
+              transition={{ duration: dur, delay: dly, times: [0, 0.4, 0.55, 1], ease: 'easeOut' }}
             />
           )
         })}

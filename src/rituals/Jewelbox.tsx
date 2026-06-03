@@ -141,7 +141,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
       timers.current.push(window.setTimeout(() => setClosing(true), 3300))
       timers.current.push(window.setTimeout(hapticJewelStore, 3550))
       timers.current.push(window.setTimeout(hapticHeartbeat, HEARTBEAT_DELAY_MS))
-      timers.current.push(window.setTimeout(finish, 7400))
+      timers.current.push(window.setTimeout(finish, 8600))
     } else {
       setOpen(false)
     }
@@ -153,10 +153,10 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
     <div style={{ position: 'relative', width: 240, height: 300, touchAction: 'none' }}>
       {/* 후광 (닫힌 뒤 뾰로롱) */}
       <motion.div
-        style={{ position: 'absolute', left: '50%', top: '66%', width: 230, height: 230, marginLeft: -115, marginTop: -115, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,247,224,0.9) 0%, rgba(231,201,122,0.34) 42%, rgba(231,201,122,0) 70%)', pointerEvents: 'none' }}
+        style={{ position: 'absolute', left: '50%', top: '66%', width: 280, height: 280, marginLeft: -140, marginTop: -140, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,250,233,0.98) 0%, rgba(255,239,190,0.6) 30%, rgba(231,201,122,0.4) 50%, rgba(231,201,122,0) 72%)', pointerEvents: 'none' }}
         initial={{ opacity: 0, scale: 0.3 }}
-        animate={stored ? { opacity: [0, 0.66, 0.4, 0.66, 0.4, 0.66, 0.24, 0], scale: [0.5, 0.72, 0.82, 0.95, 1.05, 1.2, 1.32, 1.45] } : {}}
-        transition={{ duration: 2.6, delay: 3.9, times: [0, 0.05, 0.2, 0.38, 0.55, 0.75, 0.9, 1], ease: 'easeInOut' }}
+        animate={stored ? { opacity: [0, 0.95, 0.66, 0.96, 0.62, 0.98, 0.7, 0.5, 0], scale: [0.5, 0.78, 0.9, 1.05, 1.18, 1.34, 1.5, 1.62, 1.74] } : {}}
+        transition={{ duration: 3.8, delay: 3.9, times: [0, 0.05, 0.18, 0.33, 0.48, 0.64, 0.8, 0.92, 1], ease: 'easeInOut' }}
         onAnimationComplete={() => {
           if (stored) finish()
         }}
@@ -170,10 +170,10 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           return (
             <motion.span
               key={i}
-              style={{ position: 'absolute', left: '50%', top: '66%', width: 6, height: 6, marginLeft: -3, marginTop: -3, borderRadius: '50%', background: 'rgba(255,250,235,0.95)', boxShadow: '0 0 9px 2px rgba(231,201,122,0.8)', pointerEvents: 'none' }}
+              style={{ position: 'absolute', left: '50%', top: '66%', width: 7, height: 7, marginLeft: -3.5, marginTop: -3.5, borderRadius: '50%', background: 'rgba(255,251,238,1)', boxShadow: '0 0 12px 3px rgba(255,221,150,0.95)', pointerEvents: 'none' }}
               initial={{ x: 0, y: 0, opacity: 0, scale: 0.4 }}
-              animate={{ x: Math.cos(angle) * dist, y: Math.sin(angle) * dist, opacity: [0, 1, 0], scale: [0.4, 1, 0.6] }}
-              transition={{ duration: 1.4, delay: 4.0, ease: 'easeOut' }}
+              animate={{ x: Math.cos(angle) * dist, y: Math.sin(angle) * dist, opacity: [0, 1, 1, 0], scale: [0.4, 1.1, 0.9, 0.6] }}
+              transition={{ duration: 2.0, delay: 4.0, times: [0, 0.25, 0.6, 1], ease: 'easeOut' }}
             />
           )
         })}
@@ -210,8 +210,8 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           <motion.div
             style={{ position: 'absolute', left: '50%', bottom: 28, width: 206, height: 140, marginLeft: -103, zIndex: 2 }}
             initial={{ opacity: 0, scaleY: 0.82, y: 8 }}
-            animate={{ opacity: 1, scaleY: 1, y: 0 }}
-            transition={{ duration: 0.35, ease: 'easeOut' }}
+            animate={closing ? { opacity: 0 } : { opacity: 1, scaleY: 1, y: 0 }}
+            transition={{ duration: closing ? 0.22 : 0.35, ease: 'easeOut' }}
           >
             <div style={{ position: 'absolute', inset: 0, borderRadius: 16, background: boxBg, boxShadow: night ? '0 22px 40px rgba(120,100,60,0.4), inset 0 2px 0 rgba(255,255,255,0.7)' : '0 22px 40px rgba(20,26,45,0.5), inset 0 2px 0 rgba(255,255,255,0.18)', overflow: 'hidden' }}>
               <div style={{ position: 'absolute', inset: 0, opacity: night ? 0.28 : 0.5, background: GRAIN }} />
@@ -319,20 +319,28 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
             />
           ))}
 
-          {/* 보석이 꽂힌 뒤(closing) 뚜껑이 닫힘 — 그 전엔 렌더하지 않아 보석을 가리지 않음 */}
+          {/* 보석이 꽂힌 뒤(closing) — 원래 닫힌 상자(본체)가 드러나고 그 위로 뚜껑이 덮여 '원래 모습'으로 복귀 */}
           {closing && (
-          <motion.div
-            style={{ position: 'absolute', left: '50%', bottom: 42, width: 204, height: 118, marginLeft: -102, zIndex: 9, transformOrigin: '50% 0%', transformPerspective: 620, borderRadius: '14px 14px 8px 8px', background: boxBg, boxShadow: '0 14px 26px rgba(20,26,45,0.4), inset 0 2px 0 rgba(255,255,255,0.4)', overflow: 'hidden' }}
-            initial={{ rotateX: -92 }}
-            animate={{ rotateX: 0 }}
-            transition={{ duration: 0.5, ease: 'easeIn' }}
-          >
-            <div style={{ position: 'absolute', inset: 0, opacity: night ? 0.26 : 0.5, background: GRAIN }} />
-            <div style={{ position: 'absolute', left: 10, right: 10, top: 8, height: 12, borderRadius: 8, background: 'linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0))' }} />
-            <div style={{ position: 'absolute', left: '50%', bottom: 6, marginLeft: -17 }}>
-              <GoldClasp silver={!night} />
-            </div>
-          </motion.div>
+            <>
+              {/* 닫힌 상자 본체(드래그 전 외관과 동일 규격) — 뚜껑이 덮일 받침 */}
+              <div style={{ position: 'absolute', left: '50%', bottom: 42, width: 178, height: 120, marginLeft: -89, zIndex: 8, borderRadius: 14, background: boxBg, boxShadow: night ? '0 22px 40px rgba(120,100,60,0.4), inset 0 2px 0 rgba(255,255,255,0.7), inset 0 -12px 24px rgba(150,120,70,0.3)' : '0 22px 40px rgba(20,26,45,0.5), inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -12px 24px rgba(0,0,0,0.42)', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', inset: 0, opacity: night ? 0.28 : 0.5, background: GRAIN }} />
+              </div>
+              {/* 뚜껑이 위 경첩에서 덮으며 닫힘 → 같은 178폭·같은 클래스프 위치로 정확히 맞물림 */}
+              <motion.div
+                style={{ position: 'absolute', left: '50%', bottom: 42, width: 178, height: 120, marginLeft: -89, zIndex: 9, transformOrigin: '50% 0%', transformPerspective: 620, borderRadius: 14, background: boxBg, boxShadow: night ? '0 22px 40px rgba(120,100,60,0.4), inset 0 2px 0 rgba(255,255,255,0.7), inset 0 -12px 24px rgba(150,120,70,0.3)' : '0 22px 40px rgba(20,26,45,0.5), inset 0 2px 0 rgba(255,255,255,0.2), inset 0 -12px 24px rgba(0,0,0,0.42)', overflow: 'hidden' }}
+                initial={{ rotateX: -94 }}
+                animate={{ rotateX: 0 }}
+                transition={{ duration: 0.5, ease: 'easeIn' }}
+              >
+                <div style={{ position: 'absolute', inset: 0, opacity: night ? 0.28 : 0.5, background: GRAIN }} />
+                <div style={{ position: 'absolute', left: 10, right: 10, top: 6, height: 12, borderRadius: 8, background: 'linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0))' }} />
+                <div style={{ position: 'absolute', left: 0, right: 0, top: 42, height: 2, background: night ? 'rgba(150,120,80,0.3)' : 'rgba(0,0,0,0.3)', boxShadow: '0 1px 0 rgba(255,255,255,0.3)' }} />
+                <div style={{ position: 'absolute', left: '50%', top: 34, marginLeft: -17 }}>
+                  <GoldClasp silver={!night} />
+                </div>
+              </motion.div>
+            </>
           )}
 
           {/* 뾰로롱 — 닫히는 순간 작은 별 스파클 팝 */}
