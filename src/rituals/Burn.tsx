@@ -10,7 +10,7 @@ const BURN_GAP_SLOW_MS = 300 // 막 붙었을 때(아래) — 드문드문
 const BURN_GAP_FAST_MS = 70 // 다 타갈 때(위) — 다다닥
 
 const HOLD_SEC = 4.6 // 불붙은 뒤 다 타는 데 걸리는 시간(천천히 — 불길 커지는 걸 보이게)
-const HOLD_MSG = 2.6 // 잿더미 + 멘트 머무는 여운
+const HOLD_MSG = 3.2 // 잿가루가 날려와 쌓이고 멘트 머무는 여운
 // 성냥 머리가 종이(컨테이너 0..220 × 0..300) 안에 들어오면 점화.
 //  성냥 머리의 '정지 시' 컨테이너 좌표(아래 배치 기준) — 여기에 드래그 오프셋을 더해 현재 위치를 계산.
 const HEAD_REST_X = -33 // 종이 왼쪽 바깥
@@ -20,12 +20,18 @@ const PAPER_H = 300
 // 불꽃 혀 — 폭/높이/속도/지연을 달리해 사실적으로 일렁이게 (가운데가 가장 높음)
 // 서로 넉넉히 겹치는 넓은 불기둥들 — 가운데가 가장 크고, 좌우가 겹쳐 하나의 불덩이로 보이게.
 const FLAMES = [
-  { dx: 0, w: 58, h: 116, flick: 0.56, delay: 0 },
-  { dx: -20, w: 46, h: 82, flick: 0.5, delay: 0.12 },
-  { dx: 20, w: 44, h: 86, flick: 0.46, delay: 0.16 },
-  { dx: -34, w: 30, h: 54, flick: 0.48, delay: 0.22 },
-  { dx: 34, w: 28, h: 56, flick: 0.52, delay: 0.1 },
+  { dx: 0, w: 58, h: 98, flick: 0.56, delay: 0 },
+  { dx: -20, w: 46, h: 70, flick: 0.5, delay: 0.12 },
+  { dx: 20, w: 44, h: 72, flick: 0.46, delay: 0.16 },
+  { dx: -34, w: 30, h: 48, flick: 0.48, delay: 0.22 },
+  { dx: 34, w: 28, h: 50, flick: 0.52, delay: 0.1 },
 ]
+const ASH = Array.from({ length: 34 }, (_, i) => i)
+// 결정적 의사난수(잿가루 분포용)
+const arnd = (n: number) => {
+  const x = Math.sin(n * 41.17) * 8643.21
+  return x - Math.floor(x)
+}
 const EMBERS = Array.from({ length: 12 }, (_, i) => i)
 
 // 사실적 불꽃 한 갈래 — 곡선(베지어) 실루엣 + 세로 그라데이션(밝은 코어→주황→빨강→투명).
@@ -40,7 +46,7 @@ function Flame({ idx, flip }: { idx: number; flip?: boolean }) {
       viewBox="0 0 60 120"
       preserveAspectRatio="none"
       aria-hidden
-      style={{ display: 'block', overflow: 'visible', filter: 'blur(1.4px)', transform: flip ? 'scaleX(-1)' : undefined }}
+      style={{ display: 'block', overflow: 'visible', filter: 'blur(0.4px)', transform: flip ? 'scaleX(-1)' : undefined }}
     >
       <defs>
         <linearGradient id={oid} x1="0.5" y1="1" x2="0.5" y2="0">
@@ -142,8 +148,8 @@ export default function Burn({ text, onDone }: RitualProps) {
   const flameOn = lit && !done
   // 불길은 진행될수록 점점 세짐. 누르고 있을 때 더 활활, 떼면 잦아듦.
   const calm = pressing ? 1 : 0.72
-  // 불 '전체'를 진행도에 따라 확연히 키운다(작게 시작 → 크게). bottom-center 기준 그룹 스케일.
-  const fireScale = (0.4 + progress * 2.1) * calm
+  // 불 '전체'를 진행도에 따라 키운다(작게 시작 → 크게). 화면 밖으로 나가지 않게 상한 ~1.5배.
+  const fireScale = (0.55 + progress * 0.95) * calm
 
   return (
     <div
@@ -253,6 +259,8 @@ export default function Burn({ text, onDone }: RitualProps) {
           />
           {/* 불꽃+불티 그룹 — 진행도에 따라 통째로 커짐(bottom-center) */}
           <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 0, transformOrigin: 'bottom center', transform: `scale(${fireScale})`, transition: 'transform 0.2s ease-out' }}>
+          {/* 불 본체(베이스+불기둥)를 한 겹 블러로 묶어 하나의 불덩이로 융합 */}
+          <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 0, filter: 'blur(3px)' }}>
           {/* 베이스 연결체 — 불기둥 밑동을 하나로 뭉쳐주는 흐릿한 불덩이 */}
           <div
             style={{
@@ -294,6 +302,7 @@ export default function Burn({ text, onDone }: RitualProps) {
               <Flame idx={i} flip={i % 2 === 1} />
             </motion.div>
           ))}
+          </div>
 
           {/* 불티(엠버) — 위로 떠오르며 깜빡 */}
           {flameOn &&
@@ -328,25 +337,56 @@ export default function Burn({ text, onDone }: RitualProps) {
         </div>
       )}
 
-      {/* 잿더미 — 다 탄 뒤 */}
+      {/* 다 탄 뒤 — 고운 잿가루가 바람에 날려와 잿더미로 쌓임 */}
       {done && (
-        <motion.div
-          style={{
-            position: 'absolute',
-            left: '50%',
-            bottom: 64,
-            width: 128,
-            height: 28,
-            marginLeft: -64,
-            borderRadius: '50% 50% 42% 42% / 82% 82% 26% 26%',
-            background: 'radial-gradient(ellipse at 50% 26%, #f6f3f2 0%, #ddd7d4 52%, #bdb6b2 100%)',
-            boxShadow: '0 6px 16px rgba(0,0,0,0.16)',
-            pointerEvents: 'none',
-          }}
-          initial={{ opacity: 0, scaleY: 0.35, y: 10 }}
-          animate={{ opacity: 1, scaleY: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
-        />
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 300, pointerEvents: 'none' }}>
+          {/* 쌓인 잿더미 베이스(부드럽게) */}
+          <motion.div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              bottom: 56,
+              width: 150,
+              height: 24,
+              marginLeft: -75,
+              borderRadius: '50% 50% 40% 40% / 82% 82% 28% 28%',
+              background: 'radial-gradient(ellipse at 50% 28%, #f4f1f0 0%, #ddd8d6 56%, #c6c0be 100%)',
+              boxShadow: '0 5px 14px rgba(0,0,0,0.12)',
+              filter: 'blur(1.5px)',
+            }}
+            initial={{ opacity: 0, scaleY: 0.25, scaleX: 0.7 }}
+            animate={{ opacity: 1, scaleY: 1, scaleX: 1 }}
+            transition={{ duration: 1.1, delay: 0.5, ease: 'easeOut' }}
+          />
+          {/* 날려와 쌓이는 고운 가루 입자 */}
+          {ASH.map((i) => {
+            const restX = (arnd(i) - 0.5) * 130 * (0.5 + arnd(i + 9) * 0.5)
+            const restY = 54 + arnd(i + 3) * 16
+            const sz = 1.5 + arnd(i + 5) * 2.2
+            const wind = (arnd(i + 7) - 0.5) * 80
+            const dly = arnd(i + 11) * 1.1
+            const dur = 0.9 + arnd(i + 13) * 0.7
+            return (
+              <motion.span
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  bottom: restY,
+                  width: sz,
+                  height: sz,
+                  marginLeft: restX,
+                  borderRadius: '50%',
+                  background: 'rgba(238,234,232,0.95)',
+                  filter: 'blur(0.4px)',
+                }}
+                initial={{ x: wind, y: -150, opacity: 0 }}
+                animate={{ x: [wind, wind * 0.4, 0], y: [-150, -40, 0], opacity: [0, 1, 1] }}
+                transition={{ duration: dur, delay: dly, times: [0, 0.6, 1], ease: 'easeIn' }}
+              />
+            )
+          })}
+        </div>
       )}
 
       {/* 성냥 — 끌어서 종이에 불을 붙임 (점화 전에만) */}

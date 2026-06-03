@@ -7,8 +7,8 @@ import { hapticShredTick, hapticShredBurst, stopVibration } from '../haptics'
 
 const GRIND_HAPTIC_PX = 26 // 갈기 진동 1펄스당 이동거리(px) — 빠를수록 촘촘
 
-const CONFETTI = 66 // 3회 웨이브로 빵빵빵 터짐
-const WAVES = 3
+const CONFETTI = 88 // 4회 웨이브로 팡-팡-팡-팡 터짐
+const WAVES = 4
 const COLORS = ['#f4b8c7', '#d8b15a', '#fbf7f4', '#c9a7e0', '#9ad0d8', '#ffd24d', '#7ee0a0']
 const GRIND_DIST = 2000 // 이만큼(px) 문질러야 다 갈림 (더 오래 문지르도록)
 const TAP_BUMP = 0.025 // 탭/클릭 한 번마다 조금씩 갈림
@@ -35,15 +35,17 @@ export default function Shred({ text, onDone }: RitualProps) {
       fired.current = true
       setDone(true)
       setGrinding(false)
-      // 폭죽 3회에 맞춰 성공 진동도 빵빵빵
+      // 폭죽 4회에 맞춰 성공 진동도 팡-팡-팡-팡(점점 세게)
       hapticShredBurst()
-      const b1 = window.setTimeout(hapticShredBurst, 500)
-      const b2 = window.setTimeout(hapticShredBurst, 1000)
-      const t = setTimeout(onDone, 4200)
+      const b1 = window.setTimeout(hapticShredBurst, 420)
+      const b2 = window.setTimeout(hapticShredBurst, 840)
+      const b3 = window.setTimeout(hapticShredBurst, 1260)
+      const t = setTimeout(onDone, 4600)
       return () => {
         clearTimeout(t)
         clearTimeout(b1)
         clearTimeout(b2)
+        clearTimeout(b3)
       }
     }
   }, [progress, onDone])
@@ -194,7 +196,7 @@ export default function Shred({ text, onDone }: RitualProps) {
           const sx = (rnd(i) - 0.5) * 360 // 더 넓게 사방으로
           const up = 160 + rnd(i + 7) * 200 // 더 높이
           const fall = 120 + rnd(i + 13) * 140
-          const dly = wave * 0.5 + rnd(i + 3) * 0.22 // 웨이브별 0.5s 간격
+          const dly = wave * 0.42 + rnd(i + 3) * 0.14 // 웨이브별 0.42s 간격, 각 웨이브는 촘촘히(팡!)
           const dur = 1.0 + rnd(i + 5) * 0.55
           const spin = (rnd(i + 9) < 0.5 ? -1 : 1) * (340 + rnd(i + 11) * 320)
           const sz = 7 + Math.round(rnd(i + 17) * 6) // 더 큰 조각

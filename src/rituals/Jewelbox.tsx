@@ -4,7 +4,7 @@ import type { RitualProps } from './index'
 import { rotatingMessage, JEWELBOX_MESSAGES } from '../constants'
 import { hapticJewelStore, hapticHeartbeat, stopVibration } from '../haptics'
 
-const HEARTBEAT_DELAY_MS = 2000 // 후광이 빛나기 시작하는 시점(후광 delay 2.0s)과 맞춤
+const HEARTBEAT_DELAY_MS = 3200 // 보석이 상자에 담긴 뒤 후광이 빛나는 시점과 맞춤
 
 const PARTICLES = 12
 const GOLD = '#e7c97a'
@@ -100,7 +100,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
       hapticJewelStore() // 함에 넣는 순간 부드러운 진동
       // 후광이 빛나기 시작할 때 따뜻한 심장박동 진동
       beatRef.current = window.setTimeout(hapticHeartbeat, HEARTBEAT_DELAY_MS)
-      setTimeout(finish, 5000) // 폴백(후광 종료 4.6s 이후) — onAnimationComplete가 먼저 끝냄
+      setTimeout(finish, 6800) // 폴백(중앙 반짝 2s + 담기 + 후광 종료 이후)
     } else {
       setPull(0) // 덜 내리고 놓으면 복귀 → 입구 빛도 가라앉음
       setOpen(false) // 뚜껑 다시 닫힘
@@ -129,7 +129,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
         // 심장박동 3회(두근…두근…두근)에 맞춰 밝기가 은은하게 세 번 차올랐다 잦아듦.
         //   대비를 부드럽게(0.42~0.78), 진동 길이(≈2.1s)에 맞춰 느긋하게(duration 2.6s).
         animate={stored ? { opacity: [0, 0.78, 0.42, 0.78, 0.42, 0.78, 0.28, 0], scale: [0.5, 0.72, 0.82, 0.95, 1.05, 1.2, 1.32, 1.45] } : {}}
-        transition={{ duration: 2.6, delay: 2.0, times: [0, 0.05, 0.2, 0.38, 0.55, 0.75, 0.9, 1], ease: 'easeInOut' }}
+        transition={{ duration: 2.6, delay: 3.2, times: [0, 0.05, 0.2, 0.38, 0.55, 0.75, 0.9, 1], ease: 'easeInOut' }}
         onAnimationComplete={() => {
           if (stored) finish()
         }}
@@ -158,7 +158,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
               }}
               initial={{ x: 0, y: 0, opacity: 0, scale: 0.4 }}
               animate={{ x: Math.cos(angle) * dist, y: Math.sin(angle) * dist, opacity: [0, 1, 0], scale: [0.4, 1, 0.6] }}
-              transition={{ duration: 1.4, delay: 2.05, ease: 'easeOut' }}
+              transition={{ duration: 1.4, delay: 3.3, ease: 'easeOut' }}
             />
           )
         })}
@@ -318,12 +318,12 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
       {/* stored: 보석으로 접혀 함 속으로 들어가고 뚜껑이 닫힘 */}
       {stored && (
         <>
-          {/* 종이가 작게 말려들며 사라짐(보석으로 변하는 과정) */}
+          {/* 종이가 작게 말려들며 사라짐(보석으로 변하는 과정) — 화면 중앙에서 */}
           <motion.div
             style={{
               position: 'absolute',
               left: '50%',
-              top: 12,
+              top: 60,
               width: 86,
               height: 104,
               marginLeft: -43,
@@ -351,21 +351,38 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
 
           {/* 변하는 순간 반짝 플래시 */}
           <motion.div
-            style={{ position: 'absolute', left: '50%', top: 58, width: 130, height: 130, marginLeft: -65, marginTop: -65, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(214,232,255,0.5) 30%, rgba(214,232,255,0) 66%)', zIndex: 4, pointerEvents: 'none' }}
+            style={{ position: 'absolute', left: '50%', top: 112, width: 140, height: 140, marginLeft: -70, marginTop: -70, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(214,232,255,0.5) 30%, rgba(214,232,255,0) 66%)', zIndex: 6, pointerEvents: 'none' }}
             initial={{ scale: 0.2, opacity: 0 }}
             animate={{ scale: [0.2, 1.3, 1.7], opacity: [0, 0.9, 0] }}
             transition={{ duration: 0.6, delay: 0.3, ease: 'easeOut' }}
           />
 
-          {/* 보석이 종이 자리에서 피어나(morph) 함 속으로 떨어져 담김 */}
+          {/* 보석이 종이 자리(중앙)에서 피어나 ~2초 반짝인 뒤 함 속으로 떨어져 담김 */}
           <motion.div
-            style={{ position: 'absolute', left: '50%', top: 12, marginLeft: -52, zIndex: 4, pointerEvents: 'none' }}
+            style={{ position: 'absolute', left: '50%', top: 60, marginLeft: -52, zIndex: 6, pointerEvents: 'none' }}
             initial={{ y: 0, scale: 0.15, opacity: 0, rotate: -16 }}
-            animate={{ y: [0, 6, 150, 168], scale: [0.15, 1.05, 0.6, 0.16], opacity: [0, 1, 1, 0], rotate: [-16, 0, 0, 0] }}
-            transition={{ duration: 1.7, times: [0, 0.34, 0.82, 1], ease: 'easeInOut' }}
+            animate={{ y: [0, 0, 0, 92, 116], scale: [0.15, 1.0, 1.0, 0.62, 0.16], opacity: [0, 1, 1, 1, 0], rotate: [-16, 0, 0, 0, 0] }}
+            transition={{ duration: 3.3, times: [0, 0.16, 0.7, 0.92, 1], ease: 'easeInOut' }}
           >
             <Gem />
           </motion.div>
+
+          {/* 중앙에서 반짝이는 동안의 작은 별빛들 */}
+          {[
+            [50, 96],
+            [58, 122],
+            [42, 124],
+            [62, 108],
+            [40, 106],
+          ].map(([lx, ty], k) => (
+            <motion.span
+              key={`tw${k}`}
+              style={{ position: 'absolute', left: `${lx}%`, top: ty, width: 9, height: 9, marginLeft: -4.5, borderRadius: '50%', background: '#fff', boxShadow: '0 0 9px 2px rgba(214,232,255,0.95)', zIndex: 6, pointerEvents: 'none' }}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: [0, 1, 0.3, 1, 0], scale: [0, 1, 0.7, 1, 0.4] }}
+              transition={{ duration: 2.2, delay: 0.5 + k * 0.12, times: [0, 0.2, 0.5, 0.75, 1], ease: 'easeInOut' }}
+            />
+          ))}
 
           {/* 뚜껑 — 열린 상태(왼쪽 경첩)에서 다시 닫힘 */}
           <motion.div
@@ -386,7 +403,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
             }}
             initial={{ rotate: LID_OPEN_DEG, opacity: 1 }}
             animate={{ rotate: [LID_OPEN_DEG, LID_OPEN_DEG, 0] }}
-            transition={{ duration: 0.8, delay: 0.9, times: [0, 0.2, 1], ease: 'easeIn' }}
+            transition={{ duration: 0.8, delay: 2.4, times: [0, 0.2, 1], ease: 'easeIn' }}
           >
             <LidDecor />
           </motion.div>
