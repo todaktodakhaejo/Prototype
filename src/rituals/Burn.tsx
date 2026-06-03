@@ -440,8 +440,8 @@ export default function Burn({ text, onDone }: RitualProps) {
       {/* 진행 게이지 — 불 붙은 뒤, 누른 정도(progress)와 '동시에' 차오름 */}
       {lit && !done && <Gauge value={progress} from="#ff7a2f" to="#ffd770" />}
 
-      {/* 상단 행위 안내 캡션 */}
-      {!done && (
+      {/* 상단 행위 안내 캡션 — 점화 전 + 막 붙은 직후(불길 작을 때)만. 타오르면 사라짐 */}
+      {!done && (!lit || progress < 0.12) && (
         <div style={{ position: 'absolute', top: -52, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 40, pointerEvents: 'none' }}>
           <span style={{ background: 'rgba(20,14,28,0.82)', color: '#fff', fontSize: 13, padding: '6px 14px', borderRadius: 999, whiteSpace: 'nowrap' }}>
             {lit ? '🔥 꾹 누르고 있으면 계속 타올라요' : '🔥 성냥을 끌어 종이에 불을 붙이세요'}
