@@ -146,57 +146,46 @@ const CREASE = '#d9d2c8'
 function FoldSequence({ onDone }: { onDone: () => void }) {
   const [step, setStep] = useState(0)
   const stages = [
-    // 0) 세로로 반 접기
-    <svg key="0" width={120} height={92} viewBox="0 0 120 92" aria-hidden>
-      <rect x="40" y="6" width="40" height="80" rx="2" fill="#fff" stroke={CREASE} />
-      <line x1="60" y1="8" x2="60" y2="84" stroke={CREASE} strokeDasharray="3 3" />
+    // 0) 펼친 종이
+    <svg key="0" width={120} height={96} viewBox="0 0 120 96" aria-hidden>
+      <rect x="38" y="6" width="44" height="84" rx="2" fill="#fff" stroke={CREASE} />
+      <line x1="60" y1="8" x2="60" y2="88" stroke={CREASE} strokeDasharray="3 3" />
     </svg>,
-    // 1) 위 양 모서리를 가운데로
-    <svg key="1" width={120} height={92} viewBox="0 0 120 92" aria-hidden>
-      <rect x="40" y="6" width="40" height="80" rx="2" fill="#fff" stroke={CREASE} />
-      <polygon points="40,6 60,6 40,30" fill="#efe7dd" stroke={CREASE} />
-      <polygon points="80,6 60,6 80,30" fill="#efe7dd" stroke={CREASE} />
+    // 1) 위 모서리를 가운데로 (뾰족한 머리)
+    <svg key="1" width={120} height={96} viewBox="0 0 120 96" aria-hidden>
+      <polygon points="60,6 84,40 36,40" fill="#fff" stroke={CREASE} />
+      <rect x="36" y="40" width="48" height="50" fill="#fff" stroke={CREASE} />
+      <line x1="60" y1="8" x2="60" y2="88" stroke={CREASE} strokeDasharray="3 3" />
     </svg>,
-    // 2) 뾰족한 지붕(삼각형) 형성
-    <svg key="2" width={120} height={92} viewBox="0 0 120 92" aria-hidden>
-      <polygon points="60,4 86,46 34,46" fill="#fff" stroke={CREASE} />
-      <rect x="34" y="46" width="52" height="40" fill="#fff" stroke={CREASE} />
-      <line x1="60" y1="6" x2="60" y2="84" stroke={CREASE} strokeDasharray="3 3" />
+    // 2) 반으로 접어 날개 폭 (직각삼각형)
+    <svg key="2" width={120} height={96} viewBox="0 0 120 96" aria-hidden>
+      <polygon points="60,8 60,90 30,90" fill="#fff" stroke={CREASE} />
+      <polygon points="60,8 60,54 38,66" fill="#efe7dd" stroke={CREASE} />
     </svg>,
-    // 3) 다시 반으로 → 직각삼각형
-    <svg key="3" width={120} height={92} viewBox="0 0 120 92" aria-hidden>
-      <polygon points="60,6 60,86 32,86" fill="#fff" stroke={CREASE} />
-      <polygon points="60,6 60,50 40,62" fill="#efe7dd" stroke={CREASE} />
-    </svg>,
-    // 4) 날개 펴기 (비행기 윤곽)
-    <svg key="4" width={120} height={92} viewBox="0 0 120 92" aria-hidden>
-      <polygon points="16,84 104,22 60,54" fill="#fff" stroke={CREASE} />
-      <polygon points="104,22 60,54 74,76" fill="#efe7dd" stroke={CREASE} />
-    </svg>,
-    // 5) 완성된 비행기
-    <PaperPlane key="5" />,
+    // 3) 완성된 비행기
+    <PaperPlane key="3" />,
   ]
   useEffect(() => {
     if (step >= stages.length - 1) {
-      const t = setTimeout(onDone, 360)
+      const t = setTimeout(onDone, 420)
       return () => clearTimeout(t)
     }
-    const t = setTimeout(() => setStep((s) => s + 1), 300)
+    const t = setTimeout(() => setStep((s) => s + 1), 460)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, onDone])
 
-  // mode="wait": 이전 단계가 완전히 사라진 뒤 다음이 나타나 겹침/깜빡임 없이 매끄럽게.
+  // 단계가 서로 '디졸브'되어 끊김 없이 잔잔하게 (grid로 같은 칸에 겹쳐 페이드)
   return (
-    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', perspective: 800 }}>
-      <AnimatePresence mode="wait">
+    <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', pointerEvents: 'none' }}>
+      <AnimatePresence>
         <motion.div
           key={step}
-          initial={{ opacity: 0, scale: 0.94, rotateX: -14 }}
-          animate={{ opacity: 1, scale: 1, rotateX: 0 }}
-          exit={{ opacity: 0, scale: 0.98, rotateX: 10 }}
-          transition={{ duration: 0.14, ease: 'easeInOut' }}
-          style={{ filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.18))' }}
+          style={{ gridArea: '1 / 1', filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.18))' }}
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.02 }}
+          transition={{ duration: 0.5, ease: 'easeInOut' }}
         >
           {stages[step]}
         </motion.div>

@@ -90,10 +90,10 @@ export default function Shred({ text, onDone }: RitualProps) {
   }
 
   const fed = progress * 138 // 종이가 슬롯으로 들어간 정도(px) — progress=1에서 정확히 다 들어가도록(게이지와 싱크)
-  // 거의 다 갈릴수록 떨림이 점점 더 격해지고 빨라짐(극적 효과)
-  const amp = 4 + progress * progress * 30 // 흔들림 폭 ~4→34px (끝으로 갈수록 급증)
-  const rot = 1 + progress * progress * 4.5 // 회전 폭 ~1→5.5deg
-  const shakeDur = Math.max(0.1, 0.42 - progress * 0.3) // 빨라짐
+  // 좌우로 확 휘청이며 점점 더 격하게(끝으로 갈수록 폭·속도 증가)
+  const amp = 12 + progress * 52 // 좌우 흔들림 폭 12→64px (제자리 아닌 확실한 좌우 이동)
+  const rot = 1.5 + progress * 5 // 회전 폭 1.5→6.5deg
+  const shakeDur = Math.max(0.11, 0.4 - progress * 0.26) // 빨라짐
 
   return (
     <div
@@ -153,8 +153,8 @@ export default function Shred({ text, onDone }: RitualProps) {
         animate={
           grinding
             ? {
-                x: [0, -amp, amp, -amp, amp * 0.85, -amp * 0.6, amp * 0.5, -amp * 0.3, 0],
-                rotate: [0, -rot, rot, -rot * 0.9, rot * 0.7, -rot * 0.5, 0],
+                x: [0, -amp, amp, -amp, amp, -amp * 0.7, amp * 0.7, 0],
+                rotate: [0, -rot, rot, -rot, rot * 0.8, -rot * 0.6, 0],
               }
             : { x: 0, rotate: 0 }
         }

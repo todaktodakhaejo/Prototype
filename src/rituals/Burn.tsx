@@ -28,6 +28,40 @@ const FLAMES = [
 ]
 const EMBERS = Array.from({ length: 12 }, (_, i) => i)
 
+// 사실적 불꽃 한 갈래 — 곡선(베지어) 실루엣 + 세로 그라데이션(밝은 코어→주황→빨강→투명).
+//  부모 크기에 맞춰 늘어남(preserveAspectRatio none)으로 길고 일렁이는 불길 표현.
+function Flame({ idx, flip }: { idx: number; flip?: boolean }) {
+  const oid = `fo-${idx}`
+  const cid = `fc-${idx}`
+  return (
+    <svg
+      width="100%"
+      height="100%"
+      viewBox="0 0 60 120"
+      preserveAspectRatio="none"
+      aria-hidden
+      style={{ display: 'block', overflow: 'visible', filter: 'blur(0.7px)', transform: flip ? 'scaleX(-1)' : undefined }}
+    >
+      <defs>
+        <linearGradient id={oid} x1="0.5" y1="1" x2="0.5" y2="0">
+          <stop offset="0%" stopColor="#ffdf6a" />
+          <stop offset="28%" stopColor="#ff9c2c" />
+          <stop offset="60%" stopColor="#ff5a1e" />
+          <stop offset="100%" stopColor="#ff3c14" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id={cid} x1="0.5" y1="1" x2="0.5" y2="0">
+          <stop offset="0%" stopColor="#fffdf4" />
+          <stop offset="42%" stopColor="#ffe98a" />
+          <stop offset="80%" stopColor="#ffb24d" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="#ffb24d" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d="M30 120 C 9 95 18 68 26 51 C 35 36 22 24 31 3 C 39 23 50 40 41 64 C 34 86 51 100 30 120 Z" fill={`url(#${oid})`} />
+      <path d="M30 118 C 20 97 25 73 29 55 C 33 43 27 29 32 13 C 39 29 40 50 36 70 C 32 90 39 102 30 118 Z" fill={`url(#${cid})`} />
+    </svg>
+  )
+}
+
 // 태우기 — 먼저 '성냥을 끌어' 종이에 불을 붙이면(점화), 그때부터 아래에서 위로 타오른다.
 //  점화 후엔 진행도(progress)가 시간에 따라 0→1로 차오르고, 게이지가 그와 동시에 찬다.
 export default function Burn({ text, onDone }: RitualProps) {
@@ -241,31 +275,8 @@ export default function Burn({ text, onDone }: RitualProps) {
               }}
               transition={{ duration: f.flick, delay: f.delay, repeat: Infinity, ease: 'easeInOut' }}
             >
-              {/* 외염: 주황→빨강, 위로 갈수록 사라져 뾰족하게 */}
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  borderRadius: '50% 50% 50% 50% / 78% 78% 32% 32%',
-                  background:
-                    'radial-gradient(54% 64% at 50% 82%, #ffd56e 0%, #ff9a38 28%, #ff5a1e 52%, rgba(255,70,20,0) 84%)',
-                  filter: 'blur(2px)',
-                }}
-              />
-              {/* 내염(코어): 밝은 흰-노랑, 아래쪽 */}
-              <div
-                style={{
-                  position: 'absolute',
-                  left: '24%',
-                  bottom: 0,
-                  width: '52%',
-                  height: '62%',
-                  borderRadius: '50% 50% 50% 50% / 72% 72% 36% 36%',
-                  background:
-                    'radial-gradient(54% 66% at 50% 84%, #fffdf2 0%, #ffec8e 42%, #ffb24d 72%, rgba(255,178,70,0) 92%)',
-                  filter: 'blur(1px)',
-                }}
-              />
+              {/* 사실적 곡선 불꽃 */}
+              <Flame idx={i} flip={i % 2 === 1} />
             </motion.div>
           ))}
 
