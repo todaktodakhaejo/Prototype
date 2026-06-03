@@ -155,7 +155,7 @@ function launchVec(px: number, py: number) {
 // 종이비행기 SVG
 function PaperPlane() {
   return (
-    <svg width={120} height={90} viewBox="0 0 120 90" aria-hidden style={{ position: 'relative' }}>
+    <svg width={150} height={112} viewBox="0 0 120 90" aria-hidden style={{ position: 'relative' }}>
       <polygon points="10,82 112,8 60,56" fill="#ffffff" />
       <polygon points="112,8 60,56 80,82" fill="#efe7dd" />
     </svg>
@@ -385,11 +385,11 @@ export default function Plane({ text, onDone }: RitualProps) {
                 position: 'absolute',
                 left: '50%',
                 top: '50%',
-                width: 120,
-                height: 120,
+                width: 60,
+                height: 60,
                 transform: 'translate(-50%,-50%)',
                 borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(255,236,180,0.5) 0%, rgba(255,236,180,0) 70%)',
+                background: 'radial-gradient(circle, rgba(255,242,185,0.4) 0%, rgba(255,242,185,0) 70%)',
               }}
             />
             <PaperPlane />
@@ -398,35 +398,33 @@ export default function Plane({ text, onDone }: RitualProps) {
       )}
 
       {/* flying: 비행 중 뒤로 뿜는 연료 — 경로를 따라 크고 밝게 뿜어져 머물다 흩어짐 */}
+      {/* 궤적 — 경로를 따라 점들이 '차례로 켜졌다 잦아들며' 그려짐(얇고 노란, 비행기보다 가늘게) */}
       {phase === 'flying' &&
-        Array.from({ length: 9 }).map((_, j) => {
-          const t = j / 8
-          const dist = 18 + t * (flyDist - 18)
-          const px = dir.x * dist
-          const py = dir.y * dist
-          const dly = t * 0.42 // 비행 중(0~0.42s) 빠르게 분사
-          const sz = 32 + t * 36
+        Array.from({ length: 16 }).map((_, j) => {
+          const t = j / 15
+          const px = dir.x * (t * flyDist)
+          const py = dir.y * (t * flyDist)
+          const sz = 5 + t * 3 // 5~8px — 비행기보다 훨씬 얇게
           return (
             <motion.span
-              key={`fuel${j}`}
+              key={`trail${j}`}
               style={{
                 position: 'absolute',
                 left: '50%',
                 top: '50%',
                 width: sz,
                 height: sz,
-                marginLeft: -sz / 2,
-                marginTop: -sz / 2,
+                marginLeft: px - sz / 2,
+                marginTop: py - sz / 2,
                 borderRadius: '50%',
-                background:
-                  'radial-gradient(circle, rgba(255,246,214,0.98) 0%, rgba(255,198,112,0.85) 36%, rgba(255,148,66,0.5) 64%, rgba(255,148,66,0) 100%)',
-                filter: 'blur(3px)',
+                background: 'radial-gradient(circle, rgba(255,247,190,0.95) 0%, rgba(255,230,135,0.6) 55%, rgba(255,230,135,0) 100%)',
+                filter: 'blur(0.8px)',
                 pointerEvents: 'none',
-                zIndex: 5,
+                zIndex: 4,
               }}
-              initial={{ x: 0, y: 0, opacity: 0, scale: 0.5 }}
-              animate={{ x: px, y: py, opacity: [0, 1, 0.85, 0], scale: [0.5, 1.1, 1.5, 2.1] }}
-              transition={{ duration: 1.25, delay: dly, times: [0, 0.2, 0.55, 1], ease: 'easeOut' }}
+              initial={{ opacity: 0, scale: 0.4 }}
+              animate={{ opacity: [0, 0.9, 0], scale: [0.4, 1, 0.8] }}
+              transition={{ duration: 1.0, delay: t * 1.2, ease: 'easeOut' }}
             />
           )
         })}
