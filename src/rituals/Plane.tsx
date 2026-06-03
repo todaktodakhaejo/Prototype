@@ -393,7 +393,7 @@ export default function Plane({ text, onDone }: RitualProps) {
             opacity: [1, 1, 1],
             rotate: [0, dir.x * 12, dir.x * 18],
           }}
-          transition={{ duration: 1.35, times: [0, 0.4, 1], ease: 'easeOut' }}
+          transition={{ duration: 0.82, times: [0, 0.32, 1], ease: 'easeOut' }}
           onAnimationComplete={() => setPhase('star')}
         >
           <div style={{ position: 'relative', transform: `rotate(${dirAngle + 38}deg)` }}>
@@ -441,7 +441,7 @@ export default function Plane({ text, onDone }: RitualProps) {
               }}
               initial={{ opacity: 0, scale: 0.4 }}
               animate={{ opacity: [0, 0.9, 0], scale: [0.4, 1, 0.8] }}
-              transition={{ duration: 1.0, delay: t * 1.2, ease: 'easeOut' }}
+              transition={{ duration: 0.7, delay: t * 0.6, ease: 'easeOut' }}
             />
           )
         })}

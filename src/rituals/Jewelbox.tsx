@@ -67,7 +67,7 @@ const SLOTS = [
   { x: 30, y: 214 },
   { x: 58, y: 206 },
 ]
-const NEW_SEAT_Y = 212 // 새 보석이 꽂히는 중앙 자리(센터 기준 화면 top px)
+const NEW_SEAT_Y = 188 // 새(큰) 보석이 꽂히는 중앙 자리(센터 기준 화면 top px)
 
 export default function Jewelbox({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('jewelbox', JEWELBOX_MESSAGES))
@@ -241,11 +241,12 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           {/* 다이아몬드: 중앙에서 ~2초 반짝 → 빈자리로 내려가 '꾹 꽂히고' 작은 반동으로 안착 */}
           <motion.div
             style={{ position: 'absolute', left: '50%', top: 0, marginLeft: -48, zIndex: 7, pointerEvents: 'none' }}
-            initial={{ y: 60, scale: 0.18, opacity: 0, rotate: -16 }}
+            initial={{ y: 60, scaleX: 0.18, scaleY: 0.18, opacity: 0, rotate: -16 }}
+            // 크기를 거의 유지(미니 보석의 4~5배)한 채 중앙 빈자리에 '꾹' 꽂히고(스쿼시) 작은 반동으로 안착
             animate={{
-              y: [60, 48, 48, NEW_SEAT_Y - 48 + 8, NEW_SEAT_Y - 48 - 4, NEW_SEAT_Y - 48],
-              scaleX: [0.18, 1.0, 1.0, 0.34, 0.31, 0.3],
-              scaleY: [0.18, 1.0, 1.0, 0.26, 0.34, 0.3],
+              y: [60, 44, 44, NEW_SEAT_Y - 48 + 6, NEW_SEAT_Y - 48 - 2, NEW_SEAT_Y - 48],
+              scaleX: [0.18, 1.05, 1.05, 1.1, 0.99, 1.02],
+              scaleY: [0.18, 1.05, 1.05, 0.88, 1.06, 1.0],
               opacity: [0, 1, 1, 1, 1, 1],
               rotate: [-16, 0, 0, 0, 0, 0],
             }}
