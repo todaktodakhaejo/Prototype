@@ -16,7 +16,7 @@ function Star({ glow }: { glow: string }) {
   const rays = 12
   return (
     <motion.div
-      style={{ position: 'absolute', left: '50%', top: '44%', width: 200, height: 200, marginLeft: -100, marginTop: -100, pointerEvents: 'none', zIndex: 8 }}
+      style={{ position: 'absolute', left: '50%', top: '44%', width: 120, height: 120, marginLeft: -60, marginTop: -60, pointerEvents: 'none', zIndex: 8 }}
       initial={{ scale: 0.2, opacity: 0, rotate: -8 }}
       animate={{ scale: [0.2, 1.15, 1, 1.04, 0.9], opacity: [0, 1, 1, 1, 0], rotate: [-8, 0, 2, 3, 6] }}
       transition={{ duration: 1.8, times: [0, 0.18, 0.45, 0.75, 1], ease: 'easeOut' }}
@@ -27,8 +27,8 @@ function Star({ glow }: { glow: string }) {
       {Array.from({ length: rays }).map((_, i) => {
         const ang = (360 / rays) * i
         const long = i % 2 === 0
-        const h = long ? 190 : 96
-        const w = long ? 3 : 2
+        const h = long ? 108 : 54
+        const w = long ? 2.5 : 1.5
         return (
           <div
             key={i}
@@ -55,13 +55,13 @@ function Star({ glow }: { glow: string }) {
           position: 'absolute',
           left: '50%',
           top: '50%',
-          width: 22,
-          height: 22,
-          marginLeft: -11,
-          marginTop: -11,
+          width: 14,
+          height: 14,
+          marginLeft: -7,
+          marginTop: -7,
           borderRadius: '50%',
           background: 'radial-gradient(circle, #ffffff 0%, #ffffff 30%, rgba(255,255,255,0) 72%)',
-          boxShadow: `0 0 18px 6px ${glow}`,
+          boxShadow: `0 0 12px 4px ${glow}`,
         }}
       />
     </motion.div>
