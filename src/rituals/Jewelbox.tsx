@@ -10,7 +10,13 @@ const PARTICLES = 12
 const GOLD = '#e7c97a'
 const PINK_LID = 'linear-gradient(160deg, #fcd9e3 0%, #f4b9c8 52%, #e89cb0 100%)'
 const PINK_BODY = 'linear-gradient(165deg, #f6c2d1 0%, #ecabbd 58%, #df93a8 100%)'
-const BLUSH = 'linear-gradient(180deg, #fff5f7 0%, #f6dde4 100%)'
+// 누비(퀼팅) 무늬 — 가죽 그라데이션 위에 다이아몬드 스티치
+const QUILT =
+  'repeating-linear-gradient(45deg, rgba(255,255,255,0.18) 0 1.5px, rgba(255,255,255,0) 1.5px 19px), repeating-linear-gradient(-45deg, rgba(150,70,100,0.16) 0 1.5px, rgba(150,70,100,0) 1.5px 19px)'
+const QUILTED_BODY = `${QUILT}, ${PINK_BODY}`
+const QUILTED_LID = `${QUILT}, ${PINK_LID}`
+const ZIPPER = 'repeating-linear-gradient(90deg, #fff2cf 0 3px, #c9a24f 3px 6px)' // 골드 지퍼 이빨
+const CREAM = 'linear-gradient(180deg, #fbf4ea 0%, #efe3d2 100%)' // 크림 내부(보관 트레이)
 const DROP = 110 // 이만큼 아래로 끌어내리면 함에 담김
 
 function Gem({ size = 86 }: { size?: number }) {
@@ -34,7 +40,7 @@ function LidDecor() {
   return (
     <>
       <div style={{ position: 'absolute', left: 16, top: 7, width: 96, height: 14, borderRadius: '50%', background: 'radial-gradient(ellipse at 40% 40%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%)', filter: 'blur(1px)' }} />
-      <div style={{ position: 'absolute', left: 8, right: 8, bottom: 3, height: 6, borderRadius: 3, background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 55%, #c9a24f 100%)` }} />
+      <div style={{ position: 'absolute', left: 8, right: 8, bottom: 3, height: 6, borderRadius: 3, background: ZIPPER }} />
       <div style={{ position: 'absolute', left: '50%', bottom: -5, marginLeft: -6, width: 12, height: 13, borderRadius: '3px 3px 5px 5px', background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 60%, #b8923f 100%)`, boxShadow: '0 2px 4px rgba(0,0,0,0.25)' }} />
     </>
   )
@@ -195,11 +201,12 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           marginLeft: -81,
           zIndex: 2,
           borderRadius: '12px 12px 18px 18px',
-          background: PINK_BODY,
+          background: QUILTED_BODY,
           boxShadow:
             '0 18px 34px rgba(150,70,95,0.4), inset 0 2px 0 rgba(255,255,255,0.55), inset -8px -10px 20px rgba(176,80,110,0.35)',
         }}
       >
+        {/* 크림 내부(보관 트레이) — 칸막이로 보석함 느낌 */}
         <div
           style={{
             position: 'absolute',
@@ -208,20 +215,25 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
             width: 138,
             height: 34,
             marginLeft: -69,
-            borderRadius: '8px 8px 10px 10px',
-            background: BLUSH,
-            boxShadow: 'inset 0 5px 9px rgba(150,70,95,0.4)',
+            borderRadius: 7,
+            background: CREAM,
+            boxShadow: 'inset 0 4px 8px rgba(120,80,60,0.35), inset 0 0 0 2px rgba(201,162,79,0.5)',
+            overflow: 'hidden',
           }}
-        />
+        >
+          <div style={{ position: 'absolute', top: 3, bottom: 3, left: '33%', width: 2, marginLeft: -1, borderRadius: 2, background: 'rgba(160,120,90,0.3)', boxShadow: '1px 0 0 rgba(255,255,255,0.6)' }} />
+          <div style={{ position: 'absolute', top: 3, bottom: 3, left: '66%', width: 2, marginLeft: -1, borderRadius: 2, background: 'rgba(160,120,90,0.3)', boxShadow: '1px 0 0 rgba(255,255,255,0.6)' }} />
+          <div style={{ position: 'absolute', left: 4, right: 4, top: '50%', height: 2, marginTop: -1, borderRadius: 2, background: 'rgba(160,120,90,0.3)', boxShadow: '0 1px 0 rgba(255,255,255,0.6)' }} />
+        </div>
         <div
           style={{
             position: 'absolute',
             left: 8,
             right: 8,
             top: 2,
-            height: 5,
+            height: 6,
             borderRadius: 3,
-            background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 55%, #c9a24f 100%)`,
+            background: ZIPPER,
           }}
         />
       </div>
@@ -238,7 +250,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
             marginLeft: -81,
             zIndex: 3,
             borderRadius: '14px 14px 6px 6px',
-            background: PINK_LID,
+            background: QUILTED_LID,
             boxShadow: '0 -2px 12px rgba(231,201,122,0.3), inset 0 3px 0 rgba(255,255,255,0.7), inset -8px -8px 18px rgba(176,80,110,0.3)',
             transformOrigin: '0% 100%', // 왼쪽-아래 모서리(=상자 왼쪽 끝)를 경첩으로
             transform: open ? `rotate(${LID_OPEN_DEG}deg)` : 'none',
@@ -312,7 +324,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
               marginLeft: -81,
               zIndex: 5,
               borderRadius: '14px 14px 6px 6px',
-              background: PINK_LID,
+              background: QUILTED_LID,
               boxShadow:
                 '0 -2px 12px rgba(231,201,122,0.3), inset 0 3px 0 rgba(255,255,255,0.7), inset -8px -8px 18px rgba(176,80,110,0.3)',
               transformOrigin: '0% 100%',

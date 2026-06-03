@@ -83,7 +83,7 @@ const CLOUD_PUFFS = [
 function Cloud({ left, top, scale, opacity, delay, drift }: { left: string; top: string; scale: number; opacity: number; delay: number; drift: number }) {
   return (
     <motion.div
-      style={{ position: 'absolute', left, top, width: 196, height: 96, marginLeft: -98, marginTop: -48, pointerEvents: 'none', zIndex: 7, filter: 'blur(2px)' }}
+      style={{ position: 'absolute', left, top, width: 196, height: 96, marginLeft: -98, marginTop: -48, pointerEvents: 'none', zIndex: 7, filter: 'blur(2.6px)' }}
       initial={{ opacity: 0, x: -drift, scale }}
       animate={{ opacity: [0, opacity, opacity], x: [-drift, 0, drift], scale }}
       transition={{ duration: 2.6, delay, times: [0, 0.4, 1], ease: 'easeOut' }}
@@ -108,13 +108,15 @@ function Cloud({ left, top, scale, opacity, delay, drift }: { left: string; top:
   )
 }
 
-// 하늘에 고루 흩어 떠 있는 구름들 — 중앙(별빛 자리)을 비우고 상단 모서리 + 하단에 배치
+// 하늘에 고루 흩어 떠 있는 구름들 — 중앙(별빛 자리)은 비우고 상/중(모서리)/하로 분산
 const CLOUDS = [
-  { left: '15%', top: '13%', scale: 0.58, opacity: 0.85, delay: 0.1, drift: 12 },
-  { left: '85%', top: '16%', scale: 0.66, opacity: 0.88, delay: 0.0, drift: 14 },
-  { left: '20%', top: '72%', scale: 0.5, opacity: 0.74, delay: 0.4, drift: 9 },
-  { left: '82%', top: '68%', scale: 0.54, opacity: 0.76, delay: 0.5, drift: 10 },
-  { left: '50%', top: '88%', scale: 0.6, opacity: 0.84, delay: 0.25, drift: 12 },
+  { left: '15%', top: '11%', scale: 0.52, opacity: 0.82, delay: 0.12, drift: 11 },
+  { left: '47%', top: '8%', scale: 0.6, opacity: 0.9, delay: 0.0, drift: 13 },
+  { left: '84%', top: '14%', scale: 0.6, opacity: 0.86, delay: 0.2, drift: 14 },
+  { left: '11%', top: '40%', scale: 0.42, opacity: 0.7, delay: 0.45, drift: 8 },
+  { left: '89%', top: '46%', scale: 0.46, opacity: 0.72, delay: 0.5, drift: 9 },
+  { left: '33%', top: '82%', scale: 0.5, opacity: 0.8, delay: 0.3, drift: 11 },
+  { left: '71%', top: '84%', scale: 0.54, opacity: 0.82, delay: 0.38, drift: 12 },
 ]
 
 // 슬링샷 물리: 당긴 '반대' 방향으로, 항상 하늘(위)을 향해 사선 발사
