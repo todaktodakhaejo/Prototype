@@ -110,13 +110,12 @@ function Cloud({ left, top, scale, opacity, delay, drift }: { left: string; top:
 
 // 하늘에 고루 흩어 떠 있는 구름들 — 중앙(별빛 자리)은 비우고 상/중(모서리)/하로 분산
 const CLOUDS = [
-  { left: '13%', top: '10%', scale: 0.5, opacity: 0.82, delay: 0.12, drift: 11 },
-  { left: '42%', top: '6%', scale: 0.56, opacity: 0.9, delay: 0.0, drift: 13 },
-  { left: '87%', top: '12%', scale: 0.58, opacity: 0.86, delay: 0.2, drift: 14 },
-  { left: '8%', top: '40%', scale: 0.4, opacity: 0.7, delay: 0.45, drift: 8 },
-  { left: '92%', top: '38%', scale: 0.44, opacity: 0.72, delay: 0.5, drift: 9 },
-  { left: '26%', top: '64%', scale: 0.46, opacity: 0.8, delay: 0.3, drift: 11 },
-  { left: '76%', top: '66%', scale: 0.5, opacity: 0.82, delay: 0.38, drift: 12 },
+  { left: '22%', top: '11%', scale: 0.5, opacity: 0.84, delay: 0.1, drift: 11 },
+  { left: '80%', top: '13%', scale: 0.56, opacity: 0.86, delay: 0.0, drift: 14 },
+  { left: '9%', top: '38%', scale: 0.4, opacity: 0.7, delay: 0.45, drift: 8 },
+  { left: '91%', top: '42%', scale: 0.44, opacity: 0.72, delay: 0.5, drift: 9 },
+  { left: '34%', top: '64%', scale: 0.48, opacity: 0.8, delay: 0.3, drift: 11 },
+  { left: '68%', top: '68%', scale: 0.5, opacity: 0.82, delay: 0.38, drift: 12 },
 ]
 
 // 슬링샷 물리: 당긴 '반대' 방향으로, 항상 하늘(위)을 향해 사선 발사
@@ -179,23 +178,24 @@ function FoldSequence({ onDone }: { onDone: () => void }) {
   ]
   useEffect(() => {
     if (step >= stages.length - 1) {
-      const t = setTimeout(onDone, 340)
+      const t = setTimeout(onDone, 360)
       return () => clearTimeout(t)
     }
-    const t = setTimeout(() => setStep((s) => s + 1), 235)
+    const t = setTimeout(() => setStep((s) => s + 1), 300)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, onDone])
 
+  // mode="wait": 이전 단계가 완전히 사라진 뒤 다음이 나타나 겹침/깜빡임 없이 매끄럽게.
   return (
-    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', perspective: 700 }}>
-      <AnimatePresence>
+    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', perspective: 800 }}>
+      <AnimatePresence mode="wait">
         <motion.div
           key={step}
-          initial={{ rotateY: -58, opacity: 0, scale: 0.9 }}
-          animate={{ rotateY: 0, opacity: 1, scale: 1 }}
-          exit={{ rotateY: 58, opacity: 0, scale: 0.92 }}
-          transition={{ duration: 0.2, ease: 'easeInOut' }}
+          initial={{ opacity: 0, scale: 0.94, rotateX: -14 }}
+          animate={{ opacity: 1, scale: 1, rotateX: 0 }}
+          exit={{ opacity: 0, scale: 0.98, rotateX: 10 }}
+          transition={{ duration: 0.14, ease: 'easeInOut' }}
           style={{ filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.18))' }}
         >
           {stages[step]}

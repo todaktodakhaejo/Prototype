@@ -19,17 +19,31 @@ const ZIPPER = 'repeating-linear-gradient(90deg, #fff2cf 0 3px, #c9a24f 3px 6px)
 const CREAM = 'linear-gradient(180deg, #fbf4ea 0%, #efe3d2 100%)' // 크림 내부(보관 트레이)
 const DROP = 110 // 이만큼 아래로 끌어내리면 함에 담김
 
-function Gem({ size = 86 }: { size?: number }) {
+// 크고 영롱한 브릴리언트컷 다이아몬드 (맑은 무색 + 분광 + 글린트 + 스파클)
+function Gem({ size = 104 }: { size?: number }) {
   return (
-    <svg width={size} height={(size * 96) / 88} viewBox="0 0 88 96" aria-hidden>
-      <g stroke="rgba(150,80,110,0.4)" strokeWidth={0.8} strokeLinejoin="round">
-        <polygon points="30,10 58,10 48,38 40,38" fill="#f8d6e0" />
-        <polygon points="30,10 40,38 6,38" fill="#edb0c2" />
-        <polygon points="58,10 48,38 82,38" fill="#edb0c2" />
-        <polygon points="6,38 40,38 44,92" fill="#cf86a0" />
-        <polygon points="40,38 48,38 44,92" fill="#e6a0b6" />
-        <polygon points="48,38 82,38 44,92" fill="#cf86a0" />
-        <polygon points="30,10 40,38 25,30" fill="rgba(255,255,255,0.45)" stroke="none" />
+    <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden style={{ filter: 'drop-shadow(0 0 10px rgba(190,225,255,0.85))' }}>
+      {/* 크라운(윗면) */}
+      <polygon points="36,12 64,12 74,38 26,38" fill="#eef5fd" />
+      <polygon points="8,38 26,38 36,12" fill="#cfe0f1" />
+      <polygon points="92,38 74,38 64,12" fill="#cfe0f1" />
+      <polygon points="40,15 60,15 56,30 44,30" fill="rgba(255,255,255,0.9)" />
+      {/* 거들(가장 넓은 선) */}
+      <rect x="8" y="37" width="84" height="2.2" fill="#bcd3ea" />
+      {/* 파빌리온(아랫면, 뾰족하게) */}
+      <polygon points="8,39 41,39 50,96" fill="#b6cde6" />
+      <polygon points="41,39 59,39 50,96" fill="#e3effb" />
+      <polygon points="59,39 92,39 50,96" fill="#a6c1df" />
+      {/* 무지개빛 분광(파이어) */}
+      <polygon points="20,39 33,39 50,96" fill="rgba(120,210,180,0.22)" />
+      <polygon points="67,39 80,39 50,96" fill="rgba(180,150,230,0.22)" />
+      {/* 밝은 글린트 */}
+      <polygon points="41,39 59,39 54,60 46,60" fill="rgba(255,255,255,0.7)" />
+      <polygon points="26,38 36,38 30,54" fill="rgba(255,255,255,0.45)" />
+      {/* 스파클(4갈래 반짝) */}
+      <g fill="#ffffff">
+        <path d="M71 19 l2.2 6.2 6.2 2.2 -6.2 2.2 -2.2 6.2 -2.2 -6.2 -6.2 -2.2 6.2 -2.2 z" opacity="0.95" />
+        <path d="M33 29 l1.5 4.2 4.2 1.5 -4.2 1.5 -1.5 4.2 -1.5 -4.2 -4.2 -1.5 4.2 -1.5 z" opacity="0.8" />
       </g>
     </svg>
   )
@@ -305,7 +319,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
       {stored && (
         <>
           <motion.div
-            style={{ position: 'absolute', left: '50%', top: 12, marginLeft: -43, zIndex: 4, pointerEvents: 'none' }}
+            style={{ position: 'absolute', left: '50%', top: 12, marginLeft: -52, zIndex: 4, pointerEvents: 'none' }}
             initial={{ y: 0, scale: 0.7, opacity: 1, rotate: -4 }}
             animate={{ y: [0, 150, 168], scale: [0.7, 0.5, 0.16], opacity: [1, 1, 0], rotate: [-4, 0, 0] }}
             transition={{ duration: 1.2, times: [0, 0.78, 1], ease: 'easeIn' }}

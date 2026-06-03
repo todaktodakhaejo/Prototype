@@ -9,7 +9,7 @@ import { hapticBurnTick, stopVibration } from '../haptics'
 const BURN_GAP_SLOW_MS = 300 // 막 붙었을 때(아래) — 드문드문
 const BURN_GAP_FAST_MS = 70 // 다 타갈 때(위) — 다다닥
 
-const HOLD_SEC = 3.2 // 불붙은 뒤 다 타는 데 걸리는 시간
+const HOLD_SEC = 4.6 // 불붙은 뒤 다 타는 데 걸리는 시간(천천히 — 불길 커지는 걸 보이게)
 const HOLD_MSG = 2.6 // 잿더미 + 멘트 머무는 여운
 // 성냥 머리가 종이(컨테이너 0..220 × 0..300) 안에 들어오면 점화.
 //  성냥 머리의 '정지 시' 컨테이너 좌표(아래 배치 기준) — 여기에 드래그 오프셋을 더해 현재 위치를 계산.
@@ -108,8 +108,8 @@ export default function Burn({ text, onDone }: RitualProps) {
   const flameOn = lit && !done
   // 불길은 진행될수록 점점 세짐. 누르고 있을 때 더 활활, 떼면 잦아듦.
   const calm = pressing ? 1 : 0.72
-  const flameH = (0.4 + progress * 2.3) * calm // 높이 배율 — 작게 시작 → 확연히 크게(최대 ~2.7배)
-  const flameW = (0.65 + progress * 0.9) * (pressing ? 1 : 0.92) // 폭 배율
+  // 불 '전체'를 진행도에 따라 확연히 키운다(작게 시작 → 크게). bottom-center 기준 그룹 스케일.
+  const fireScale = (0.4 + progress * 2.1) * calm
 
   return (
     <div
@@ -134,8 +134,8 @@ export default function Burn({ text, onDone }: RitualProps) {
           borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(255,176,80,0.55) 0%, rgba(255,150,60,0) 64%)',
           opacity: flameOn ? (0.3 + progress * 0.9) * calm : 0.1,
-          transition: 'opacity 0.2s',
-          transform: `scale(${0.7 + progress * 0.7})`,
+          transition: 'opacity 0.2s, transform 0.2s',
+          transform: `scale(${0.55 + progress * 1.25})`,
           pointerEvents: 'none',
         }}
       />
@@ -217,6 +217,8 @@ export default function Burn({ text, onDone }: RitualProps) {
               opacity: flameOn ? 1 : 0.5,
             }}
           />
+          {/* 불꽃+불티 그룹 — 진행도에 따라 통째로 커짐(bottom-center) */}
+          <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 0, transformOrigin: 'bottom center', transform: `scale(${fireScale})`, transition: 'transform 0.2s ease-out' }}>
           {FLAMES.map((f, i) => (
             <motion.div
               key={i}
@@ -224,12 +226,12 @@ export default function Burn({ text, onDone }: RitualProps) {
                 position: 'absolute',
                 left: '50%',
                 bottom: -4,
-                width: f.w * flameW,
-                height: f.h * flameH,
-                marginLeft: f.dx - (f.w * flameW) / 2,
+                width: f.w,
+                height: f.h,
+                marginLeft: f.dx - f.w / 2,
                 transformOrigin: 'bottom center',
                 opacity: flameOn ? 1 : 0,
-                transition: 'width 0.18s, height 0.18s, opacity 0.25s',
+                transition: 'opacity 0.25s',
               }}
               animate={{
                 scaleY: [0.9, 1.2, 0.95, 1.12, 0.9],
@@ -296,6 +298,7 @@ export default function Burn({ text, onDone }: RitualProps) {
                 />
               )
             })}
+          </div>
         </div>
       )}
 
