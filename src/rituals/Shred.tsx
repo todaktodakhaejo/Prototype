@@ -99,7 +99,7 @@ export default function Shred({ text, onDone }: RitualProps) {
 
   return (
     <div
-      style={{ position: 'relative', width: 240, height: 280, touchAction: 'none', cursor: done ? 'default' : 'grab' }}
+      style={{ position: 'relative', width: 240, height: 280, marginTop: 34, touchAction: 'none', cursor: done ? 'default' : 'grab' }}
       onPointerDown={start}
       onPointerMove={onMove}
       onPointerUp={stop}

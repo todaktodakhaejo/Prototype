@@ -126,16 +126,17 @@ function Cloud({ left, top, scale, opacity, delay, drift, puffs }: { left: strin
 }
 
 // 하늘에 고루 흩어 떠 있는 구름들 — 중앙(별빛 자리)은 비우고 상/중(모서리)/하로 분산
-// 위쪽은 작게, 아래쪽은 크게. 화면 전체에 고루 흩뿌리고(중앙 별빛 자리 비움) 더 투명하게.
+// 좌표를 의식 컨테이너 밖(음수~100% 초과)까지 넓혀 화면 전체(엔딩멘트 아래까지)로 흩뿌림.
+//  위쪽은 작게, 아래쪽은 크게, 중앙(별빛 자리)은 비움, 투명도 높게.
 const CLOUDS = [
-  { left: '10%', top: '9%', scale: 0.34, opacity: 0.48, delay: 0.12, drift: 11, puffs: PUFFS_C },
-  { left: '38%', top: '5%', scale: 0.4, opacity: 0.5, delay: 0.0, drift: 13, puffs: PUFFS_B },
-  { left: '70%', top: '8%', scale: 0.36, opacity: 0.48, delay: 0.22, drift: 14, puffs: PUFFS_C },
-  { left: '93%', top: '22%', scale: 0.42, opacity: 0.5, delay: 0.3, drift: 9, puffs: PUFFS_A },
-  { left: '7%', top: '36%', scale: 0.44, opacity: 0.48, delay: 0.45, drift: 8, puffs: PUFFS_C },
-  { left: '26%', top: '74%', scale: 0.66, opacity: 0.58, delay: 0.3, drift: 11, puffs: PUFFS_A },
-  { left: '62%', top: '78%', scale: 0.8, opacity: 0.6, delay: 0.18, drift: 12, puffs: PUFFS_B },
-  { left: '89%', top: '70%', scale: 0.7, opacity: 0.58, delay: 0.4, drift: 10, puffs: PUFFS_C },
+  { left: '-24%', top: '-14%', scale: 0.34, opacity: 0.46, delay: 0.12, drift: 11, puffs: PUFFS_C },
+  { left: '42%', top: '-20%', scale: 0.4, opacity: 0.48, delay: 0.0, drift: 13, puffs: PUFFS_B },
+  { left: '118%', top: '-6%', scale: 0.36, opacity: 0.46, delay: 0.22, drift: 14, puffs: PUFFS_C },
+  { left: '-30%', top: '40%', scale: 0.48, opacity: 0.48, delay: 0.3, drift: 9, puffs: PUFFS_A },
+  { left: '128%', top: '46%', scale: 0.52, opacity: 0.5, delay: 0.45, drift: 8, puffs: PUFFS_C },
+  { left: '-16%', top: '118%', scale: 0.74, opacity: 0.6, delay: 0.3, drift: 11, puffs: PUFFS_A },
+  { left: '52%', top: '132%', scale: 0.84, opacity: 0.62, delay: 0.18, drift: 12, puffs: PUFFS_B },
+  { left: '122%', top: '112%', scale: 0.76, opacity: 0.6, delay: 0.4, drift: 10, puffs: PUFFS_C },
 ]
 
 // 슬링샷 물리: 당긴 '반대' 방향으로, 항상 하늘(위)을 향해 사선 발사
