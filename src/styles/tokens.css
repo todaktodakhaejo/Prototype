@@ -11,55 +11,46 @@
 }
 
 /*
-  실제 시각 기반 5단계 배경 (data-tod). 매끈한 다단계 그라데이션 + 위쪽 큰 글로시 채광 1겹
-  + (아래) 지평선 빛으로 솜사탕 하늘 느낌. 얼룩이 생기지 않게 작은 블롭은 쓰지 않음.
+  시각 기반 5단계 배경 (data-tod) — 레퍼런스 이미지에 맞춘 부드러운 3~5스톱 그라데이션.
+  부드러운 윗쪽 채광(아주 옅게)만 더하고 강한 블롭은 쓰지 않음.
     dawn 05–07 · day 07–16 · dusk 16–19 · night 19–04 · pre-dawn 04–05
 */
 
-/* 일출 — 하늘색 → 살구빛 */
+/* 일출 — 옅은 블루그레이 하늘 → 라벤더 → 따뜻한 크림 바다 */
 [data-tod='dawn'] {
-  --on-bg: #3e3950;
+  --on-bg: #4b4658;
   --bg:
-    radial-gradient(125% 78% at 50% -8%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 56%),
-    radial-gradient(135% 72% at 50% 116%, rgba(255, 190, 142, 0.6) 0%, rgba(255, 190, 142, 0) 60%),
-    linear-gradient(180deg, #8fbbef 0%, #aec3e8 22%, #cbc6d8 46%, #e7c9b2 74%, #f8cd92 100%);
+    radial-gradient(120% 70% at 50% -6%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 52%),
+    linear-gradient(180deg, #aebed8 0%, #bfbccf 34%, #d3c4c4 58%, #ecceb6 82%, #f6ddbf 100%);
 }
 
-/* 낮 — 분홍 → 라벤더 */
+/* 낮 — 부드러운 분홍 → 라벤더 → 라벤더 그레이 */
 [data-tod='day'] {
-  --on-bg: #4f4360;
+  --on-bg: #5b4f66;
   --bg:
-    radial-gradient(125% 74% at 50% -8%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 56%),
-    linear-gradient(180deg, #f7bcd8 0%, #edc4e6 40%, #d4c6ef 74%, #bcbdf0 100%);
+    radial-gradient(120% 66% at 50% -6%, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 52%),
+    linear-gradient(180deg, #f3ccd7 0%, #e6cce0 42%, #d3c8de 74%, #c8c5dc 100%);
 }
 
-/* 노을 — 짙은 남색 → 핑크·산호 */
+/* 노을 — 짙은 인디고 → 모브 → 따뜻한 산호/앰버 */
 [data-tod='dusk'] {
-  --on-bg: #fceef0;
-  --bg:
-    radial-gradient(130% 64% at 50% 4%, rgba(150, 150, 210, 0.2) 0%, rgba(150, 150, 210, 0) 56%),
-    radial-gradient(145% 62% at 50% 114%, rgba(248, 158, 108, 0.8) 0%, rgba(248, 158, 108, 0) 60%),
-    linear-gradient(180deg, #1d2461 0%, #443e8c 28%, #7d5896 50%, #b96e8f 70%, #e2887f 86%, #f4a368 100%);
+  --on-bg: #f6eaef;
+  --bg: linear-gradient(180deg, #33375b 0%, #574f80 28%, #8a6a8d 52%, #c08484 72%, #e2986f 88%, #efab73 100%);
 }
 
-/* 밤 — 짙은 남색 + 별빛 + 위쪽 은은한 달빛 */
+/* 밤 — 짙은 남색 + 옅은 별빛 + 바닥의 은은한 따뜻한 기운 */
 [data-tod='night'] {
   --on-bg: #edf0fb;
   --bg:
-    radial-gradient(1.8px 1.8px at 22% 18%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 100%),
-    radial-gradient(1.6px 1.6px at 68% 14%, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0) 100%),
-    radial-gradient(1.5px 1.5px at 54% 26%, rgba(255, 255, 255, 0.62) 0%, rgba(255, 255, 255, 0) 100%),
-    radial-gradient(1.4px 1.4px at 82% 30%, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0) 100%),
-    radial-gradient(1.3px 1.3px at 36% 36%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%),
-    radial-gradient(130% 75% at 50% 6%, rgba(150, 168, 230, 0.22) 0%, rgba(150, 168, 230, 0) 58%),
-    linear-gradient(180deg, #0b1230 0%, #141d44 50%, #202a58 100%);
+    radial-gradient(1.7px 1.7px at 24% 18%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(1.5px 1.5px at 68% 14%, rgba(255, 255, 255, 0.66) 0%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(1.4px 1.4px at 54% 26%, rgba(255, 255, 255, 0.56) 0%, rgba(255, 255, 255, 0) 100%),
+    radial-gradient(1.3px 1.3px at 82% 30%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%),
+    linear-gradient(180deg, #141c3a 0%, #20294c 46%, #34375f 74%, #7a5f6a 92%, #9c7458 100%);
 }
 
-/* 새벽 — 진한 파랑 → 분홍 여명 */
+/* 새벽 — 진한 파랑 → 블루그레이 → 따뜻한 분홍 여명 */
 [data-tod='pre-dawn'] {
   --on-bg: #eef1ff;
-  --bg:
-    radial-gradient(130% 66% at 50% 6%, rgba(140, 150, 210, 0.2) 0%, rgba(140, 150, 210, 0) 58%),
-    radial-gradient(130% 58% at 50% 116%, rgba(224, 142, 172, 0.72) 0%, rgba(224, 142, 172, 0) 58%),
-    linear-gradient(180deg, #0e1f59 0%, #283779 36%, #5a4f8f 64%, #9a6d93 84%, #cf86a8 100%);
+  --bg: linear-gradient(180deg, #243a6a 0%, #41487c 38%, #6b6390 64%, #a87f8c 84%, #dca07e 100%);
 }
