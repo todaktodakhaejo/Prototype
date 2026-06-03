@@ -4,43 +4,57 @@ import type { RitualProps } from './index'
 import { rotatingMessage, JEWELBOX_MESSAGES } from '../constants'
 import { hapticJewelStore, hapticHeartbeat, stopVibration } from '../haptics'
 
-const HEARTBEAT_DELAY_MS = 3200 // 보석이 상자에 담긴 뒤 후광이 빛나는 시점과 맞춤
-
+const HEARTBEAT_DELAY_MS = 3200 // 보석이 담긴 뒤 후광이 빛나는 시점과 맞춤
 const PARTICLES = 12
-const GOLD = '#e7c97a'
-const PINK_LID = 'linear-gradient(160deg, #fcd9e3 0%, #f4b9c8 52%, #e89cb0 100%)'
-const PINK_BODY = 'linear-gradient(165deg, #f6c2d1 0%, #ecabbd 58%, #df93a8 100%)'
-// 누비(퀼팅) 무늬 — 가죽 그라데이션 위에 다이아몬드 스티치
-const QUILT =
-  'repeating-linear-gradient(45deg, rgba(255,255,255,0.18) 0 1.5px, rgba(255,255,255,0) 1.5px 19px), repeating-linear-gradient(-45deg, rgba(150,70,100,0.16) 0 1.5px, rgba(150,70,100,0) 1.5px 19px)'
-const QUILTED_BODY = `${QUILT}, ${PINK_BODY}`
-const QUILTED_LID = `${QUILT}, ${PINK_LID}`
-const ZIPPER = 'repeating-linear-gradient(90deg, #fff2cf 0 3px, #c9a24f 3px 6px)' // 골드 지퍼 이빨
-const CREAM = 'linear-gradient(180deg, #fbf4ea 0%, #efe3d2 100%)' // 크림 내부(보관 트레이)
 const DROP = 110 // 이만큼 아래로 끌어내리면 함에 담김
 
-// 크고 영롱한 브릴리언트컷 다이아몬드 (맑은 무색 + 분광 + 글린트 + 스파클)
-function Gem({ size = 104 }: { size?: number }) {
+// 네이비 가죽 + 크림 새틴(고급 보석함)
+const LEATHER = 'linear-gradient(150deg, #45557a 0%, #303c5c 48%, #222c47 78%, #1a2238 100%)'
+const LEATHER_EDGE = 'linear-gradient(180deg, #54648c 0%, #2a3450 100%)'
+const SATIN = 'linear-gradient(180deg, #f3ebdb 0%, #e6d8c2 60%, #d8c8ad 100%)'
+const SATIN_DEEP = 'linear-gradient(180deg, #ece1cd 0%, #d7c6aa 100%)'
+const GOLD = 'linear-gradient(180deg, #fbe9b0 0%, #d9b25e 55%, #b88e3c 100%)'
+
+// 이미 담긴 작은 보석 색 — 매번 다르되 파스텔(새 보석이 묻히지 않게)
+const PASTELS = ['#f7c5d6', '#d3c0f2', '#bfe3e8', '#d9edc2', '#f7e3a6', '#f4cbb6', '#cdd9f6', '#ecc6e6']
+function pickPastels(n: number): string[] {
+  const a = [...PASTELS]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a.slice(0, n)
+}
+
+// 작은 파스텔 보석(브릴리언트컷 단순화)
+function MiniGem({ color, size = 24 }: { color: string; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden style={{ display: 'block', filter: 'drop-shadow(0 2px 3px rgba(40,30,40,0.3))' }}>
+      <polygon points="8,15 20,6 32,15 20,38" fill={color} />
+      <polygon points="8,15 20,6 20,16" fill="#ffffff" opacity="0.6" />
+      <polygon points="32,15 20,6 20,16" fill="#ffffff" opacity="0.3" />
+      <polygon points="8,15 20,16 20,38" fill="#ffffff" opacity="0.2" />
+      <polygon points="32,15 20,16 20,38" fill="#2a1f2a" opacity="0.12" />
+    </svg>
+  )
+}
+
+// 담는 보석 — 크고 영롱한 무색 다이아몬드
+function Gem({ size = 96 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden style={{ filter: 'drop-shadow(0 0 10px rgba(190,225,255,0.85))' }}>
-      {/* 크라운(윗면) */}
       <polygon points="36,12 64,12 74,38 26,38" fill="#eef5fd" />
       <polygon points="8,38 26,38 36,12" fill="#cfe0f1" />
       <polygon points="92,38 74,38 64,12" fill="#cfe0f1" />
       <polygon points="40,15 60,15 56,30 44,30" fill="rgba(255,255,255,0.9)" />
-      {/* 거들(가장 넓은 선) */}
       <rect x="8" y="37" width="84" height="2.2" fill="#bcd3ea" />
-      {/* 파빌리온(아랫면, 뾰족하게) */}
       <polygon points="8,39 41,39 50,96" fill="#b6cde6" />
       <polygon points="41,39 59,39 50,96" fill="#e3effb" />
       <polygon points="59,39 92,39 50,96" fill="#a6c1df" />
-      {/* 무지개빛 분광(파이어) */}
       <polygon points="20,39 33,39 50,96" fill="rgba(120,210,180,0.22)" />
       <polygon points="67,39 80,39 50,96" fill="rgba(180,150,230,0.22)" />
-      {/* 밝은 글린트 */}
       <polygon points="41,39 59,39 54,60 46,60" fill="rgba(255,255,255,0.7)" />
       <polygon points="26,38 36,38 30,54" fill="rgba(255,255,255,0.45)" />
-      {/* 스파클(4갈래 반짝) */}
       <g fill="#ffffff">
         <path d="M71 19 l2.2 6.2 6.2 2.2 -6.2 2.2 -2.2 6.2 -2.2 -6.2 -6.2 -2.2 6.2 -2.2 z" opacity="0.95" />
         <path d="M33 29 l1.5 4.2 4.2 1.5 -4.2 1.5 -1.5 4.2 -1.5 -4.2 -4.2 -1.5 4.2 -1.5 z" opacity="0.8" />
@@ -49,34 +63,26 @@ function Gem({ size = 104 }: { size?: number }) {
   )
 }
 
-// 뚜껑 표면 장식(광택 + 금테 + 손잡이) — 닫힌 뚜껑/닫히는 뚜껑이 공유
-function LidDecor() {
-  return (
-    <>
-      <div style={{ position: 'absolute', left: 16, top: 7, width: 96, height: 14, borderRadius: '50%', background: 'radial-gradient(ellipse at 40% 40%, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%)', filter: 'blur(1px)' }} />
-      <div style={{ position: 'absolute', left: 8, right: 8, bottom: 3, height: 6, borderRadius: 3, background: ZIPPER }} />
-      <div style={{ position: 'absolute', left: '50%', bottom: -5, marginLeft: -6, width: 12, height: 13, borderRadius: '3px 3px 5px 5px', background: `linear-gradient(180deg, #fff0c8 0%, ${GOLD} 60%, #b8923f 100%)`, boxShadow: '0 2px 4px rgba(0,0,0,0.25)' }} />
-    </>
-  )
-}
+// 이미 담긴 보석들의 자리(상자 안쪽, 화면 좌표 기준 — 새 보석은 가운데 빈자리에 안착)
+const SLOTS = [
+  { x: -60, y: 198 },
+  { x: -31, y: 206 },
+  { x: 31, y: 206 },
+  { x: 60, y: 198 },
+]
+const NEW_SLOT = { x: 0, y: 210 }
 
-// 뚜껑이 들려 열린 상태의 변형(이미지처럼 위로 들려 비스듬히)
-// 뚜껑은 '왼쪽 모서리'를 경첩 삼아 열린다(왼쪽 끝이 상자 왼쪽과 딱 맞물려 어긋나지 않게).
-const LID_OPEN_DEG = -52
-
-// 보석함 — 닫힌 상자에서 시작, 종이를 드래그하는 순간 뚜껑이 들려 열리고,
-//  종이를 끌어내려 담으면 보석으로 접혀 들어가고 뚜껑이 다시 닫힌다(직접 행위).
+// 보석함 — 닫힌 가죽 상자에서 시작, 종이를 드래그하면 뚜껑이 열려 크림 새틴 내부(파스텔 보석들)가
+//  보이고, 종이가 다이아몬드로 변해 그 사이에 담긴다.
 export default function Jewelbox({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('jewelbox', JEWELBOX_MESSAGES))
   const [stored, setStored] = useState(false)
   const [open, setOpen] = useState(false) // 뚜껑 열림(드래그 시작 시)
-  const [pull, setPull] = useState(0) // 아래로 끌어내린 정도(px)
+  const [storedColors] = useState(() => pickPastels(4)) // 이미 담긴 4개(파스텔, 매번 다름)
   const fired = useRef(false)
   const doneRef = useRef(false)
-  const beatRef = useRef<number | null>(null) // 심장박동 햅틱 타이머
-  const nearness = Math.min(1, pull / DROP) // 담기는 지점에 얼마나 가까운지(0~1)
+  const beatRef = useRef<number | null>(null)
 
-  // 화면 이탈 시 진동·예약 타이머 정리
   useEffect(
     () => () => {
       if (beatRef.current !== null) window.clearTimeout(beatRef.current)
@@ -85,7 +91,6 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
     [],
   )
 
-  // onDone을 한 번만 호출 (후광 애니메이션 끝 + 타이머 폴백 둘 중 먼저)
   const finish = () => {
     if (!doneRef.current) {
       doneRef.current = true
@@ -97,16 +102,15 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
     if (info.offset.y > DROP && !fired.current) {
       fired.current = true
       setStored(true)
-      hapticJewelStore() // 함에 넣는 순간 부드러운 진동
-      // 후광이 빛나기 시작할 때 따뜻한 심장박동 진동
+      hapticJewelStore()
       beatRef.current = window.setTimeout(hapticHeartbeat, HEARTBEAT_DELAY_MS)
-      setTimeout(finish, 6800) // 폴백(중앙 반짝 2s + 담기 + 후광 종료 이후)
+      setTimeout(finish, 6800)
     } else {
-      setPull(0) // 덜 내리고 놓으면 복귀 → 입구 빛도 가라앉음
-      setOpen(false) // 뚜껑 다시 닫힘
+      setOpen(false)
     }
-    // 덜 내리고 놓으면 dragSnapToOrigin으로 복귀 → 다시 시도
   }
+
+  const showInside = open || stored // 뚜껑이 열려 내부가 보이는 상태
 
   return (
     <div style={{ position: 'relative', width: 240, height: 300, touchAction: 'none' }}>
@@ -115,20 +119,17 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
         style={{
           position: 'absolute',
           left: '50%',
-          top: '58%',
+          top: '64%',
           width: 230,
           height: 230,
           marginLeft: -115,
           marginTop: -115,
           borderRadius: '50%',
-          background:
-            'radial-gradient(circle, rgba(255,247,224,0.95) 0%, rgba(231,201,122,0.4) 42%, rgba(231,201,122,0) 70%)',
+          background: 'radial-gradient(circle, rgba(255,247,224,0.9) 0%, rgba(231,201,122,0.36) 42%, rgba(231,201,122,0) 70%)',
           pointerEvents: 'none',
         }}
         initial={{ opacity: 0, scale: 0.3 }}
-        // 심장박동 3회(두근…두근…두근)에 맞춰 밝기가 은은하게 세 번 차올랐다 잦아듦.
-        //   대비를 부드럽게(0.42~0.78), 진동 길이(≈2.1s)에 맞춰 느긋하게(duration 2.6s).
-        animate={stored ? { opacity: [0, 0.78, 0.42, 0.78, 0.42, 0.78, 0.28, 0], scale: [0.5, 0.72, 0.82, 0.95, 1.05, 1.2, 1.32, 1.45] } : {}}
+        animate={stored ? { opacity: [0, 0.7, 0.4, 0.7, 0.4, 0.7, 0.26, 0], scale: [0.5, 0.72, 0.82, 0.95, 1.05, 1.2, 1.32, 1.45] } : {}}
         transition={{ duration: 2.6, delay: 3.2, times: [0, 0.05, 0.2, 0.38, 0.55, 0.75, 0.9, 1], ease: 'easeInOut' }}
         onAnimationComplete={() => {
           if (stored) finish()
@@ -143,19 +144,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           return (
             <motion.span
               key={i}
-              style={{
-                position: 'absolute',
-                left: '50%',
-                top: '58%',
-                width: 6,
-                height: 6,
-                marginLeft: -3,
-                marginTop: -3,
-                borderRadius: '50%',
-                background: 'rgba(255,250,235,0.95)',
-                boxShadow: '0 0 9px 2px rgba(231,201,122,0.8)',
-                pointerEvents: 'none',
-              }}
+              style={{ position: 'absolute', left: '50%', top: '64%', width: 6, height: 6, marginLeft: -3, marginTop: -3, borderRadius: '50%', background: 'rgba(255,250,235,0.95)', boxShadow: '0 0 9px 2px rgba(231,201,122,0.8)', pointerEvents: 'none' }}
               initial={{ x: 0, y: 0, opacity: 0, scale: 0.4 }}
               animate={{ x: Math.cos(angle) * dist, y: Math.sin(angle) * dist, opacity: [0, 1, 0], scale: [0.4, 1, 0.6] }}
               transition={{ duration: 1.4, delay: 3.3, ease: 'easeOut' }}
@@ -163,138 +152,134 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
           )
         })}
 
-      {/* 입구 강조 — 종이를 가까이 끌수록 보석함 입구가 빛나고 빛기둥이 올라옴 */}
-      {!stored && nearness > 0.02 && (
-        <>
-          {/* 입구에서 위로 솟는 빛기둥 */}
-          <div
-            style={{
-              position: 'absolute',
-              left: '50%',
-              marginLeft: -42,
-              bottom: 116,
-              width: 84,
-              height: 24 + nearness * 86,
-              borderRadius: '42px 42px 0 0',
-              background: 'linear-gradient(0deg, rgba(255,247,224,0.6) 0%, rgba(255,247,224,0) 100%)',
-              filter: 'blur(5px)',
-              opacity: nearness,
-              zIndex: 3,
-              pointerEvents: 'none',
-            }}
-          />
-          {/* 입구 표면의 밝은 타원 (벌어지듯 가로로 커짐) */}
-          <div
-            style={{
-              position: 'absolute',
-              left: '50%',
-              marginLeft: -60,
-              bottom: 116,
-              width: 120,
-              height: 20,
-              borderRadius: '50%',
-              background: 'radial-gradient(ellipse at 50% 50%, rgba(255,250,235,0.95) 0%, rgba(231,201,122,0) 72%)',
-              opacity: nearness,
-              transform: `scaleX(${0.7 + nearness * 0.5}) scaleY(${0.8 + nearness * 0.4})`,
-              filter: 'blur(1px)',
-              zIndex: 3,
-              pointerEvents: 'none',
-            }}
-          />
-        </>
-      )}
-
-      {/* 보석함 본체 */}
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          bottom: 34,
-          width: 162,
-          height: 92,
-          marginLeft: -81,
-          zIndex: 2,
-          borderRadius: '12px 12px 18px 18px',
-          background: QUILTED_BODY,
-          boxShadow:
-            '0 18px 34px rgba(150,70,95,0.4), inset 0 2px 0 rgba(255,255,255,0.55), inset -8px -10px 20px rgba(176,80,110,0.35)',
-        }}
-      >
-        {/* 크림 내부(보관 트레이) — 칸막이로 보석함 느낌 */}
+      {/* ===== 고급 보석함 (네이비 가죽 + 크림 새틴 내부) ===== */}
+      <div style={{ position: 'absolute', left: '50%', bottom: 22, width: 210, height: 150, marginLeft: -105, zIndex: 2 }}>
+        {/* 가죽 본체 */}
         <div
           style={{
             position: 'absolute',
-            left: '50%',
-            top: 9,
-            width: 138,
-            height: 34,
-            marginLeft: -69,
-            borderRadius: 7,
-            background: CREAM,
-            boxShadow: 'inset 0 4px 8px rgba(120,80,60,0.35), inset 0 0 0 2px rgba(201,162,79,0.5)',
+            inset: 0,
+            borderRadius: 16,
+            background: LEATHER,
+            boxShadow: '0 22px 40px rgba(20,26,45,0.5), inset 0 2px 0 rgba(255,255,255,0.18), inset 0 -10px 22px rgba(0,0,0,0.4)',
             overflow: 'hidden',
           }}
         >
-          <div style={{ position: 'absolute', top: 3, bottom: 3, left: '33%', width: 2, marginLeft: -1, borderRadius: 2, background: 'rgba(160,120,90,0.3)', boxShadow: '1px 0 0 rgba(255,255,255,0.6)' }} />
-          <div style={{ position: 'absolute', top: 3, bottom: 3, left: '66%', width: 2, marginLeft: -1, borderRadius: 2, background: 'rgba(160,120,90,0.3)', boxShadow: '1px 0 0 rgba(255,255,255,0.6)' }} />
-          <div style={{ position: 'absolute', left: 4, right: 4, top: '50%', height: 2, marginTop: -1, borderRadius: 2, background: 'rgba(160,120,90,0.3)', boxShadow: '0 1px 0 rgba(255,255,255,0.6)' }} />
+          {/* 가죽 결(미세 비늘 결) */}
+          <div style={{ position: 'absolute', inset: 0, opacity: 0.5, background: 'repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0 2px, rgba(0,0,0,0.05) 2px 5px)' }} />
         </div>
+
+        {/* 크림 새틴 내부 — 위가 좁은 사다리꼴(상자 안을 들여다보는 원근) */}
         <div
           style={{
             position: 'absolute',
-            left: 8,
-            right: 8,
-            top: 2,
-            height: 6,
-            borderRadius: 3,
-            background: ZIPPER,
+            left: 12,
+            right: 12,
+            top: 12,
+            height: 96,
+            background: SATIN,
+            clipPath: 'polygon(9% 0, 91% 0, 100% 100%, 0 100%)',
+            boxShadow: 'inset 0 12px 20px rgba(120,90,60,0.4)',
+            overflow: 'hidden',
           }}
-        />
+        >
+          {/* 안쪽 새틴 음영(깊이) */}
+          <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 30, background: 'linear-gradient(180deg, rgba(110,80,55,0.4) 0%, rgba(110,80,55,0) 100%)' }} />
+          {/* 칸막이 — 반지 보관용 둥근 이랑 3줄 */}
+          {[58, 70, 82].map((ty, i) => (
+            <div key={i} style={{ position: 'absolute', left: 18 + i * 2, right: 18 + i * 2, top: ty, height: 6, borderRadius: 6, background: SATIN_DEEP, boxShadow: '0 1px 0 rgba(255,255,255,0.7), 0 -2px 3px rgba(120,90,60,0.25)' }} />
+          ))}
+        </div>
+
+        {/* 앞면(전면 벽) 골드 트림 + 잠금쇠 */}
+        <div style={{ position: 'absolute', left: 10, right: 10, top: 104, height: 3, borderRadius: 2, background: GOLD, opacity: 0.85 }} />
+        <div style={{ position: 'absolute', left: '50%', top: 116, width: 30, height: 18, marginLeft: -15, borderRadius: 4, background: GOLD, boxShadow: '0 2px 4px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.6)' }} />
       </div>
 
-      {/* 뚜껑 — 닫힌 채 시작, 드래그하는 순간 왼쪽 모서리를 축으로 열림(상자 왼쪽과 정렬) */}
-      {!stored && (
+      {/* 이미 담긴 파스텔 보석들 (뚜껑 열리면 보임) */}
+      {showInside &&
+        storedColors.map((c, i) => (
+          <motion.div
+            key={`stored${i}`}
+            style={{ position: 'absolute', left: '50%', top: SLOTS[i].y, marginLeft: SLOTS[i].x - 12, zIndex: 4, pointerEvents: 'none' }}
+            initial={{ opacity: 0, scale: 0.5, y: 6 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 + i * 0.06, ease: 'easeOut' }}
+          >
+            <MiniGem color={c} size={i === 0 || i === 3 ? 22 : 26} />
+          </motion.div>
+        ))}
+
+      {/* 뚜껑 (닫힘) — 가죽 슬래브가 상자 위를 덮음. 드래그 전. */}
+      {!showInside && (
         <div
           style={{
             position: 'absolute',
             left: '50%',
-            bottom: 92,
-            width: 162,
-            height: 36,
-            marginLeft: -81,
-            zIndex: 3,
+            bottom: 150,
+            width: 210,
+            height: 30,
+            marginLeft: -105,
+            zIndex: 6,
             borderRadius: '14px 14px 6px 6px',
-            background: QUILTED_LID,
-            boxShadow: '0 -2px 12px rgba(231,201,122,0.3), inset 0 3px 0 rgba(255,255,255,0.7), inset -8px -8px 18px rgba(176,80,110,0.3)',
-            transformOrigin: '0% 100%', // 왼쪽-아래 모서리(=상자 왼쪽 끝)를 경첩으로
-            transform: open ? `rotate(${LID_OPEN_DEG}deg)` : 'none',
-            transition: 'transform 0.28s ease-out',
-            overflow: 'hidden',
-            pointerEvents: 'none',
+            background: LEATHER_EDGE,
+            boxShadow: '0 6px 14px rgba(20,26,45,0.4), inset 0 2px 0 rgba(255,255,255,0.2)',
           }}
         >
-          <LidDecor />
+          <div style={{ position: 'absolute', left: '50%', bottom: -7, width: 30, height: 14, marginLeft: -15, borderRadius: 4, background: GOLD, boxShadow: '0 2px 4px rgba(0,0,0,0.35)' }} />
         </div>
       )}
 
-      {/* ready: 종이(글)를 잡고 보석함으로 끌어내림 (끌수록 작게 접힘) */}
+      {/* 뚜껑 (열림) — 뒤로 기대 선 가죽 패널 + 크림 안감 + 목걸이 걸이 슬릿 */}
+      {showInside && (
+        <motion.div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 168,
+            width: 206,
+            height: 92,
+            marginLeft: -103,
+            zIndex: 1,
+            transformOrigin: '50% 100%',
+            borderRadius: '12px 12px 4px 4px',
+            background: LEATHER,
+            boxShadow: '0 -8px 18px rgba(20,26,45,0.35), inset 0 2px 0 rgba(255,255,255,0.16)',
+            padding: 9,
+          }}
+          initial={{ rotateX: 8, opacity: 0 }}
+          animate={{ rotateX: 26, opacity: 1 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+        >
+          {/* 안감(크림) */}
+          <div style={{ position: 'absolute', inset: 9, borderRadius: 8, background: SATIN, boxShadow: 'inset 0 0 14px rgba(120,90,60,0.3)' }}>
+            {/* 목걸이 걸이 슬릿 8개 */}
+            <div style={{ position: 'absolute', left: 12, right: 12, top: 12, display: 'flex', justifyContent: 'space-between' }}>
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} style={{ width: 9, height: 26, borderRadius: '6px 6px 3px 3px', background: SATIN_DEEP, boxShadow: 'inset 0 2px 4px rgba(120,90,60,0.35)' }} />
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* ready: 종이(글)를 잡고 보석함으로 끌어내림 */}
       {!stored && (
         <motion.div
           drag
           dragSnapToOrigin
           dragElastic={0.5}
           onDragStart={() => setOpen(true)}
-          onDrag={(_e, info) => setPull(Math.max(0, info.offset.y))}
           onDragEnd={onDragEnd}
           whileDrag={{ scale: 0.78, cursor: 'grabbing' }}
           style={{
             position: 'absolute',
             left: '50%',
-            top: 10,
+            top: 8,
             width: 86,
             height: 104,
             marginLeft: -43,
-            zIndex: 4,
+            zIndex: 8,
             padding: '10px 8px',
             borderRadius: 4,
             background: 'var(--paper)',
@@ -315,33 +300,12 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
         </motion.div>
       )}
 
-      {/* stored: 보석으로 접혀 함 속으로 들어가고 뚜껑이 닫힘 */}
+      {/* stored: 종이→다이아몬드 morph 후 중앙에서 반짝, 빈 자리에 안착 */}
       {stored && (
         <>
-          {/* 종이가 작게 말려들며 사라짐(보석으로 변하는 과정) — 화면 중앙에서 */}
+          {/* 종이가 작게 말려 사라짐 */}
           <motion.div
-            style={{
-              position: 'absolute',
-              left: '50%',
-              top: 60,
-              width: 86,
-              height: 104,
-              marginLeft: -43,
-              zIndex: 4,
-              padding: '10px 8px',
-              borderRadius: 4,
-              background: 'var(--paper)',
-              boxShadow: '0 8px 20px rgba(0,0,0,0.18)',
-              fontFamily: 'var(--batang)',
-              fontSize: 9,
-              lineHeight: 1.5,
-              color: 'var(--ink)',
-              textAlign: 'left',
-              overflow: 'hidden',
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word',
-              pointerEvents: 'none',
-            }}
+            style={{ position: 'absolute', left: '50%', top: 60, width: 86, height: 104, marginLeft: -43, zIndex: 8, padding: '10px 8px', borderRadius: 4, background: 'var(--paper)', boxShadow: '0 8px 20px rgba(0,0,0,0.18)', fontFamily: 'var(--batang)', fontSize: 9, lineHeight: 1.5, color: 'var(--ink)', textAlign: 'left', overflow: 'hidden', whiteSpace: 'pre-wrap', wordBreak: 'break-word', pointerEvents: 'none' }}
             initial={{ y: 50, scale: 0.78, opacity: 1, rotate: 0 }}
             animate={{ y: [50, 4, -16], scale: [0.78, 0.5, 0.12], opacity: [1, 0.8, 0], rotate: [0, 10, 28], filter: ['blur(0px)', 'blur(1.2px)', 'blur(4px)'] }}
             transition={{ duration: 0.55, times: [0, 0.5, 1], ease: 'easeOut' }}
@@ -351,66 +315,37 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
 
           {/* 변하는 순간 반짝 플래시 */}
           <motion.div
-            style={{ position: 'absolute', left: '50%', top: 96, width: 140, height: 140, marginLeft: -70, marginTop: -70, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(214,232,255,0.5) 30%, rgba(214,232,255,0) 66%)', zIndex: 6, pointerEvents: 'none' }}
+            style={{ position: 'absolute', left: '50%', top: 96, width: 140, height: 140, marginLeft: -70, marginTop: -70, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(214,232,255,0.5) 30%, rgba(214,232,255,0) 66%)', zIndex: 7, pointerEvents: 'none' }}
             initial={{ scale: 0.2, opacity: 0 }}
             animate={{ scale: [0.2, 1.3, 1.7], opacity: [0, 0.9, 0] }}
             transition={{ duration: 0.6, delay: 0.3, ease: 'easeOut' }}
           />
 
-          {/* 보석이 중앙에서 피어나 ~2초 반짝인 뒤, 상자 입구(클립 경계 176px) 아래로 내려가
-              잘려 사라짐 = 상자 안으로 들어가 안 보임. 뚜껑이 가리는 게 아니라 z6로 앞에 있음. */}
-          <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 190, overflow: 'hidden', zIndex: 6, pointerEvents: 'none' }}>
-            <motion.div
-              style={{ position: 'absolute', left: '50%', top: 60, marginLeft: -52 }}
-              initial={{ y: 44, scale: 0.18, opacity: 0, rotate: -16 }}
-              // 크기는 거의 유지한 채 아래로 내려가 입구(190px) 아래부터 순차적으로 잘려 사라짐
-              animate={{ y: [44, -16, -16, 60, 150], scale: [0.18, 1.0, 1.0, 1.0, 0.95], opacity: [0, 1, 1, 1, 1], rotate: [-16, 0, 0, 0, 0] }}
-              transition={{ duration: 3.3, times: [0, 0.2, 0.7, 0.86, 1], ease: 'easeInOut' }}
-            >
-              <Gem />
-            </motion.div>
-          </div>
+          {/* 다이아몬드: 중앙에서 ~2초 반짝인 뒤 내부 빈 자리(NEW_SLOT)로 내려가 안착 */}
+          <motion.div
+            style={{ position: 'absolute', left: '50%', top: 0, marginLeft: -48, zIndex: 7, pointerEvents: 'none' }}
+            initial={{ x: 0, y: 104, scale: 0.18, opacity: 0, rotate: -16 }}
+            animate={{ x: NEW_SLOT.x, y: [104, 70, 70, NEW_SLOT.y - 12, NEW_SLOT.y - 6], scale: [0.18, 1.0, 1.0, 0.34, 0.26], opacity: [0, 1, 1, 1, 1], rotate: [-16, 0, 0, 0, 0] }}
+            transition={{ duration: 3.3, times: [0, 0.18, 0.7, 0.92, 1], ease: 'easeInOut' }}
+          >
+            <Gem />
+          </motion.div>
 
-          {/* 중앙에서 반짝이는 동안의 작은 별빛들 */}
+          {/* 반짝이는 동안 작은 별빛 */}
           {[
             [50, 54],
             [60, 82],
             [40, 116],
             [64, 70],
-            [38, 100],
           ].map(([lx, ty], k) => (
             <motion.span
               key={`tw${k}`}
-              style={{ position: 'absolute', left: `${lx}%`, top: ty, width: 9, height: 9, marginLeft: -4.5, borderRadius: '50%', background: '#fff', boxShadow: '0 0 9px 2px rgba(214,232,255,0.95)', zIndex: 6, pointerEvents: 'none' }}
+              style={{ position: 'absolute', left: `${lx}%`, top: ty, width: 8, height: 8, marginLeft: -4, borderRadius: '50%', background: '#fff', boxShadow: '0 0 9px 2px rgba(214,232,255,0.95)', zIndex: 7, pointerEvents: 'none' }}
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: [0, 1, 0.3, 1, 0], scale: [0, 1, 0.7, 1, 0.4] }}
               transition={{ duration: 2.2, delay: 0.5 + k * 0.12, times: [0, 0.2, 0.5, 0.75, 1], ease: 'easeInOut' }}
             />
           ))}
-
-          {/* 뚜껑 — 열린 상태(왼쪽 경첩)에서 다시 닫힘 */}
-          <motion.div
-            style={{
-              position: 'absolute',
-              left: '50%',
-              bottom: 92,
-              width: 162,
-              height: 36,
-              marginLeft: -81,
-              zIndex: 5,
-              borderRadius: '14px 14px 6px 6px',
-              background: QUILTED_LID,
-              boxShadow:
-                '0 -2px 12px rgba(231,201,122,0.3), inset 0 3px 0 rgba(255,255,255,0.7), inset -8px -8px 18px rgba(176,80,110,0.3)',
-              transformOrigin: '0% 100%',
-              overflow: 'hidden',
-            }}
-            initial={{ rotate: LID_OPEN_DEG, opacity: 1 }}
-            animate={{ rotate: [LID_OPEN_DEG, LID_OPEN_DEG, 0] }}
-            transition={{ duration: 0.8, delay: 2.4, times: [0, 0.2, 1], ease: 'easeIn' }}
-          >
-            <LidDecor />
-          </motion.div>
         </>
       )}
 

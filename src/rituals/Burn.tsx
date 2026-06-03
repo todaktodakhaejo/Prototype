@@ -361,7 +361,7 @@ export default function Burn({ text, onDone }: RitualProps) {
       {/* 다 탄 뒤 — 고운 잿가루가 바람에 날려와 잿더미로 쌓임 */}
       {done && (
         <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 300, pointerEvents: 'none' }}>
-          {/* 쌓인 잿더미 베이스(부드럽게) */}
+          {/* 쌓이는 잿더미 베이스 — 가루가 날려와 쌓이는 동안 바닥부터 점점 자라남(scaleY↑) */}
           <motion.div
             style={{
               position: 'absolute',
@@ -370,14 +370,15 @@ export default function Burn({ text, onDone }: RitualProps) {
               width: 150,
               height: 24,
               marginLeft: -75,
+              transformOrigin: '50% 100%',
               borderRadius: '50% 50% 40% 40% / 82% 82% 28% 28%',
               background: 'radial-gradient(ellipse at 50% 28%, #f4f1f0 0%, #ddd8d6 56%, #c6c0be 100%)',
               boxShadow: '0 5px 14px rgba(0,0,0,0.12)',
               filter: 'blur(1.5px)',
             }}
-            initial={{ opacity: 0, scaleY: 0.25, scaleX: 0.7 }}
-            animate={{ opacity: 1, scaleY: 1, scaleX: 1 }}
-            transition={{ duration: 1.1, delay: 0.5, ease: 'easeOut' }}
+            initial={{ opacity: 0, scaleY: 0, scaleX: 0.45 }}
+            animate={{ opacity: [0, 0.55, 0.95], scaleY: [0, 0.45, 1], scaleX: [0.45, 0.78, 1] }}
+            transition={{ duration: 2.3, times: [0, 0.5, 1], ease: 'easeOut' }}
           />
           {/* 날려와 쌓이는 고운 가루 입자 */}
           {ASH.map((i) => {
