@@ -1,15 +1,21 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '../store'
 
-// 시작 시 오른쪽 하단에서 잔잔하게 나오는 이용 환경 안내 말풍선.
-//  '시작화면'(앱을 열었을 때의 첫 화면)에서만 보이고, 다음 화면으로 넘어가면 사라진다. × 로 바로 닫을 수도 있다.
-//  말랑이의 촉감(진동/햅틱) 안내 + 직접 확인 버튼 포함 — 무음·절전 모드면 진동이 꺼질 수 있어 미리 점검.
+// 중앙 하단에서 잔잔하게 나오는 이용 환경 안내 말풍선.
+//  '시작 화면'(첫 화면 + 매 라운드 시작 기분질문 MOOD_PRE)에서 보이고, 다음 화면으로 넘어가면 사라진다.
+//  새 라운드로 시작 화면에 돌아올 때마다 다시 표시된다. × 로 바로 닫을 수 있다(그 라운드 한정).
 export default function StartupNotice() {
   const step = useStore((s) => s.step)
-  const [initialStep] = useState(step) // 앱을 열었을 때의 첫 화면(시작화면)
+  const [initialStep] = useState(step) // 앱을 열었을 때의 첫 화면
   const [dismissed, setDismissed] = useState(false)
-  const show = !dismissed && step === initialStep // 시작화면을 벗어나면 자동으로 사라짐
+  // 시작 화면 = 매 라운드 시작 기분질문(MOOD_PRE), 또는 앱 첫 화면
+  const onStart = step === 'MOOD_PRE' || step === initialStep
+  // 시작 화면을 벗어나면 닫힘 상태를 리셋 → 다음 라운드 시작 시 다시 표시
+  useEffect(() => {
+    if (!onStart) setDismissed(false)
+  }, [onStart])
+  const show = onStart && !dismissed
   const canVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function'
   const [vibeMsg, setVibeMsg] = useState('')
 
