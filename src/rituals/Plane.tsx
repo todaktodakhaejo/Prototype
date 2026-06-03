@@ -12,11 +12,12 @@ const MOTES = 6
 const MAXPULL = 170 // 이만큼 당기면 파워 100%
 
 // 다 날아간 자리에 별빛으로 반짝 — 사방으로 빛줄기가 뻗는 별(레퍼런스)
-function Star({ glow }: { glow: string }) {
+function Star({ glow, offsetX, offsetY }: { glow: string; offsetX: number; offsetY: number }) {
   const rays = 12
   return (
     <motion.div
-      style={{ position: 'absolute', left: '50%', top: '44%', width: 120, height: 120, marginLeft: -60, marginTop: -60, pointerEvents: 'none', zIndex: 8 }}
+      // 비행기 도착 지점(화면 중앙 기준 dir*flyDist)에 별이 뜬다
+      style={{ position: 'absolute', left: '50%', top: '50%', width: 120, height: 120, marginLeft: offsetX - 60, marginTop: offsetY - 60, pointerEvents: 'none', zIndex: 8 }}
       initial={{ scale: 0.2, opacity: 0, rotate: -8 }}
       animate={{ scale: [0.2, 1.15, 1, 1.04, 0.9], opacity: [0, 1, 1, 1, 0], rotate: [-8, 0, 2, 3, 6] }}
       transition={{ duration: 1.8, times: [0, 0.18, 0.45, 0.75, 1], ease: 'easeOut' }}
@@ -271,6 +272,8 @@ export default function Plane({ text, onDone }: RitualProps) {
   const aim = launchVec(pull.x, pull.y) // 미리보기: 실제 발사 방향(당긴 반대·위로)
   const angleDeg = (Math.atan2(aim.y, aim.x) * 180) / Math.PI
   const dirAngle = (Math.atan2(dir.y, dir.x) * 180) / Math.PI // 발사 후 비행 방향(코끝 유지용)
+  // 화면 안 한 지점까지만 날아가 그 자리에서 별이 됨(세게 던질수록 조금 더 멀리, 화면 안 유지)
+  const flyDist = 112 + (throwPower - 1.1) * 26
 
   return (
     <div style={{ position: 'relative', width: 240, height: 320, touchAction: 'none' }}>
@@ -366,13 +369,14 @@ export default function Plane({ text, onDone }: RitualProps) {
           style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}
           initial={{ x: 0, y: 0, scale: 1, opacity: 1, rotate: 0 }}
           animate={{
-            x: [0, dir.x * 200, dir.x * 940 * throwPower],
-            y: [0, dir.y * 200, dir.y * 900 * throwPower],
-            scale: [1, 0.82, 0.1],
-            opacity: [1, 1, 0],
-            rotate: [0, dir.x * 14, dir.x * 22],
+            // 궤적을 그리며 화면 안 한 지점(dir*flyDist)으로 날아가 작아지며 도착 → 거기서 별이 됨
+            x: [0, dir.x * flyDist * 0.5, dir.x * flyDist],
+            y: [0, dir.y * flyDist * 0.5, dir.y * flyDist],
+            scale: [1, 0.66, 0.3],
+            opacity: [1, 1, 1],
+            rotate: [0, dir.x * 12, dir.x * 18],
           }}
-          transition={{ duration: 1.7, times: [0, 0.16, 1], ease: 'easeOut' }}
+          transition={{ duration: 1.5, times: [0, 0.45, 1], ease: 'easeOut' }}
           onAnimationComplete={() => setPhase('star')}
         >
           <div style={{ position: 'relative', transform: `rotate(${dirAngle + 38}deg)` }}>
@@ -397,7 +401,7 @@ export default function Plane({ text, onDone }: RitualProps) {
       {phase === 'flying' &&
         Array.from({ length: 9 }).map((_, j) => {
           const t = j / 8
-          const dist = 24 + t * 210
+          const dist = 18 + t * (flyDist - 18)
           const px = dir.x * dist
           const py = dir.y * dist
           const dly = t * 0.42 // 비행 중(0~0.42s) 빠르게 분사
@@ -428,7 +432,7 @@ export default function Plane({ text, onDone }: RitualProps) {
         })}
 
       {/* star: 다 날아간 뒤 별빛으로 반짝 + 연료가 구름이 되어 하늘에 떠오름 */}
-      {phase === 'star' && <Star glow={starGlow} />}
+      {phase === 'star' && <Star glow={starGlow} offsetX={dir.x * flyDist} offsetY={dir.y * flyDist} />}
       {phase === 'star' && CLOUDS.map((c, i) => <Cloud key={i} left={c.left} top={c.top} scale={c.scale} opacity={c.opacity} delay={c.delay} drift={c.drift} puffs={c.puffs} />)}
 
       {/* 당기는 동안: 방향 화살표 (슬링샷처럼 — 당긴 방향·세기 미리보기) */}
