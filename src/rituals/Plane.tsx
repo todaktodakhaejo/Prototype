@@ -11,52 +11,84 @@ const PULL_HAPTIC_PX = 12 // 당기는 긴장감 진동 1펄스당 당김 변화
 const MOTES = 6
 const MAXPULL = 170 // 이만큼 당기면 파워 100%
 
-// 다 날아간 자리에 별이 되어 반짝(반짝) — 색은 배경 톤에 따라 분기
-function Star({ core, glow }: { core: string; glow: string }) {
+// 다 날아간 자리에 별빛으로 반짝 — 사방으로 빛줄기가 뻗는 별(레퍼런스)
+function Star({ glow }: { glow: string }) {
+  const rays = 12
   return (
     <motion.div
-      style={{ position: 'absolute', left: '50%', top: '46%', width: 160, height: 160, marginLeft: -80, marginTop: -80, pointerEvents: 'none', zIndex: 8 }}
-      initial={{ scale: 0, opacity: 0, rotate: -12 }}
-      animate={{ scale: [0, 1.3, 1, 1.06, 0.6], opacity: [0, 1, 1, 1, 0], rotate: [-12, 0, 0, 0, 8] }}
-      transition={{ duration: 1.5, times: [0, 0.16, 0.42, 0.72, 1], ease: 'easeOut' }}
+      style={{ position: 'absolute', left: '50%', top: '44%', width: 200, height: 200, marginLeft: -100, marginTop: -100, pointerEvents: 'none', zIndex: 8 }}
+      initial={{ scale: 0.2, opacity: 0, rotate: -8 }}
+      animate={{ scale: [0.2, 1.15, 1, 1.04, 0.9], opacity: [0, 1, 1, 1, 0], rotate: [-8, 0, 2, 3, 6] }}
+      transition={{ duration: 1.8, times: [0, 0.18, 0.45, 0.75, 1], ease: 'easeOut' }}
     >
-      <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: `radial-gradient(circle, ${glow} 0%, rgba(0,0,0,0) 62%)` }} />
-      <svg width={160} height={160} viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, filter: `drop-shadow(0 0 8px ${glow})` }} aria-hidden>
-        <path d="M50 6 L57 43 L94 50 L57 57 L50 94 L43 57 L6 50 L43 43 Z" fill={core} />
-        <circle cx="50" cy="50" r="6" fill="#ffffff" />
-      </svg>
-      {[
-        [18, 28],
-        [82, 34],
-        [70, 80],
-        [26, 74],
-      ].map(([x, y], i) => (
-        <span
-          key={i}
-          style={{ position: 'absolute', left: `${x}%`, top: `${y}%`, width: 6, height: 6, marginLeft: -3, marginTop: -3, borderRadius: '50%', background: '#fff', boxShadow: `0 0 6px 2px ${glow}` }}
-        />
-      ))}
+      {/* 부드러운 글로우 */}
+      <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: `radial-gradient(circle, ${glow} 0%, rgba(255,255,255,0.12) 26%, rgba(255,255,255,0) 60%)` }} />
+      {/* 빛줄기(레이) — 길고 짧은 게 번갈아 */}
+      {Array.from({ length: rays }).map((_, i) => {
+        const ang = (360 / rays) * i
+        const long = i % 2 === 0
+        const h = long ? 190 : 96
+        const w = long ? 3 : 2
+        return (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              width: w,
+              height: h,
+              marginLeft: -w / 2,
+              marginTop: -h / 2,
+              transformOrigin: '50% 50%',
+              transform: `rotate(${ang}deg)`,
+              background: `linear-gradient(0deg, rgba(255,255,255,0) 0%, ${glow} 42%, #ffffff 50%, ${glow} 58%, rgba(255,255,255,0) 100%)`,
+              filter: 'blur(0.6px)',
+              opacity: long ? 0.95 : 0.6,
+            }}
+          />
+        )
+      })}
+      {/* 밝은 코어 */}
+      <div
+        style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          width: 22,
+          height: 22,
+          marginLeft: -11,
+          marginTop: -11,
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, #ffffff 0%, #ffffff 30%, rgba(255,255,255,0) 72%)',
+          boxShadow: `0 0 18px 6px ${glow}`,
+        }}
+      />
     </motion.div>
   )
 }
 
-// 분사한 연료가 모여 만들어진 부드러운 구름 — 비행 후 화면에 떠오른다
-function Cloud() {
-  const puffs = [
-    { x: 26, y: 36, r: 52 },
-    { x: 74, y: 16, r: 68 },
-    { x: 122, y: 34, r: 52 },
-    { x: 56, y: 50, r: 48 },
-    { x: 100, y: 52, r: 46 },
-  ]
+// 분사한 연료가 모여 만들어진 구름 — 여러 겹 블롭 + 블러로 적당히 사실적인 뭉게구름
+const CLOUD_PUFFS = [
+  { x: 38, y: 58, r: 56 },
+  { x: 74, y: 40, r: 74 },
+  { x: 116, y: 38, r: 66 },
+  { x: 150, y: 56, r: 50 },
+  { x: 58, y: 62, r: 50 },
+  { x: 100, y: 64, r: 52 },
+  { x: 134, y: 62, r: 46 },
+  { x: 92, y: 28, r: 52 },
+]
+
+function Cloud({ left, top, scale, opacity, delay, drift }: { left: string; top: string; scale: number; opacity: number; delay: number; drift: number }) {
   return (
     <motion.div
-      style={{ position: 'absolute', left: '50%', top: '40%', width: 188, height: 98, marginLeft: -94, marginTop: -49, pointerEvents: 'none', zIndex: 7 }}
-      initial={{ opacity: 0, scale: 0.55, x: -14 }}
-      animate={{ opacity: [0, 1, 1, 0.92], scale: [0.55, 1, 1.05, 1.1], x: [-14, 0, 8, 18] }}
-      transition={{ duration: 2.1, times: [0, 0.4, 0.75, 1], ease: 'easeOut' }}
+      style={{ position: 'absolute', left, top, width: 196, height: 96, marginLeft: -98, marginTop: -48, pointerEvents: 'none', zIndex: 7, filter: 'blur(2px)' }}
+      initial={{ opacity: 0, x: -drift, scale }}
+      animate={{ opacity: [0, opacity, opacity], x: [-drift, 0, drift], scale }}
+      transition={{ duration: 2.6, delay, times: [0, 0.4, 1], ease: 'easeOut' }}
     >
-      {puffs.map((p, i) => (
+      {CLOUD_PUFFS.map((p, i) => (
         <div
           key={i}
           style={{
@@ -64,17 +96,26 @@ function Cloud() {
             left: p.x,
             top: p.y,
             width: p.r,
-            height: p.r,
+            height: p.r * 0.92,
             marginLeft: -p.r / 2,
-            marginTop: -p.r / 2,
+            marginTop: -(p.r * 0.92) / 2,
             borderRadius: '50%',
-            background: 'radial-gradient(circle at 50% 42%, #ffffff 0%, #f3f1f7 56%, rgba(243,241,247,0) 78%)',
+            background: 'radial-gradient(circle at 50% 38%, #ffffff 0%, #f4f6fb 52%, rgba(244,246,251,0.5) 74%, rgba(244,246,251,0) 90%)',
           }}
         />
       ))}
     </motion.div>
   )
 }
+
+// 하늘에 흩어 떠 있는 구름들(위치·크기·투명도·드리프트 제각각)
+const CLOUDS = [
+  { left: '50%', top: '37%', scale: 1.05, opacity: 0.96, delay: 0.0, drift: 16 },
+  { left: '24%', top: '20%', scale: 0.62, opacity: 0.82, delay: 0.3, drift: 11 },
+  { left: '78%', top: '26%', scale: 0.72, opacity: 0.88, delay: 0.18, drift: 13 },
+  { left: '66%', top: '55%', scale: 0.5, opacity: 0.72, delay: 0.45, drift: 9 },
+  { left: '32%', top: '53%', scale: 0.46, opacity: 0.66, delay: 0.55, drift: 8 },
+]
 
 // 슬링샷 물리: 당긴 '반대' 방향으로, 항상 하늘(위)을 향해 사선 발사
 function launchVec(px: number, py: number) {
@@ -128,13 +169,13 @@ export default function Plane({ text, onDone }: RitualProps) {
   const tod = useTimeOfDay()
   // 배경이 밝은/노란 톤(일출·낮)이면 하얀 별빛, 어두운 시간대엔 연한 파스텔 노랑
   const warmBg = tod === 'dawn' || tod === 'day'
-  const starCore = warmBg ? '#ffffff' : '#fff3b0'
-  const starGlow = warmBg ? 'rgba(255,255,255,0.92)' : 'rgba(255,224,130,0.9)'
+  // 코어는 흰빛, 글로우만 톤별로(어두운 밤=차가운 청백, 밝은 낮=따뜻한 백색)
+  const starGlow = warmBg ? 'rgba(255,246,224,0.95)' : 'rgba(214,232,255,0.95)'
 
   // 별이 반짝인 뒤 마무리
   useEffect(() => {
     if (phase !== 'star') return
-    const t = setTimeout(onDone, 2300) // 구름이 떠오르는 동안 머무름
+    const t = setTimeout(onDone, 3000) // 별빛 + 구름들이 떠오르는 동안 머무름
     return () => clearTimeout(t)
   }, [phase, onDone])
 
@@ -268,62 +309,36 @@ export default function Plane({ text, onDone }: RitualProps) {
                 background: 'radial-gradient(circle, rgba(255,236,180,0.5) 0%, rgba(255,236,180,0) 70%)',
               }}
             />
-            <div
-              style={{
-                position: 'absolute',
-                right: 6,
-                top: 52,
-                width: 150,
-                height: 10,
-                transformOrigin: 'right center',
-                transform: 'rotate(24deg)',
-                borderRadius: 5,
-                background:
-                  'linear-gradient(270deg, rgba(255,250,235,0.85) 0%, rgba(255,236,180,0.4) 35%, rgba(255,236,180,0) 100%)',
-                filter: 'blur(2px)',
-              }}
-            />
+            {/* 연료 분사 — 비행기 꼬리(좌하단)에서 계속 뿜어져 뒤로 흩어짐 */}
+            {Array.from({ length: 6 }).map((_, k) => (
+              <motion.span
+                key={`ex${k}`}
+                style={{
+                  position: 'absolute',
+                  left: 10,
+                  top: 62,
+                  width: 22,
+                  height: 22,
+                  marginLeft: -11,
+                  marginTop: -11,
+                  borderRadius: '50%',
+                  background:
+                    'radial-gradient(circle, rgba(255,232,170,0.9) 0%, rgba(255,200,140,0.5) 45%, rgba(240,240,248,0.25) 72%, rgba(240,240,248,0) 100%)',
+                  filter: 'blur(2.5px)',
+                }}
+                initial={{ x: 0, y: 0, opacity: 0, scale: 0.4 }}
+                animate={{ x: [-6, -42 - k * 8], y: [4, 26 + k * 6], opacity: [0.85, 0], scale: [0.5, 2] }}
+                transition={{ duration: 0.55, delay: k * 0.06, repeat: Infinity, ease: 'easeOut' }}
+              />
+            ))}
             <PaperPlane />
           </div>
         </motion.div>
       )}
 
-      {/* flying 중 연료 분사 — 비행 경로를 따라 뿜어져 흩어지는 연료/배기 */}
-      {phase === 'flying' &&
-        Array.from({ length: 11 }).map((_, j) => {
-          const t = j / 10
-          const px = dir.x * (36 + t * 150)
-          const py = dir.y * (36 + t * 150)
-          const dly = t * 0.95
-          const sz = 16 + t * 26
-          return (
-            <motion.span
-              key={`fuel${j}`}
-              style={{
-                position: 'absolute',
-                left: '50%',
-                top: '50%',
-                width: sz,
-                height: sz,
-                marginLeft: -sz / 2,
-                marginTop: -sz / 2,
-                borderRadius: '50%',
-                background:
-                  'radial-gradient(circle, rgba(255,236,180,0.85) 0%, rgba(255,200,140,0.5) 40%, rgba(245,245,250,0.25) 70%, rgba(245,245,250,0) 100%)',
-                filter: 'blur(2px)',
-                pointerEvents: 'none',
-                zIndex: 4,
-              }}
-              initial={{ x: 0, y: 0, opacity: 0, scale: 0.4 }}
-              animate={{ x: px, y: py, opacity: [0, 0.9, 0], scale: [0.4, 1.3, 2] }}
-              transition={{ duration: 1.1, delay: dly, ease: 'easeOut' }}
-            />
-          )
-        })}
-
-      {/* star: 다 날아간 뒤 별이 되어 반짝 + 연료가 구름이 되어 떠오름 */}
-      {phase === 'star' && <Star core={starCore} glow={starGlow} />}
-      {phase === 'star' && <Cloud />}
+      {/* star: 다 날아간 뒤 별빛으로 반짝 + 연료가 구름이 되어 하늘에 떠오름 */}
+      {phase === 'star' && <Star glow={starGlow} />}
+      {phase === 'star' && CLOUDS.map((c, i) => <Cloud key={i} left={c.left} top={c.top} scale={c.scale} opacity={c.opacity} delay={c.delay} drift={c.drift} />)}
 
       {/* 당기는 동안: 방향 화살표 (슬링샷처럼 — 당긴 방향·세기 미리보기) */}
       {phase === 'plane' && power > 0.04 && (
