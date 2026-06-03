@@ -108,13 +108,13 @@ function Cloud({ left, top, scale, opacity, delay, drift }: { left: string; top:
   )
 }
 
-// 하늘에 흩어 떠 있는 구름들(위치·크기·투명도·드리프트 제각각)
+// 하늘에 고루 흩어 떠 있는 구름들 — 중앙(별빛 자리)을 비우고 상단 모서리 + 하단에 배치
 const CLOUDS = [
-  { left: '50%', top: '37%', scale: 1.05, opacity: 0.96, delay: 0.0, drift: 16 },
-  { left: '24%', top: '20%', scale: 0.62, opacity: 0.82, delay: 0.3, drift: 11 },
-  { left: '78%', top: '26%', scale: 0.72, opacity: 0.88, delay: 0.18, drift: 13 },
-  { left: '66%', top: '55%', scale: 0.5, opacity: 0.72, delay: 0.45, drift: 9 },
-  { left: '32%', top: '53%', scale: 0.46, opacity: 0.66, delay: 0.55, drift: 8 },
+  { left: '15%', top: '13%', scale: 0.58, opacity: 0.85, delay: 0.1, drift: 12 },
+  { left: '85%', top: '16%', scale: 0.66, opacity: 0.88, delay: 0.0, drift: 14 },
+  { left: '20%', top: '72%', scale: 0.5, opacity: 0.74, delay: 0.4, drift: 9 },
+  { left: '82%', top: '68%', scale: 0.54, opacity: 0.76, delay: 0.5, drift: 10 },
+  { left: '50%', top: '88%', scale: 0.6, opacity: 0.84, delay: 0.25, drift: 12 },
 ]
 
 // 슬링샷 물리: 당긴 '반대' 방향으로, 항상 하늘(위)을 향해 사선 발사
@@ -309,32 +309,44 @@ export default function Plane({ text, onDone }: RitualProps) {
                 background: 'radial-gradient(circle, rgba(255,236,180,0.5) 0%, rgba(255,236,180,0) 70%)',
               }}
             />
-            {/* 연료 분사 — 비행기 꼬리(좌하단)에서 계속 뿜어져 뒤로 흩어짐 */}
-            {Array.from({ length: 6 }).map((_, k) => (
-              <motion.span
-                key={`ex${k}`}
-                style={{
-                  position: 'absolute',
-                  left: 10,
-                  top: 62,
-                  width: 22,
-                  height: 22,
-                  marginLeft: -11,
-                  marginTop: -11,
-                  borderRadius: '50%',
-                  background:
-                    'radial-gradient(circle, rgba(255,232,170,0.9) 0%, rgba(255,200,140,0.5) 45%, rgba(240,240,248,0.25) 72%, rgba(240,240,248,0) 100%)',
-                  filter: 'blur(2.5px)',
-                }}
-                initial={{ x: 0, y: 0, opacity: 0, scale: 0.4 }}
-                animate={{ x: [-6, -42 - k * 8], y: [4, 26 + k * 6], opacity: [0.85, 0], scale: [0.5, 2] }}
-                transition={{ duration: 0.55, delay: k * 0.06, repeat: Infinity, ease: 'easeOut' }}
-              />
-            ))}
             <PaperPlane />
           </div>
         </motion.div>
       )}
+
+      {/* flying: 비행 중 뒤로 뿜는 연료 — 경로를 따라 크고 밝게 뿜어져 머물다 흩어짐 */}
+      {phase === 'flying' &&
+        Array.from({ length: 9 }).map((_, j) => {
+          const t = j / 8
+          const dist = 24 + t * 210
+          const px = dir.x * dist
+          const py = dir.y * dist
+          const dly = t * 0.42 // 비행 중(0~0.42s) 빠르게 분사
+          const sz = 32 + t * 36
+          return (
+            <motion.span
+              key={`fuel${j}`}
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                width: sz,
+                height: sz,
+                marginLeft: -sz / 2,
+                marginTop: -sz / 2,
+                borderRadius: '50%',
+                background:
+                  'radial-gradient(circle, rgba(255,246,214,0.98) 0%, rgba(255,198,112,0.85) 36%, rgba(255,148,66,0.5) 64%, rgba(255,148,66,0) 100%)',
+                filter: 'blur(3px)',
+                pointerEvents: 'none',
+                zIndex: 5,
+              }}
+              initial={{ x: 0, y: 0, opacity: 0, scale: 0.5 }}
+              animate={{ x: px, y: py, opacity: [0, 1, 0.85, 0], scale: [0.5, 1.1, 1.5, 2.1] }}
+              transition={{ duration: 1.25, delay: dly, times: [0, 0.2, 0.55, 1], ease: 'easeOut' }}
+            />
+          )
+        })}
 
       {/* star: 다 날아간 뒤 별빛으로 반짝 + 연료가 구름이 되어 하늘에 떠오름 */}
       {phase === 'star' && <Star glow={starGlow} />}

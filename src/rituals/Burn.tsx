@@ -107,9 +107,9 @@ export default function Burn({ text, onDone }: RitualProps) {
   const pct = progress * 100
   const flameOn = lit && !done
   // 불길은 진행될수록 점점 세짐. 누르고 있을 때 더 활활, 떼면 잦아듦.
-  const calm = pressing ? 1 : 0.7
-  const flameH = (0.45 + progress * 1.15) * calm // 높이 배율 (작게 시작 → 크게)
-  const flameW = (0.7 + progress * 0.5) * (pressing ? 1 : 0.92) // 폭 배율
+  const calm = pressing ? 1 : 0.72
+  const flameH = (0.4 + progress * 2.3) * calm // 높이 배율 — 작게 시작 → 확연히 크게(최대 ~2.7배)
+  const flameW = (0.65 + progress * 0.9) * (pressing ? 1 : 0.92) // 폭 배율
 
   return (
     <div
@@ -132,9 +132,10 @@ export default function Burn({ text, onDone }: RitualProps) {
           marginLeft: -120,
           marginTop: -120,
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,176,80,0.5) 0%, rgba(255,150,60,0) 64%)',
-          opacity: flameOn ? (0.35 + progress * 0.6) * calm : 0.1,
+          background: 'radial-gradient(circle, rgba(255,176,80,0.55) 0%, rgba(255,150,60,0) 64%)',
+          opacity: flameOn ? (0.3 + progress * 0.9) * calm : 0.1,
           transition: 'opacity 0.2s',
+          transform: `scale(${0.7 + progress * 0.7})`,
           pointerEvents: 'none',
         }}
       />
