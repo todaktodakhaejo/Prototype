@@ -32,7 +32,8 @@ const EMBERS = Array.from({ length: 12 }, (_, i) => i)
 //  점화 후엔 진행도(progress)가 시간에 따라 0→1로 차오르고, 게이지가 그와 동시에 찬다.
 export default function Burn({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('burn', BURN_MESSAGES))
-  const [lit, setLit] = useState(false) // 불 붙음
+  const [lit, setLit] = useState(false) // 불 붙음(성냥으로 점화)
+  const [pressing, setPressing] = useState(false) // 점화 후 꾹 누르는 동안만 타오름
   const [progress, setProgress] = useState(0) // 0~1 (아래에서부터 탄 정도)
   const [done, setDone] = useState(false)
   const last = useRef(0)
@@ -54,9 +55,9 @@ export default function Burn({ text, onDone }: RitualProps) {
     if (hx >= 0 && hx <= PAPER_W && hy >= 0 && hy <= PAPER_H) ignite()
   }
 
-  // 불이 붙으면 자동으로 타오름
+  // 점화된 뒤 '꾹 누르고 있는 동안만' 타오름 (떼면 멈춤, 다시 누르면 이어서)
   useEffect(() => {
-    if (!lit || done) return
+    if (!lit || !pressing || done) return
     let id = 0
     const tick = (t: number) => {
       if (!last.current) last.current = t
@@ -70,12 +71,12 @@ export default function Burn({ text, onDone }: RitualProps) {
       cancelAnimationFrame(id)
       last.current = 0
     }
-  }, [lit, done])
+  }, [lit, pressing, done])
 
   // 타오르는 동안: 위로 갈수록 진동 '빈도'가 잦아짐(간격이 짧아짐). 세기는 일정.
   //   self-scheduling 타이머 — 매 펄스 직후 현재 진행도로 다음 간격을 다시 계산.
   useEffect(() => {
-    if (!lit || done) return
+    if (!lit || !pressing || done) return
     let id = 0
     let alive = true
     const loop = () => {
@@ -91,7 +92,7 @@ export default function Burn({ text, onDone }: RitualProps) {
       window.clearTimeout(id)
       stopVibration()
     }
-  }, [lit, done])
+  }, [lit, pressing, done])
 
   // 다 타면 마무리 (fired 가드 + done을 deps에서 제외 → 타이머가 cleanup에 취소되지 않음)
   useEffect(() => {
@@ -105,9 +106,21 @@ export default function Burn({ text, onDone }: RitualProps) {
 
   const pct = progress * 100
   const flameOn = lit && !done
+  // 불길은 진행될수록 점점 세짐. 누르고 있을 때 더 활활, 떼면 잦아듦.
+  const calm = pressing ? 1 : 0.7
+  const flameH = (0.45 + progress * 1.15) * calm // 높이 배율 (작게 시작 → 크게)
+  const flameW = (0.7 + progress * 0.5) * (pressing ? 1 : 0.92) // 폭 배율
 
   return (
-    <div style={{ position: 'relative', width: 220, height: 300, touchAction: 'none' }}>
+    <div
+      style={{ position: 'relative', width: 220, height: 300, touchAction: 'none' }}
+      onPointerDown={() => {
+        if (lit && !done) setPressing(true)
+      }}
+      onPointerUp={() => setPressing(false)}
+      onPointerLeave={() => setPressing(false)}
+      onPointerCancel={() => setPressing(false)}
+    >
       {/* 광원 — 불 붙으면 밝아짐 */}
       <div
         style={{
@@ -119,8 +132,8 @@ export default function Burn({ text, onDone }: RitualProps) {
           marginLeft: -120,
           marginTop: -120,
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,176,80,0.45) 0%, rgba(255,150,60,0) 64%)',
-          opacity: flameOn ? 0.9 : 0.12,
+          background: 'radial-gradient(circle, rgba(255,176,80,0.5) 0%, rgba(255,150,60,0) 64%)',
+          opacity: flameOn ? (0.35 + progress * 0.6) * calm : 0.1,
           transition: 'opacity 0.2s',
           pointerEvents: 'none',
         }}
@@ -174,8 +187,8 @@ export default function Burn({ text, onDone }: RitualProps) {
         {text}
       </div>
 
-      {/* 타는 경계(front) — 진행도 위치에 그을림 + 잉걸 + 불꽃 */}
-      {!done && progress > 0 && (
+      {/* 타는 경계(front) — 진행도 위치에 그을림 + 잉걸 + 불꽃 (점화되면 표시) */}
+      {flameOn && (
         <div style={{ position: 'absolute', left: 0, right: 0, bottom: `${pct}%`, height: 0, pointerEvents: 'none' }}>
           <div
             style={{
@@ -210,12 +223,12 @@ export default function Burn({ text, onDone }: RitualProps) {
                 position: 'absolute',
                 left: '50%',
                 bottom: -4,
-                width: f.w,
-                height: f.h,
-                marginLeft: f.dx - f.w / 2,
+                width: f.w * flameW,
+                height: f.h * flameH,
+                marginLeft: f.dx - (f.w * flameW) / 2,
                 transformOrigin: 'bottom center',
                 opacity: flameOn ? 1 : 0,
-                transition: 'opacity 0.25s',
+                transition: 'width 0.18s, height 0.18s, opacity 0.25s',
               }}
               animate={{
                 scaleY: [0.9, 1.2, 0.95, 1.12, 0.9],
@@ -240,11 +253,10 @@ export default function Burn({ text, onDone }: RitualProps) {
               <div
                 style={{
                   position: 'absolute',
-                  left: '50%',
+                  left: '24%',
                   bottom: 0,
-                  width: f.w * 0.52,
-                  height: f.h * 0.62,
-                  marginLeft: (-f.w * 0.52) / 2,
+                  width: '52%',
+                  height: '62%',
                   borderRadius: '50% 50% 50% 50% / 72% 72% 36% 36%',
                   background:
                     'radial-gradient(54% 66% at 50% 84%, #fffdf2 0%, #ffec8e 42%, #ffb24d 72%, rgba(255,178,70,0) 92%)',
@@ -362,7 +374,7 @@ export default function Burn({ text, onDone }: RitualProps) {
       {!done && (
         <div style={{ position: 'absolute', top: -44, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
           <span style={{ background: 'rgba(30,22,40,0.55)', color: '#fff', fontSize: 13, padding: '6px 14px', borderRadius: 999, whiteSpace: 'nowrap' }}>
-            {lit ? '활활 타오르고 있어요' : '🔥 성냥을 끌어 종이에 불을 붙이세요'}
+            {lit ? '🔥 꾹 누르고 있으면 계속 타올라요' : '🔥 성냥을 끌어 종이에 불을 붙이세요'}
           </span>
         </div>
       )}
