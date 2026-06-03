@@ -318,11 +318,51 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
       {/* stored: 보석으로 접혀 함 속으로 들어가고 뚜껑이 닫힘 */}
       {stored && (
         <>
+          {/* 종이가 작게 말려들며 사라짐(보석으로 변하는 과정) */}
+          <motion.div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: 12,
+              width: 86,
+              height: 104,
+              marginLeft: -43,
+              zIndex: 4,
+              padding: '10px 8px',
+              borderRadius: 4,
+              background: 'var(--paper)',
+              boxShadow: '0 8px 20px rgba(0,0,0,0.18)',
+              fontFamily: 'var(--batang)',
+              fontSize: 9,
+              lineHeight: 1.5,
+              color: 'var(--ink)',
+              textAlign: 'left',
+              overflow: 'hidden',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              pointerEvents: 'none',
+            }}
+            initial={{ scale: 0.78, opacity: 1, rotate: 0 }}
+            animate={{ scale: [0.78, 0.46, 0.12], opacity: [1, 0.7, 0], rotate: [0, 14, 34], filter: ['blur(0px)', 'blur(1.5px)', 'blur(4px)'] }}
+            transition={{ duration: 0.5, times: [0, 0.6, 1], ease: 'easeIn' }}
+          >
+            {text}
+          </motion.div>
+
+          {/* 변하는 순간 반짝 플래시 */}
+          <motion.div
+            style={{ position: 'absolute', left: '50%', top: 58, width: 130, height: 130, marginLeft: -65, marginTop: -65, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(214,232,255,0.5) 30%, rgba(214,232,255,0) 66%)', zIndex: 4, pointerEvents: 'none' }}
+            initial={{ scale: 0.2, opacity: 0 }}
+            animate={{ scale: [0.2, 1.3, 1.7], opacity: [0, 0.9, 0] }}
+            transition={{ duration: 0.6, delay: 0.3, ease: 'easeOut' }}
+          />
+
+          {/* 보석이 종이 자리에서 피어나(morph) 함 속으로 떨어져 담김 */}
           <motion.div
             style={{ position: 'absolute', left: '50%', top: 12, marginLeft: -52, zIndex: 4, pointerEvents: 'none' }}
-            initial={{ y: 0, scale: 0.7, opacity: 1, rotate: -4 }}
-            animate={{ y: [0, 150, 168], scale: [0.7, 0.5, 0.16], opacity: [1, 1, 0], rotate: [-4, 0, 0] }}
-            transition={{ duration: 1.2, times: [0, 0.78, 1], ease: 'easeIn' }}
+            initial={{ y: 0, scale: 0.15, opacity: 0, rotate: -16 }}
+            animate={{ y: [0, 6, 150, 168], scale: [0.15, 1.05, 0.6, 0.16], opacity: [0, 1, 1, 0], rotate: [-16, 0, 0, 0] }}
+            transition={{ duration: 1.7, times: [0, 0.34, 0.82, 1], ease: 'easeInOut' }}
           >
             <Gem />
           </motion.div>

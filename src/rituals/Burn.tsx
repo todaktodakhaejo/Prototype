@@ -18,13 +18,13 @@ const HEAD_REST_Y = 215
 const PAPER_W = 220
 const PAPER_H = 300
 // 불꽃 혀 — 폭/높이/속도/지연을 달리해 사실적으로 일렁이게 (가운데가 가장 높음)
+// 서로 넉넉히 겹치는 넓은 불기둥들 — 가운데가 가장 크고, 좌우가 겹쳐 하나의 불덩이로 보이게.
 const FLAMES = [
-  { dx: -40, w: 22, h: 52, flick: 0.5, delay: 0 },
-  { dx: -24, w: 30, h: 82, flick: 0.44, delay: 0.13 },
-  { dx: -7, w: 36, h: 110, flick: 0.58, delay: 0.05 },
-  { dx: 11, w: 32, h: 94, flick: 0.48, delay: 0.2 },
-  { dx: 27, w: 26, h: 68, flick: 0.52, delay: 0.1 },
-  { dx: 41, w: 18, h: 46, flick: 0.46, delay: 0.16 },
+  { dx: 0, w: 58, h: 116, flick: 0.56, delay: 0 },
+  { dx: -20, w: 46, h: 82, flick: 0.5, delay: 0.12 },
+  { dx: 20, w: 44, h: 86, flick: 0.46, delay: 0.16 },
+  { dx: -34, w: 30, h: 54, flick: 0.48, delay: 0.22 },
+  { dx: 34, w: 28, h: 56, flick: 0.52, delay: 0.1 },
 ]
 const EMBERS = Array.from({ length: 12 }, (_, i) => i)
 
@@ -40,7 +40,7 @@ function Flame({ idx, flip }: { idx: number; flip?: boolean }) {
       viewBox="0 0 60 120"
       preserveAspectRatio="none"
       aria-hidden
-      style={{ display: 'block', overflow: 'visible', filter: 'blur(0.7px)', transform: flip ? 'scaleX(-1)' : undefined }}
+      style={{ display: 'block', overflow: 'visible', filter: 'blur(1.4px)', transform: flip ? 'scaleX(-1)' : undefined }}
     >
       <defs>
         <linearGradient id={oid} x1="0.5" y1="1" x2="0.5" y2="0">
@@ -253,6 +253,21 @@ export default function Burn({ text, onDone }: RitualProps) {
           />
           {/* 불꽃+불티 그룹 — 진행도에 따라 통째로 커짐(bottom-center) */}
           <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 0, transformOrigin: 'bottom center', transform: `scale(${fireScale})`, transition: 'transform 0.2s ease-out' }}>
+          {/* 베이스 연결체 — 불기둥 밑동을 하나로 뭉쳐주는 흐릿한 불덩이 */}
+          <div
+            style={{
+              position: 'absolute',
+              left: '50%',
+              bottom: -8,
+              width: 108,
+              height: 68,
+              marginLeft: -54,
+              borderRadius: '50% 50% 48% 48% / 64% 64% 40% 40%',
+              background: 'radial-gradient(58% 70% at 50% 78%, #ffcf52 0%, #ff7e22 44%, rgba(255,90,20,0) 78%)',
+              filter: 'blur(7px)',
+              opacity: flameOn ? 0.95 : 0,
+            }}
+          />
           {FLAMES.map((f, i) => (
             <motion.div
               key={i}

@@ -435,10 +435,10 @@ export default function Plane({ text, onDone }: RitualProps) {
       {phase === 'plane' && <Gauge value={power} from="#5b8fd6" to="#aee0e8" />}
 
       {/* 상단 행위 안내 캡션 */}
-      {(phase === 'paper' || phase === 'folding' || phase === 'plane') && (
+      {(phase === 'paper' || phase === 'plane') && (
         <div style={{ position: 'absolute', top: -44, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
           <span style={{ background: 'rgba(30,22,40,0.55)', color: '#fff', fontSize: 13, padding: '6px 14px', borderRadius: 999, whiteSpace: 'nowrap' }}>
-            {phase === 'paper' ? '👆 종이를 탭하면 비행기로 접혀요' : phase === 'folding' ? '✈️ 비행기로 접는 중…' : '✈️ 당겼다 놓으면 날아가요'}
+            {phase === 'paper' ? '👆 종이를 탭하면 비행기로 접혀요' : '✈️ 당겼다 놓으면 날아가요'}
           </span>
         </div>
       )}
