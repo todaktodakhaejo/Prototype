@@ -296,10 +296,11 @@ export default function JellyBall({ onLongPress, onPressStart, onPlayActive, fai
           style={{ width: '100%', height: '100%' }}
           animate={
             pressing
-              ? { scaleX: 1.12, scaleY: 0.82, x: dentX, y: dentY }
+              ? { scaleX: 1.18, scaleY: 0.78, x: dentX, y: dentY }
               : { scaleX: 1, scaleY: 1, x: 0, y: 0 }
           }
-          transition={{ type: 'spring', stiffness: 340, damping: 15 }}
+          // 통통 튀며 복원(낮은 damping = 쫀득한 오버슈트 wobble)
+          transition={{ type: 'spring', stiffness: 300, damping: 8, mass: 0.7 }}
         >
           {/* 3) 슬라임 본체 — 유기적 모핑 + 호흡 + 젤 같은 음영 */}
           <motion.div
@@ -316,10 +317,17 @@ export default function JellyBall({ onLongPress, onPressStart, onPlayActive, fai
             initial={{ opacity: faint ? 0.25 : 0.9, borderRadius: BLOB_MORPH[0] }}
             animate={{
               opacity: faint ? 0.25 : 0.95,
-              scale: [0.97, 1.0, 0.97],
+              // 빠른 미세 젤리 출렁임(탱글) — 가로/세로가 어긋나게 출렁여 쫀득하게 보임
+              scaleX: [1, 1.04, 0.975, 1.025, 1],
+              scaleY: [1, 0.965, 1.03, 0.98, 1],
               borderRadius: BLOB_MORPH,
             }}
-            transition={{ duration: 6.5, repeat: Infinity, ease: 'easeInOut' }}
+            transition={{
+              scaleX: { duration: 2.5, repeat: Infinity, ease: 'easeInOut' },
+              scaleY: { duration: 2.5, repeat: Infinity, ease: 'easeInOut' },
+              borderRadius: { duration: 6.5, repeat: Infinity, ease: 'easeInOut' },
+              opacity: { duration: 0.4 },
+            }}
           >
             {/* 누른 자리 딤플 — 파고드는 음영 */}
             {pressing && (
