@@ -74,7 +74,7 @@ export default function StartupNotice() {
           <p>크롬·사파리·삼성인터넷 최신 버전, 가능하면 휴대폰 기본 브라우저로 열어 주세요. (iOS 15.4+)</p>
           <p style={{ marginTop: 7, fontWeight: 700 }}>📳 진동(햅틱)</p>
           <p>
-            말랑이를 만지면 가벼운 진동이 나요. <b>무음·절전 모드</b>면 꺼질 수 있어요.
+            앱을 사용할 때 손끝에 가벼운 진동이 전해져요. <b>무음/절전 모드를 반드시 해제해주세요.</b>
           </p>
           <button
             onClick={testVibe}

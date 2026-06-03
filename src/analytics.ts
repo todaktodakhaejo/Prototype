@@ -29,7 +29,7 @@ interface RitualStat {
 }
 
 export interface RoundSummary {
-  schema: 'heulim.kpi.round.v1'
+  schema: 'heulim.kpi.round.v2' // v2: 기분 척도 0=안좋음~10=좋음, moodDelta=post-pre
   uid: string // 기기별 익명 식별자 (세션 간 결합용 join key)
   sessionId: string // 앱 1회 오픈당
   roundIndex: number // 세션 내 라운드 순번 (0부터)
@@ -209,14 +209,16 @@ export function endRound(force?: RoundType): RoundSummary | null {
   if (!current) return null
   const endedAt = Date.now()
   const ritualCount = current.ritualSequence.length
+  // 척도가 '0=매우 안 좋다 ~ 10=매우 좋다'(높을수록 좋음)로 바뀜 → 개선 = post-pre.
+  //   moodDelta > 0 = 기분이 좋아짐(개선). (이전 v1은 pre-post였음 — 스키마 v2로 구분)
   const moodDelta =
     current.moodPre !== null && current.moodPost !== null
-      ? current.moodPre - current.moodPost
+      ? current.moodPost - current.moodPre
       : null
   const roundType: RoundType =
     force ?? (ritualCount > 0 ? 'full' : current.isTextWritten ? 'write_only' : 'ball_only')
   const summary: RoundSummary = {
-    schema: 'heulim.kpi.round.v1',
+    schema: 'heulim.kpi.round.v2',
     uid: UID,
     sessionId: SESSION_ID,
     roundIndex: current.roundIndex,

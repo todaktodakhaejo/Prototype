@@ -8,11 +8,15 @@ export const RELEASE_PAUSE_MS = 1500 // 완료 직전 빈 화면 여운
 export const LONG_PRESS_MS = 800
 
 // ── KPI 모드(프로토타입 한정) 기분 측정 ──
-export const MOOD_MAX = 10 // 0~10 척도
-export const MOOD_PRE_TITLE = '시작 전, 지금의 마음은 얼마나 무거운가요?'
-export const MOOD_POST_TITLE = '마친 뒤, 마음의 무게는 어떤가요?'
-export const MOOD_LOW_LABEL = '마음이 가벼움'
-export const MOOD_HIGH_LABEL = '마음이 무거움'
+export const MOOD_MAX = 10 // 0~10 척도 (0=매우 안 좋다 ~ 10=매우 좋다 — 높을수록 좋음)
+// (1) 공놀이 전(시작)
+export const MOOD_PRE_TITLE = '감정말랑이를\n만나기 전, 지금 기분이 어떤가요?'
+// (2) 공놀이만 하고 마침
+export const MOOD_POST_BALL_TITLE = '감정말랑이를\n만나고 난 지금, 기분이 어떤가요?'
+// (3) 환기(리츄얼)까지 하고 마침
+export const MOOD_POST_RITUAL_TITLE = '환기를 마친 지금, 기분이 어떤가요?'
+export const MOOD_LOW_LABEL = '매우 안 좋다' // 0
+export const MOOD_HIGH_LABEL = '매우 좋다' // 10
 
 // 공놀이 후 분기 팝업 (종이/리츄얼 진입 전)
 export const RITUAL_PROMPT_TITLE = '오늘의 마음,\n환기해볼까요?'

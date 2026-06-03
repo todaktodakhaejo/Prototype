@@ -8,7 +8,7 @@ interface Props {
 }
 
 // 0~MOOD_MAX 슬라이더(정수 스냅, 연속 밀기 X) — 밀어서 고르고 [확인]으로 제출.
-// 양 끝 캡션(0=마음이 가벼움 / 10=마음이 무거움)으로 '기분 좋다고 10 체크'하는 오인을 방지.
+// 양 끝 캡션(0=매우 안 좋다 / 10=매우 좋다)으로 방향(높을수록 좋음)을 명확히.
 export default function MoodScale({ title, onSubmit }: Props) {
   const [value, setValue] = useState(0)
 
@@ -19,7 +19,7 @@ export default function MoodScale({ title, onSubmit }: Props) {
       transition={{ duration: 0.6 }}
       style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22, width: '100%', maxWidth: 340 }}
     >
-      <p className="serif" style={{ color: 'var(--on-bg)', fontSize: 18, lineHeight: 1.5, maxWidth: 320 }}>
+      <p className="serif" style={{ color: 'var(--on-bg)', fontSize: 18, lineHeight: 1.5, maxWidth: 320, whiteSpace: 'pre-line' }}>
         {title}
       </p>
 
