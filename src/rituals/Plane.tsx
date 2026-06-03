@@ -386,14 +386,13 @@ export default function Plane({ text, onDone }: RitualProps) {
           style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}
           initial={{ x: 0, y: START_Y, scale: 1.3, opacity: 1, rotate: 0 }}
           animate={{
-            // 화면 하단(START_Y)에서 위쪽 한 지점(dir*flyDist)으로 '슝' 쏘아져 도착 → 별이 됨
-            x: [0, dir.x * flyDist * 0.5, dir.x * flyDist],
-            y: [START_Y, (START_Y + dir.y * flyDist) / 2, dir.y * flyDist],
-            scale: [1.3, 1.2, 1.02],
-            opacity: [1, 1, 1],
-            rotate: [0, dir.x * 12, dir.x * 18],
+            // 화면 하단(START_Y)→위쪽 한 지점(dir*flyDist)으로 '한 번에' 매끄럽게 슝 (중간 키프레임 없음)
+            x: dir.x * flyDist,
+            y: dir.y * flyDist,
+            scale: 1.04,
+            rotate: dir.x * 18,
           }}
-          transition={{ duration: 0.55, times: [0, 0.3, 1], ease: [0.1, 0.75, 0.2, 1] }}
+          transition={{ duration: 0.55, ease: [0.16, 0.85, 0.3, 1] }}
           onAnimationComplete={() => setPhase('star')}
         >
           <div style={{ position: 'relative', transform: `rotate(${dirAngle + 38}deg)` }}>
