@@ -17,12 +17,16 @@ const HEAD_REST_X = -33 // 종이 왼쪽 바깥
 const HEAD_REST_Y = 215
 const PAPER_W = 220
 const PAPER_H = 300
+// 불꽃 혀 — 폭/높이/속도/지연을 달리해 사실적으로 일렁이게 (가운데가 가장 높음)
 const FLAMES = [
-  { dx: -30, w: 20, h: 34, flick: 0.46 },
-  { dx: -10, w: 26, h: 46, flick: 0.52 },
-  { dx: 12, w: 24, h: 40, flick: 0.44 },
-  { dx: 30, w: 18, h: 30, flick: 0.5 },
+  { dx: -40, w: 22, h: 52, flick: 0.5, delay: 0 },
+  { dx: -24, w: 30, h: 82, flick: 0.44, delay: 0.13 },
+  { dx: -7, w: 36, h: 110, flick: 0.58, delay: 0.05 },
+  { dx: 11, w: 32, h: 94, flick: 0.48, delay: 0.2 },
+  { dx: 27, w: 26, h: 68, flick: 0.52, delay: 0.1 },
+  { dx: 41, w: 18, h: 46, flick: 0.46, delay: 0.16 },
 ]
+const EMBERS = Array.from({ length: 12 }, (_, i) => i)
 
 // 태우기 — 먼저 '성냥을 끌어' 종이에 불을 붙이면(점화), 그때부터 아래에서 위로 타오른다.
 //  점화 후엔 진행도(progress)가 시간에 따라 0→1로 차오르고, 게이지가 그와 동시에 찬다.
@@ -205,22 +209,80 @@ export default function Burn({ text, onDone }: RitualProps) {
               style={{
                 position: 'absolute',
                 left: '50%',
-                bottom: -2,
+                bottom: -4,
                 width: f.w,
                 height: f.h,
                 marginLeft: f.dx - f.w / 2,
                 transformOrigin: 'bottom center',
-                borderRadius: '50% 50% 48% 48% / 72% 72% 40% 40%',
-                background:
-                  'radial-gradient(52% 60% at 50% 74%, #fff0b8 0%, #ffd270 38%, #ffa64d 68%, rgba(255,166,77,0) 100%)',
-                filter: 'blur(1.2px)',
-                opacity: flameOn ? 0.92 : 0,
-                transition: 'opacity 0.2s',
+                opacity: flameOn ? 1 : 0,
+                transition: 'opacity 0.25s',
               }}
-              animate={{ scaleY: [0.82, 1.14, 0.92, 1.08, 0.82], scaleX: [1, 0.88, 1.05, 0.92, 1], x: [0, -2, 2, -1, 0] }}
-              transition={{ duration: f.flick, repeat: Infinity, ease: 'easeInOut' }}
-            />
+              animate={{
+                scaleY: [0.9, 1.2, 0.95, 1.12, 0.9],
+                scaleX: [1, 0.88, 1.07, 0.9, 1],
+                skewX: [0, -4, 4, -2, 0],
+                x: [0, -2, 3, -1, 0],
+              }}
+              transition={{ duration: f.flick, delay: f.delay, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              {/* 외염: 주황→빨강, 위로 갈수록 사라져 뾰족하게 */}
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: '50% 50% 50% 50% / 78% 78% 32% 32%',
+                  background:
+                    'radial-gradient(54% 64% at 50% 82%, #ffd56e 0%, #ff9a38 28%, #ff5a1e 52%, rgba(255,70,20,0) 84%)',
+                  filter: 'blur(2px)',
+                }}
+              />
+              {/* 내염(코어): 밝은 흰-노랑, 아래쪽 */}
+              <div
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  bottom: 0,
+                  width: f.w * 0.52,
+                  height: f.h * 0.62,
+                  marginLeft: (-f.w * 0.52) / 2,
+                  borderRadius: '50% 50% 50% 50% / 72% 72% 36% 36%',
+                  background:
+                    'radial-gradient(54% 66% at 50% 84%, #fffdf2 0%, #ffec8e 42%, #ffb24d 72%, rgba(255,178,70,0) 92%)',
+                  filter: 'blur(1px)',
+                }}
+              />
+            </motion.div>
           ))}
+
+          {/* 불티(엠버) — 위로 떠오르며 깜빡 */}
+          {flameOn &&
+            EMBERS.map((i) => {
+              const ex = (Math.sin(i * 12.9) - 0.2) * 80
+              const rise = 90 + (i % 4) * 40
+              const dur = 1.1 + (i % 5) * 0.22
+              const dly = (i % 6) * 0.28
+              const sz = 2 + (i % 3)
+              return (
+                <motion.span
+                  key={`e${i}`}
+                  style={{
+                    position: 'absolute',
+                    left: '50%',
+                    bottom: 4,
+                    width: sz,
+                    height: sz,
+                    marginLeft: ex / 2,
+                    borderRadius: '50%',
+                    background: '#ffd073',
+                    boxShadow: '0 0 6px 1px rgba(255,170,70,0.9)',
+                    pointerEvents: 'none',
+                  }}
+                  initial={{ y: 0, x: 0, opacity: 0 }}
+                  animate={{ y: [0, -rise], x: [0, ex], opacity: [0, 1, 0], scale: [1, 0.4] }}
+                  transition={{ duration: dur, delay: dly, repeat: Infinity, ease: 'easeOut' }}
+                />
+              )
+            })}
         </div>
       )}
 

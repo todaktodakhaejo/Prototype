@@ -40,6 +40,42 @@ function Star({ core, glow }: { core: string; glow: string }) {
   )
 }
 
+// 분사한 연료가 모여 만들어진 부드러운 구름 — 비행 후 화면에 떠오른다
+function Cloud() {
+  const puffs = [
+    { x: 26, y: 36, r: 52 },
+    { x: 74, y: 16, r: 68 },
+    { x: 122, y: 34, r: 52 },
+    { x: 56, y: 50, r: 48 },
+    { x: 100, y: 52, r: 46 },
+  ]
+  return (
+    <motion.div
+      style={{ position: 'absolute', left: '50%', top: '40%', width: 188, height: 98, marginLeft: -94, marginTop: -49, pointerEvents: 'none', zIndex: 7 }}
+      initial={{ opacity: 0, scale: 0.55, x: -14 }}
+      animate={{ opacity: [0, 1, 1, 0.92], scale: [0.55, 1, 1.05, 1.1], x: [-14, 0, 8, 18] }}
+      transition={{ duration: 2.1, times: [0, 0.4, 0.75, 1], ease: 'easeOut' }}
+    >
+      {puffs.map((p, i) => (
+        <div
+          key={i}
+          style={{
+            position: 'absolute',
+            left: p.x,
+            top: p.y,
+            width: p.r,
+            height: p.r,
+            marginLeft: -p.r / 2,
+            marginTop: -p.r / 2,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle at 50% 42%, #ffffff 0%, #f3f1f7 56%, rgba(243,241,247,0) 78%)',
+          }}
+        />
+      ))}
+    </motion.div>
+  )
+}
+
 // 슬링샷 물리: 당긴 '반대' 방향으로, 항상 하늘(위)을 향해 사선 발사
 function launchVec(px: number, py: number) {
   let dx = -px
@@ -98,7 +134,7 @@ export default function Plane({ text, onDone }: RitualProps) {
   // 별이 반짝인 뒤 마무리
   useEffect(() => {
     if (phase !== 'star') return
-    const t = setTimeout(onDone, 1500)
+    const t = setTimeout(onDone, 2300) // 구름이 떠오르는 동안 머무름
     return () => clearTimeout(t)
   }, [phase, onDone])
 
@@ -252,8 +288,42 @@ export default function Plane({ text, onDone }: RitualProps) {
         </motion.div>
       )}
 
-      {/* star: 다 날아간 뒤 별이 되어 반짝 */}
+      {/* flying 중 연료 분사 — 비행 경로를 따라 뿜어져 흩어지는 연료/배기 */}
+      {phase === 'flying' &&
+        Array.from({ length: 11 }).map((_, j) => {
+          const t = j / 10
+          const px = dir.x * (36 + t * 150)
+          const py = dir.y * (36 + t * 150)
+          const dly = t * 0.95
+          const sz = 16 + t * 26
+          return (
+            <motion.span
+              key={`fuel${j}`}
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                width: sz,
+                height: sz,
+                marginLeft: -sz / 2,
+                marginTop: -sz / 2,
+                borderRadius: '50%',
+                background:
+                  'radial-gradient(circle, rgba(255,236,180,0.85) 0%, rgba(255,200,140,0.5) 40%, rgba(245,245,250,0.25) 70%, rgba(245,245,250,0) 100%)',
+                filter: 'blur(2px)',
+                pointerEvents: 'none',
+                zIndex: 4,
+              }}
+              initial={{ x: 0, y: 0, opacity: 0, scale: 0.4 }}
+              animate={{ x: px, y: py, opacity: [0, 0.9, 0], scale: [0.4, 1.3, 2] }}
+              transition={{ duration: 1.1, delay: dly, ease: 'easeOut' }}
+            />
+          )
+        })}
+
+      {/* star: 다 날아간 뒤 별이 되어 반짝 + 연료가 구름이 되어 떠오름 */}
       {phase === 'star' && <Star core={starCore} glow={starGlow} />}
+      {phase === 'star' && <Cloud />}
 
       {/* 당기는 동안: 방향 화살표 (슬링샷처럼 — 당긴 방향·세기 미리보기) */}
       {phase === 'plane' && power > 0.04 && (

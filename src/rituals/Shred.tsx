@@ -7,8 +7,9 @@ import { hapticShredTick, hapticShredBurst, stopVibration } from '../haptics'
 
 const GRIND_HAPTIC_PX = 26 // 갈기 진동 1펄스당 이동거리(px) — 빠를수록 촘촘
 
-const CONFETTI = 30
-const COLORS = ['#f4b8c7', '#d8b15a', '#fbf7f4', '#c9a7e0', '#9ad0d8']
+const CONFETTI = 66 // 3회 웨이브로 빵빵빵 터짐
+const WAVES = 3
+const COLORS = ['#f4b8c7', '#d8b15a', '#fbf7f4', '#c9a7e0', '#9ad0d8', '#ffd24d', '#7ee0a0']
 const GRIND_DIST = 1200 // 이만큼(px) 문질러야 다 갈림 (충분히 문지르며 몰입하도록 길게)
 const TAP_BUMP = 0.035 // 탭/클릭 한 번마다 조금씩 갈림
 
@@ -34,9 +35,16 @@ export default function Shred({ text, onDone }: RitualProps) {
       fired.current = true
       setDone(true)
       setGrinding(false)
-      hapticShredBurst() // 폭죽처럼 터질 때 성공 진동
-      const t = setTimeout(onDone, 3400)
-      return () => clearTimeout(t)
+      // 폭죽 3회에 맞춰 성공 진동도 빵빵빵
+      hapticShredBurst()
+      const b1 = window.setTimeout(hapticShredBurst, 500)
+      const b2 = window.setTimeout(hapticShredBurst, 1000)
+      const t = setTimeout(onDone, 4200)
+      return () => {
+        clearTimeout(t)
+        clearTimeout(b1)
+        clearTimeout(b2)
+      }
     }
   }, [progress, onDone])
 
@@ -82,10 +90,10 @@ export default function Shred({ text, onDone }: RitualProps) {
   }
 
   const fed = progress * 138 // 종이가 슬롯으로 들어간 정도(px) — progress=1에서 정확히 다 들어가도록(게이지와 싱크)
-  // 거의 다 갈릴수록 떨림이 더 격해지고 빨라짐(극적 효과)
-  const amp = 5 + progress * 17 // 흔들림 폭 5~22px
-  const rot = 1 + progress * 2.6 // 회전 폭 1~3.6deg
-  const shakeDur = Math.max(0.16, 0.4 - progress * 0.24) // 빨라짐
+  // 거의 다 갈릴수록 떨림이 점점 더 격해지고 빨라짐(극적 효과)
+  const amp = 4 + progress * progress * 30 // 흔들림 폭 ~4→34px (끝으로 갈수록 급증)
+  const rot = 1 + progress * progress * 4.5 // 회전 폭 ~1→5.5deg
+  const shakeDur = Math.max(0.1, 0.42 - progress * 0.3) // 빨라짐
 
   return (
     <div
@@ -132,15 +140,15 @@ export default function Shred({ text, onDone }: RitualProps) {
         style={{
           position: 'absolute',
           left: '50%',
-          bottom: 60,
-          width: 180,
-          height: 96,
-          marginLeft: -90,
+          bottom: 50,
+          width: 222,
+          height: 120,
+          marginLeft: -111,
           zIndex: 2,
-          borderRadius: 14,
+          borderRadius: 16,
           background: 'linear-gradient(180deg, #4a4754 0%, #2c2a34 100%)',
           border: '1px solid rgba(255,255,255,0.12)',
-          boxShadow: '0 16px 30px rgba(0,0,0,0.35)',
+          boxShadow: '0 18px 34px rgba(0,0,0,0.4)',
         }}
         animate={
           grinding
@@ -156,13 +164,13 @@ export default function Shred({ text, onDone }: RitualProps) {
           style={{
             position: 'absolute',
             left: '50%',
-            top: 14,
-            width: 130,
-            height: 8,
-            marginLeft: -65,
-            borderRadius: 4,
+            top: 18,
+            width: 162,
+            height: 10,
+            marginLeft: -81,
+            borderRadius: 5,
             background: '#15131a',
-            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.6)',
+            boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.65)',
           }}
         />
         <div
@@ -182,33 +190,36 @@ export default function Shred({ text, onDone }: RitualProps) {
       {/* 폭죽 — 다 갈리면 팝콘처럼 터짐 */}
       {done &&
         Array.from({ length: CONFETTI }).map((_, i) => {
-          const sx = (rnd(i) - 0.5) * 200
-          const up = 120 + rnd(i + 7) * 140
-          const fall = 80 + rnd(i + 13) * 90
-          const dly = rnd(i + 3) * 0.7
-          const dur = 1.1 + rnd(i + 5) * 0.5
-          const spin = (rnd(i + 9) < 0.5 ? -1 : 1) * (300 + rnd(i + 11) * 280)
+          const wave = i % WAVES // 0,1,2 — 세 번에 나눠 빵빵빵
+          const sx = (rnd(i) - 0.5) * 360 // 더 넓게 사방으로
+          const up = 160 + rnd(i + 7) * 200 // 더 높이
+          const fall = 120 + rnd(i + 13) * 140
+          const dly = wave * 0.5 + rnd(i + 3) * 0.22 // 웨이브별 0.5s 간격
+          const dur = 1.0 + rnd(i + 5) * 0.55
+          const spin = (rnd(i + 9) < 0.5 ? -1 : 1) * (340 + rnd(i + 11) * 320)
+          const sz = 7 + Math.round(rnd(i + 17) * 6) // 더 큰 조각
           return (
             <motion.span
               key={i}
               style={{
                 position: 'absolute',
                 left: '50%',
-                bottom: 142,
-                width: 6,
-                height: 15,
-                marginLeft: -3,
+                bottom: 156,
+                width: sz,
+                height: Math.round(sz * 2.1),
+                marginLeft: -sz / 2,
                 borderRadius: 2,
                 background: COLORS[i % COLORS.length],
+                boxShadow: '0 0 6px rgba(255,255,255,0.35)',
                 zIndex: 3,
               }}
-              initial={{ x: 0, y: 0, opacity: 0, rotate: 0, scale: 0.5 }}
+              initial={{ x: 0, y: 0, opacity: 0, rotate: 0, scale: 0.4 }}
               animate={{
                 x: [0, sx * 0.5, sx * 0.85, sx],
                 y: [0, -up, -up * 0.25, fall],
                 opacity: [0, 1, 1, 0],
                 rotate: [0, spin * 0.4, spin * 0.8, spin],
-                scale: [0.5, 1.15, 1, 0.85],
+                scale: [0.4, 1.3, 1.05, 0.85],
               }}
               transition={{ duration: dur, delay: dly, times: [0, 0.32, 0.66, 1], ease: 'easeOut' }}
             />
