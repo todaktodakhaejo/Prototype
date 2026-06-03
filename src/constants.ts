@@ -23,6 +23,11 @@ export const RITUAL_PROMPT_TITLE = '오늘의 마음,\n환기해볼까요?'
 export const RITUAL_PROMPT_YES = '네, 환기해볼래요'
 export const RITUAL_PROMPT_NO = '오늘은 여기까지 할래요'
 
+// 환기 1회 후 분기 (더 할지 / 여기까지 — 여기까지면 후속 기분 질문)
+export const RITUAL_AGAIN_TITLE = '환기가 끝났어요.\n더 해볼까요?'
+export const RITUAL_AGAIN_MORE = '환기 더 하기'
+export const RITUAL_AGAIN_END = '오늘은 여기까지 할래요'
+
 // ── 의식 완료 멘트 (의식별 3종, 할 때마다 번갈아 노출) ──
 export const BURN_MESSAGES = [
   '어느덧 작은 한 줌이 되었네요',

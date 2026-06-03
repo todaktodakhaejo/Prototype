@@ -53,6 +53,7 @@ interface AppState {
   // 의식 허브(자유 흐름) 내비
   editWriting: () => void // 글 다시 쓰기
   backToPlay: () => void // 공놀이로 더
+  moreRitual: () => void // 환기 1회 후 '더 하기' → 의식 허브
   finishSession: () => void // 이제 마칠래요 → 마친 후 기분
   afterReleased: () => void // 완료(RELEASED) 화면 후 (KPI: 처음=기분 pre / 아니면 홈 리셋)
   submitMoodPost: (value: number) => void // 마친 후 기분 응답 → 완료(RELEASED) 화면
@@ -133,6 +134,7 @@ export const useStore = create<AppState>((set, get) => {
     // ── 의식 허브 내비 (자유 흐름) ──
     editWriting: () => set({ step: 'WRITE' }), // 같은 글 편집/새로 쓰기
     backToPlay: () => set({ step: 'HOME' }), // 공놀이 더 (돌아오면 다시 허브)
+    moreRitual: () => set({ step: 'RITUAL_PICK' }), // 환기 더 하기 → 허브로
     finishSession: () => set({ step: 'MOOD_POST', postRoundType: 'full' }), // 이제 마칠래요
 
     pickRitual: (id) => {
@@ -141,14 +143,14 @@ export const useStore = create<AppState>((set, get) => {
     },
 
     // 의식 연출 완료(컴포넌트가 자체 마무리 멘트까지 보여준 뒤 호출) →
-    //   KPI: 의식 허브로 복귀(또 고를 수 있게) / 비KPI: 완료 화면
+    //   KPI: '더 할지/여기까지' 분기 화면으로(이탈 방지·후속 질문 유도) / 비KPI: 완료 화면
     finishRitual: () => {
       const id = get().selectedRitual
       if (id) kpi.ritualEnd(id)
       set({
         ritualsThisSession: get().ritualsThisSession + 1,
         selectedRitual: null,
-        step: KPI_ENABLED ? 'RITUAL_PICK' : 'RELEASED',
+        step: KPI_ENABLED ? 'RITUAL_AGAIN' : 'RELEASED',
       })
     },
 

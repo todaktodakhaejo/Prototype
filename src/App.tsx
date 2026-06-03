@@ -8,6 +8,7 @@ import RitualPrompt from './screens/RitualPrompt'
 import Write from './screens/Write'
 import RitualPick from './screens/RitualPick'
 import RitualAct from './screens/RitualAct'
+import RitualAgain from './screens/RitualAgain'
 import Released from './screens/Released'
 import MoodPost from './screens/MoodPost'
 import StartupNotice from './components/StartupNotice'
@@ -21,6 +22,7 @@ const SCREENS: Record<Step, () => JSX.Element | null> = {
   WRITE: Write,
   RITUAL_PICK: RitualPick,
   RITUAL_ACT: RitualAct,
+  RITUAL_AGAIN: RitualAgain,
   RELEASED: Released,
   MOOD_POST: MoodPost,
 }

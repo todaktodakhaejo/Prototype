@@ -8,6 +8,7 @@ export type Step =
   | 'WRITE'
   | 'RITUAL_PICK'
   | 'RITUAL_ACT'
+  | 'RITUAL_AGAIN' // 환기 1회 후: 더 할지 / 오늘은 여기까지(→후속 기분 질문) 분기 — KPI 모드
   | 'RELEASED'
   | 'MOOD_POST'
 
