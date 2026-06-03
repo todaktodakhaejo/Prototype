@@ -359,12 +359,13 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
 
           {/* 보석이 중앙에서 피어나 ~2초 반짝인 뒤, 상자 입구(클립 경계 176px) 아래로 내려가
               잘려 사라짐 = 상자 안으로 들어가 안 보임. 뚜껑이 가리는 게 아니라 z6로 앞에 있음. */}
-          <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 176, overflow: 'hidden', zIndex: 6, pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 190, overflow: 'hidden', zIndex: 6, pointerEvents: 'none' }}>
             <motion.div
               style={{ position: 'absolute', left: '50%', top: 60, marginLeft: -52 }}
               initial={{ y: 44, scale: 0.18, opacity: 0, rotate: -16 }}
-              animate={{ y: [44, -16, -16, 70, 120], scale: [0.18, 1.0, 1.0, 0.85, 0.7], opacity: [0, 1, 1, 1, 1], rotate: [-16, 0, 0, 0, 0] }}
-              transition={{ duration: 3.3, times: [0, 0.2, 0.7, 0.92, 1], ease: 'easeInOut' }}
+              // 크기는 거의 유지한 채 아래로 내려가 입구(190px) 아래부터 순차적으로 잘려 사라짐
+              animate={{ y: [44, -16, -16, 60, 150], scale: [0.18, 1.0, 1.0, 1.0, 0.95], opacity: [0, 1, 1, 1, 1], rotate: [-16, 0, 0, 0, 0] }}
+              transition={{ duration: 3.3, times: [0, 0.2, 0.7, 0.86, 1], ease: 'easeInOut' }}
             >
               <Gem />
             </motion.div>
