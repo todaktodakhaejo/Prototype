@@ -11,10 +11,22 @@ export function resolveTimeOfDay(hour: number): TimeOfDay {
   return 'night' // 19–04
 }
 
+// 미리보기용 강제 지정 — URL ?tod=night|day|dawn|dusk|pre-dawn 이면 그 시간대로 고정.
+function overrideTod(): TimeOfDay | null {
+  try {
+    const v = new URLSearchParams(window.location.search).get('tod')
+    if (v && ['dawn', 'day', 'dusk', 'night', 'pre-dawn'].includes(v)) return v as TimeOfDay
+  } catch {
+    /* noop */
+  }
+  return null
+}
+
 export function useTimeOfDay(): TimeOfDay {
-  const [tod, setTod] = useState<TimeOfDay>(() => resolveTimeOfDay(new Date().getHours()))
+  const [tod, setTod] = useState<TimeOfDay>(() => overrideTod() ?? resolveTimeOfDay(new Date().getHours()))
 
   useEffect(() => {
+    if (overrideTod()) return // 고정 미리보기 중엔 시계 갱신 안 함
     // 1분마다 구간 재확인 (경계 넘어갈 때 갱신)
     const id = setInterval(() => {
       setTod(resolveTimeOfDay(new Date().getHours()))
