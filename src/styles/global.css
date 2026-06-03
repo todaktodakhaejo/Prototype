@@ -31,12 +31,19 @@ body {
   max-height: 932px;
   margin: 0 auto;
   overflow: hidden;
-  background-color: #1a1730; /* 다층 그라데이션 로드 전/여백 폴백 */
+  background-color: #1a1730; /* 그라데이션 로드 전/여백 폴백 */
+}
+
+/* 시간대 배경 레이어 — gradient는 CSS transition이 안 먹으므로, tod가 바뀌면
+   이 레이어를 opacity로 크로스페이드해 잔잔하게 전환한다(App에서 AnimatePresence). */
+.bg-layer {
+  position: absolute;
+  inset: 0;
   background-image: var(--bg);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
-  transition: background-image 1.2s ease;
+  pointer-events: none;
 }
 
 /* 각 화면은 프레임을 가득 채우는 절대 레이어 (전환 cross-fade용) */

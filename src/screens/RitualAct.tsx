@@ -11,5 +11,10 @@ export default function RitualAct() {
   //  자동 호출하면 화면 전환 exit 도중 상태가 계속 갱신돼 다음 화면이 안 뜸)
   if (!selectedRitual) return null
   const Ritual = RITUAL_COMPONENTS[selectedRitual]
-  return <Ritual text={draftText} onDone={finishRitual} />
+  // 의식 오브제를 일괄로 키우고(scale) 정중앙보다 아주 살짝 아래로(translateY) 배치해 안정감을 준다.
+  return (
+    <div style={{ transform: 'scale(1.18) translateY(14px)', transformOrigin: 'center center' }}>
+      <Ritual text={draftText} onDone={finishRitual} />
+    </div>
+  )
 }

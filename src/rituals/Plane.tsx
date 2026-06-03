@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, type PanInfo } from 'framer-motion'
+import { AnimatePresence, motion, type PanInfo } from 'framer-motion'
 import type { RitualProps } from './index'
 import Gauge from './Gauge'
 import { useTimeOfDay } from '../hooks/useTimeOfDay'
@@ -110,13 +110,13 @@ function Cloud({ left, top, scale, opacity, delay, drift }: { left: string; top:
 
 // 하늘에 고루 흩어 떠 있는 구름들 — 중앙(별빛 자리)은 비우고 상/중(모서리)/하로 분산
 const CLOUDS = [
-  { left: '15%', top: '11%', scale: 0.52, opacity: 0.82, delay: 0.12, drift: 11 },
-  { left: '47%', top: '8%', scale: 0.6, opacity: 0.9, delay: 0.0, drift: 13 },
-  { left: '84%', top: '14%', scale: 0.6, opacity: 0.86, delay: 0.2, drift: 14 },
-  { left: '11%', top: '40%', scale: 0.42, opacity: 0.7, delay: 0.45, drift: 8 },
-  { left: '89%', top: '46%', scale: 0.46, opacity: 0.72, delay: 0.5, drift: 9 },
-  { left: '33%', top: '82%', scale: 0.5, opacity: 0.8, delay: 0.3, drift: 11 },
-  { left: '71%', top: '84%', scale: 0.54, opacity: 0.82, delay: 0.38, drift: 12 },
+  { left: '13%', top: '10%', scale: 0.5, opacity: 0.82, delay: 0.12, drift: 11 },
+  { left: '42%', top: '6%', scale: 0.56, opacity: 0.9, delay: 0.0, drift: 13 },
+  { left: '87%', top: '12%', scale: 0.58, opacity: 0.86, delay: 0.2, drift: 14 },
+  { left: '8%', top: '40%', scale: 0.4, opacity: 0.7, delay: 0.45, drift: 8 },
+  { left: '92%', top: '38%', scale: 0.44, opacity: 0.72, delay: 0.5, drift: 9 },
+  { left: '26%', top: '64%', scale: 0.46, opacity: 0.8, delay: 0.3, drift: 11 },
+  { left: '76%', top: '66%', scale: 0.5, opacity: 0.82, delay: 0.38, drift: 12 },
 ]
 
 // 슬링샷 물리: 당긴 '반대' 방향으로, 항상 하늘(위)을 향해 사선 발사
@@ -141,11 +141,75 @@ function PaperPlane() {
   )
 }
 
+const CREASE = '#d9d2c8'
+
+// 종이를 비행기로 접는 절차 연출(wikiHow 단계). 단계별 모양을 플립하듯 전환.
+function FoldSequence({ onDone }: { onDone: () => void }) {
+  const [step, setStep] = useState(0)
+  const stages = [
+    // 0) 세로로 반 접기
+    <svg key="0" width={120} height={92} viewBox="0 0 120 92" aria-hidden>
+      <rect x="40" y="6" width="40" height="80" rx="2" fill="#fff" stroke={CREASE} />
+      <line x1="60" y1="8" x2="60" y2="84" stroke={CREASE} strokeDasharray="3 3" />
+    </svg>,
+    // 1) 위 양 모서리를 가운데로
+    <svg key="1" width={120} height={92} viewBox="0 0 120 92" aria-hidden>
+      <rect x="40" y="6" width="40" height="80" rx="2" fill="#fff" stroke={CREASE} />
+      <polygon points="40,6 60,6 40,30" fill="#efe7dd" stroke={CREASE} />
+      <polygon points="80,6 60,6 80,30" fill="#efe7dd" stroke={CREASE} />
+    </svg>,
+    // 2) 뾰족한 지붕(삼각형) 형성
+    <svg key="2" width={120} height={92} viewBox="0 0 120 92" aria-hidden>
+      <polygon points="60,4 86,46 34,46" fill="#fff" stroke={CREASE} />
+      <rect x="34" y="46" width="52" height="40" fill="#fff" stroke={CREASE} />
+      <line x1="60" y1="6" x2="60" y2="84" stroke={CREASE} strokeDasharray="3 3" />
+    </svg>,
+    // 3) 다시 반으로 → 직각삼각형
+    <svg key="3" width={120} height={92} viewBox="0 0 120 92" aria-hidden>
+      <polygon points="60,6 60,86 32,86" fill="#fff" stroke={CREASE} />
+      <polygon points="60,6 60,50 40,62" fill="#efe7dd" stroke={CREASE} />
+    </svg>,
+    // 4) 날개 펴기 (비행기 윤곽)
+    <svg key="4" width={120} height={92} viewBox="0 0 120 92" aria-hidden>
+      <polygon points="16,84 104,22 60,54" fill="#fff" stroke={CREASE} />
+      <polygon points="104,22 60,54 74,76" fill="#efe7dd" stroke={CREASE} />
+    </svg>,
+    // 5) 완성된 비행기
+    <PaperPlane key="5" />,
+  ]
+  useEffect(() => {
+    if (step >= stages.length - 1) {
+      const t = setTimeout(onDone, 340)
+      return () => clearTimeout(t)
+    }
+    const t = setTimeout(() => setStep((s) => s + 1), 235)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, onDone])
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none', perspective: 700 }}>
+      <AnimatePresence>
+        <motion.div
+          key={step}
+          initial={{ rotateY: -58, opacity: 0, scale: 0.9 }}
+          animate={{ rotateY: 0, opacity: 1, scale: 1 }}
+          exit={{ rotateY: 58, opacity: 0, scale: 0.92 }}
+          transition={{ duration: 0.2, ease: 'easeInOut' }}
+          style={{ filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.18))' }}
+        >
+          {stages[step]}
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  )
+}
+
 // 날리기 — 종이를 '탭하면 비행기로 접히고', 그 비행기를 '던지면(드래그-놓기)' 날아간다(seamless).
 //  paper(탭) → plane(던질 수 있음) → flying(날아가고 onAnimationComplete로 완료).
 export default function Plane({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('plane', PLANE_MESSAGES))
-  const [phase, setPhase] = useState<'paper' | 'plane' | 'flying' | 'star'>('paper')
+  const [phase, setPhase] = useState<'paper' | 'folding' | 'plane' | 'flying' | 'star'>('paper')
   const [dir, setDir] = useState({ x: 0.5, y: -1 })
   const [pull, setPull] = useState({ x: 0, y: 0 }) // 당기는 동안의 오프셋(미리보기)
   const [throwPower, setThrowPower] = useState(1) // 던진 세기(비행 거리 배율)
@@ -228,7 +292,7 @@ export default function Plane({ text, onDone }: RitualProps) {
       {/* paper: 종이(글) — 탭하면 비행기로 접힘 */}
       {phase === 'paper' && (
         <motion.div
-          onTap={() => setPhase('plane')}
+          onTap={() => setPhase('folding')}
           whileTap={{ scale: 0.97 }}
           style={{
             position: 'absolute',
@@ -252,6 +316,9 @@ export default function Plane({ text, onDone }: RitualProps) {
           {text}
         </motion.div>
       )}
+
+      {/* folding: 종이를 비행기로 접는 절차 연출 */}
+      {phase === 'folding' && <FoldSequence onDone={() => setPhase('plane')} />}
 
       {/* plane: 접힌 비행기 — 잡고 던질 수 있음 */}
       {phase === 'plane' && (
@@ -379,10 +446,10 @@ export default function Plane({ text, onDone }: RitualProps) {
       {phase === 'plane' && <Gauge value={power} from="#5b8fd6" to="#aee0e8" />}
 
       {/* 상단 행위 안내 캡션 */}
-      {(phase === 'paper' || phase === 'plane') && (
+      {(phase === 'paper' || phase === 'folding' || phase === 'plane') && (
         <div style={{ position: 'absolute', top: -44, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
           <span style={{ background: 'rgba(30,22,40,0.55)', color: '#fff', fontSize: 13, padding: '6px 14px', borderRadius: 999, whiteSpace: 'nowrap' }}>
-            {phase === 'paper' ? '👆 종이를 탭하면 비행기로 접혀요' : '✈️ 당겼다 놓으면 날아가요'}
+            {phase === 'paper' ? '👆 종이를 탭하면 비행기로 접혀요' : phase === 'folding' ? '✈️ 비행기로 접는 중…' : '✈️ 당겼다 놓으면 날아가요'}
           </span>
         </div>
       )}
