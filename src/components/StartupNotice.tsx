@@ -41,7 +41,7 @@ export default function StartupNotice() {
 
   return (
     <AnimatePresence>
-      {/* 놓치지 않도록 잠깐 은은하게 번지는 후광(뾰로롱) — 1회만, 과하지 않게 */}
+      {/* 놓치지 않도록 잠깐 번지는 후광 — 말풍선보다 크게 퍼져 가장자리로 환히 비침(2번 부풀었다 사라짐) */}
       {show && (
         <motion.div
           key="notice-glow"
@@ -49,21 +49,45 @@ export default function StartupNotice() {
           style={{
             position: 'fixed',
             left: '50%',
-            bottom: -8,
+            bottom: -34,
             zIndex: 49,
-            width: 'min(92vw, 380px)',
-            height: 'calc(var(--notice-h, 90px) + 64px)',
-            borderRadius: 28,
-            background: 'radial-gradient(ellipse at center, rgba(255,224,196,0.55) 0%, rgba(255,214,224,0.32) 42%, rgba(255,214,224,0) 72%)',
-            filter: 'blur(9px)',
+            width: 'min(100vw, 480px)',
+            height: 'calc(var(--notice-h, 110px) + 150px)',
+            borderRadius: '50%',
+            background: 'radial-gradient(ellipse at center, rgba(255,245,225,0.95) 0%, rgba(255,221,180,0.7) 30%, rgba(255,200,214,0.4) 52%, rgba(255,200,214,0) 74%)',
+            filter: 'blur(10px)',
             pointerEvents: 'none',
           }}
-          initial={{ opacity: 0, scale: 0.92, x: '-50%' }}
-          animate={{ opacity: [0, 0.6, 0.28, 0.5, 0], scale: [0.92, 1.03, 1.0, 1.05, 1.09], x: '-50%' }}
+          initial={{ opacity: 0, scale: 0.8, x: '-50%' }}
+          animate={{ opacity: [0, 0.9, 0.4, 0.85, 0.3, 0], scale: [0.8, 1.0, 0.94, 1.04, 1.1, 1.16], x: '-50%' }}
           exit={{ opacity: 0, x: '-50%', transition: { duration: 0.2 } }}
-          transition={{ duration: 2.8, delay: 1.0, times: [0, 0.18, 0.45, 0.72, 1], ease: 'easeInOut' }}
+          transition={{ duration: 3.2, delay: 0.95, times: [0, 0.16, 0.36, 0.58, 0.8, 1], ease: 'easeInOut' }}
         />
       )}
+      {/* 뾰로롱 — 말풍선 위쪽에 작은 반짝임 몇 개가 톡톡(밝은 배경에서도 잘 보임) */}
+      {show &&
+        [-78, -26, 30, 80].map((dx, i) => (
+          <motion.span
+            key={`sp${i}`}
+            aria-hidden
+            style={{
+              position: 'fixed',
+              left: '50%',
+              bottom: `calc(var(--notice-h, 110px) + ${6 + (i % 2) * 12}px)`,
+              marginLeft: dx,
+              zIndex: 51,
+              width: 9,
+              height: 9,
+              borderRadius: '50%',
+              background: '#fff',
+              boxShadow: '0 0 8px 3px rgba(255,214,150,0.95)',
+              pointerEvents: 'none',
+            }}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: [0, 1, 0, 0.9, 0], scale: [0, 1.1, 0.5, 1, 0] }}
+            transition={{ duration: 2.0, delay: 1.0 + i * 0.16, times: [0, 0.22, 0.45, 0.7, 1], ease: 'easeOut' }}
+          />
+        ))}
       {show && (
         <motion.div
           key="notice"
