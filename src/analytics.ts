@@ -47,7 +47,7 @@ export interface RoundSummary {
   textLength: number
   moodPre: number | null // (+) 공놀이 전 기분
   moodPost: number | null // (+) 활동 직후 기분
-  moodDelta: number | null // pre - post (양수 = 가벼워짐)
+  moodDelta: number | null // moodPost - moodPre (양수 = 기분 좋아짐/개선)
 }
 
 function uuid(): string {
