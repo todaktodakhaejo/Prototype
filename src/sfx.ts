@@ -194,12 +194,12 @@ const voices: Partial<Record<SampleName, AudioBufferSourceNode>> = {}
 //  randomStart=긴 녹음에서 매번 다른 구간을 집어 단조롭지 않게. solo=직전 같은 소리를 끊어 겹침 방지.
 function playSample(
   name: SampleName,
-  opts: { rate?: number; gain?: number; loop?: boolean; dur?: number; randomStart?: boolean; solo?: boolean } = {},
+  opts: { rate?: number; gain?: number; loop?: boolean; dur?: number; randomStart?: boolean; solo?: boolean; softLp?: number } = {},
 ): AudioBufferSourceNode | null {
   const c = audio()
   const buf = buffers[name]
   if (!c || !master || !buf) return null
-  const { rate = 1, gain = 1, loop = false, dur, randomStart = false, solo = false } = opts
+  const { rate = 1, gain = 1, loop = false, dur, randomStart = false, solo = false, softLp } = opts
   if (solo && voices[name]) {
     try {
       voices[name]!.stop()
@@ -215,7 +215,17 @@ function playSample(
   const g = c.createGain()
   g.gain.value = gain
   src.connect(g)
-  g.connect(master)
+  // softLp가 있으면 날카로운 고역을 깎아 부드럽게(귀 아픔 방지)
+  if (softLp) {
+    const lp = c.createBiquadFilter()
+    lp.type = 'lowpass'
+    lp.frequency.value = softLp
+    lp.Q.value = 0.4
+    g.connect(lp)
+    lp.connect(master)
+  } else {
+    g.connect(master)
+  }
   const span = dur ?? 0.2
   const startAt = randomStart ? rnd() * Math.max(0, buf.duration - span - 0.05) : 0
   const t0 = c.currentTime
@@ -355,7 +365,7 @@ export function sfxShredGrind() {
 // 폭죽: 불꽃놀이 — '펑'(저음 붐) + 터지는 노이즈 + 차차차 흩어지는 불꽃 알갱이(길게)
 export function sfxShredBurst() {
   if (!enabled) return
-  if (playSample('firework', { gain: 1, dur: 1.6 })) return
+  if (playSample('firework', { gain: 0.55, dur: 1.6, softLp: 3200 })) return
   tone(160, 0.3, { type: 'sine', peak: 0.34, attack: 0.002, glideTo: 42 }) // 펑(붐)
   noise(0.18, { filter: 'lowpass', freq: 2600, sweepTo: 240, q: 0.8, peak: 0.28, attack: 0.001 }) // 터지는 순간
   for (let k = 0; k < 16; k++) {
@@ -430,7 +440,8 @@ export function sfxType(soft = false) {
 // 기분 척도: 값 바뀔 때 작고 부드러운 나무 틱(값 높을수록 살짝 높은 음)
 export function sfxMoodTick(value = 0) {
   if (!enabled) return
-  tone(320 + value * 38, 0.12, { type: 'triangle', peak: 0.12, attack: 0.004 })
+  tone(320 + value * 38, 0.14, { type: 'triangle', peak: 0.26, attack: 0.004 })
+  tone((320 + value * 38) * 2, 0.1, { type: 'sine', peak: 0.1, attack: 0.004 }) // 살짝 또렷한 배음
 }
 
 // 시작 안내: 소리 테스트(부드러운 상승 3음)
