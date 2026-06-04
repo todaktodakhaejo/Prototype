@@ -159,7 +159,23 @@ function noise(dur: number, o: NoiseOpts = {}) {
 const SAMPLES = ['slime', 'squelch', 'fire', 'firework', 'paper', 'shred', 'type'] as const
 type SampleName = (typeof SAMPLES)[number]
 const buffers: Partial<Record<SampleName, AudioBuffer | null>> = {} // undefined=미시도 / null=없음 / AudioBuffer=로드됨
+const onset: Partial<Record<SampleName, number>> = {} // 앞쪽 무음을 건너뛸 시작 지점(초) — 누름과 동시에 소리 나게
 let preloaded = false
+
+// 버퍼 앞부분 무음을 지나 '첫 소리'가 시작되는 지점(초)을 찾는다
+function detectOnset(buf: AudioBuffer): number {
+  try {
+    const d = buf.getChannelData(0)
+    const thr = 0.015
+    const step = Math.max(1, Math.floor(buf.sampleRate / 2000)) // ~0.5ms 간격으로 스캔
+    for (let i = 0; i < d.length; i += step) {
+      if (Math.abs(d[i]) > thr) return Math.max(0, i / buf.sampleRate - 0.004)
+    }
+  } catch {
+    /* noop */
+  }
+  return 0
+}
 
 function preloadSamples() {
   const c = audio()
@@ -178,6 +194,7 @@ function preloadSamples() {
       .then((ab) => (ab ? c.decodeAudioData(ab) : null))
       .then((buf) => {
         buffers[name] = buf ?? null
+        if (buf) onset[name] = detectOnset(buf) // 앞 무음 길이 기록 → 재생 시 건너뜀
       })
       .catch(() => {
         buffers[name] = null
@@ -227,7 +244,8 @@ function playSample(
     g.connect(master)
   }
   const span = dur ?? 0.2
-  const startAt = randomStart ? rnd() * Math.max(0, buf.duration - span - 0.05) : 0
+  // randomStart면 무작위 구간, 아니면 앞 무음을 건너뛴 '첫 소리' 지점부터 → 누름과 동시에 들림
+  const startAt = randomStart ? rnd() * Math.max(0, buf.duration - span - 0.05) : onset[name] ?? 0
   const t0 = c.currentTime
   src.start(t0, Math.min(startAt, Math.max(0, buf.duration - 0.06)))
   if (!loop && dur) {
