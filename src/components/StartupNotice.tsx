@@ -41,8 +41,32 @@ export default function StartupNotice() {
 
   return (
     <AnimatePresence>
+      {/* 놓치지 않도록 잠깐 은은하게 번지는 후광(뾰로롱) — 1회만, 과하지 않게 */}
       {show && (
         <motion.div
+          key="notice-glow"
+          aria-hidden
+          style={{
+            position: 'fixed',
+            left: '50%',
+            bottom: -8,
+            zIndex: 49,
+            width: 'min(92vw, 380px)',
+            height: 'calc(var(--notice-h, 90px) + 64px)',
+            borderRadius: 28,
+            background: 'radial-gradient(ellipse at center, rgba(255,224,196,0.55) 0%, rgba(255,214,224,0.32) 42%, rgba(255,214,224,0) 72%)',
+            filter: 'blur(9px)',
+            pointerEvents: 'none',
+          }}
+          initial={{ opacity: 0, scale: 0.92, x: '-50%' }}
+          animate={{ opacity: [0, 0.6, 0.28, 0.5, 0], scale: [0.92, 1.03, 1.0, 1.05, 1.09], x: '-50%' }}
+          exit={{ opacity: 0, x: '-50%', transition: { duration: 0.2 } }}
+          transition={{ duration: 2.8, delay: 1.0, times: [0, 0.18, 0.45, 0.72, 1], ease: 'easeInOut' }}
+        />
+      )}
+      {show && (
+        <motion.div
+          key="notice"
           ref={ref}
           // 중앙 하단 배치 — 가운데 정렬은 x:'-50%'로(애니메이션이 transform을 덮지 않게)
           initial={{ opacity: 0, x: '-50%', y: 14 }}
