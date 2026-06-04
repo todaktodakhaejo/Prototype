@@ -7,8 +7,15 @@ import { hapticShredTick, hapticShredBurst, stopVibration } from '../haptics'
 
 const GRIND_HAPTIC_PX = 26 // 갈기 진동 1펄스당 이동거리(px) — 빠를수록 촘촘
 
-const SPARKS = 50 // 불꽃놀이 '모양'(사방 방사)으로 터지는 종이 조각
-const SPARK_COLORS = ['#ffffff', '#fbf7f4', '#f3ede3', '#efe7da', '#f7f2ea', '#e7ddcd']
+// 알록달록한 색종이(흰색=밤티 방지) — 폭죽처럼 터진다
+const CONFETTI = ['#ff5e7e', '#ff9f3c', '#ffe14d', '#5ed87f', '#46c9e6', '#7c8cff', '#c46bff', '#ff7fc2']
+// 한 번 팡으로 끝나지 않게 — 위치·시점을 달리해 4번 연속 팡팡팡(각 웨이브마다 진동)
+const WAVES = [
+  { ox: 0, oy: 10, n: 26, delay: 0.0, sp: 165 },
+  { ox: -50, oy: -8, n: 22, delay: 0.36, sp: 140 },
+  { ox: 56, oy: 4, n: 22, delay: 0.72, sp: 148 },
+  { ox: -12, oy: 26, n: 24, delay: 1.06, sp: 158 },
+]
 const GRIND_DIST = 2000 // 이만큼(px) 문질러야 다 갈림 (더 오래 문지르도록)
 const TAP_BUMP = 0.025 // 탭/클릭 한 번마다 조금씩 갈림
 
@@ -34,13 +41,13 @@ export default function Shred({ text, onDone }: RitualProps) {
       fired.current = true
       setDone(true)
       setGrinding(false)
-      // 불꽃 터지는 한 방 + 잔불 한 번
-      hapticShredBurst()
-      const b1 = window.setTimeout(hapticShredBurst, 280)
-      const t = setTimeout(onDone, 3000)
+      // 폭죽이 4번 팡팡팡 — 각 웨이브 시점마다 진동 한 방씩
+      hapticShredBurst() // wave 0
+      const bursts = WAVES.slice(1).map((wv) => window.setTimeout(hapticShredBurst, Math.round(wv.delay * 1000)))
+      const t = setTimeout(onDone, 3400)
       return () => {
         clearTimeout(t)
-        clearTimeout(b1)
+        bursts.forEach(clearTimeout)
       }
     }
   }, [progress, onDone])
@@ -184,43 +191,50 @@ export default function Shred({ text, onDone }: RitualProps) {
         />
       </motion.div>
 
-      {/* 다 갈리면 — 먼저 분수처럼 솟아오르고(상승) 정점에서 불꽃처럼 사방으로 팡 → 흩날림 */}
-      {done && (
-        <motion.div
-          style={{ position: 'absolute', left: '50%', bottom: 156, width: 84, height: 84, marginLeft: -42, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,252,242,0.95) 0%, rgba(255,235,195,0.5) 38%, rgba(255,235,195,0) 70%)', zIndex: 4, pointerEvents: 'none' }}
-          initial={{ y: 0, scale: 0.2, opacity: 0 }}
-          animate={{ y: [0, -118, -118], scale: [0.2, 0.4, 1.9], opacity: [0, 0.6, 0] }}
-          transition={{ duration: 0.72, times: [0, 0.55, 1], ease: 'easeOut' }}
-        />
-      )}
+      {/* 다 갈리면 — 색종이 폭죽이 4번 힘차게 팡! (위치·시점 달리해 팡팡팡) */}
       {done &&
-        Array.from({ length: SPARKS }).map((_, i) => {
-          const ang = (i / SPARKS) * Math.PI * 2 + (rnd(i) - 0.5) * 0.4
-          const spread = 70 + rnd(i + 5) * 100 // 정점에서 사방으로 퍼지는 거리
-          const ex = Math.cos(ang) * spread
-          const ey = Math.sin(ang) * spread
-          const riseH = 96 + rnd(i + 21) * 54 // 분수처럼 솟는 높이
-          const grav = 70 + rnd(i + 9) * 110 // 터진 뒤 아래로 떨어짐
-          const wob = (rnd(i + 23) - 0.5) * 26 // 솟을 때 좌우 흔들림
-          const dur = 1.4 + rnd(i + 7) * 0.7
-          const dly = rnd(i + 3) * 0.1
-          const w = 2 + Math.round(rnd(i + 11) * 2)
-          const len = 7 + Math.round(rnd(i + 13) * 8)
-          const spin = (rnd(i + 15) < 0.5 ? -1 : 1) * (240 + rnd(i + 17) * 260)
+        WAVES.map((wave, wi) => {
+          const baseBottom = 170 + wave.oy
           return (
-            <motion.span
-              key={i}
-              style={{ position: 'absolute', left: '50%', bottom: 156, width: w, height: len, marginLeft: -w / 2, borderRadius: 1, background: SPARK_COLORS[i % SPARK_COLORS.length], boxShadow: '0 1px 1px rgba(0,0,0,0.12)', zIndex: 3, pointerEvents: 'none' }}
-              initial={{ x: 0, y: 0, opacity: 0, rotate: 0, scale: 0.5 }}
-              animate={{
-                x: [0, wob, ex * 0.5, ex],
-                y: [0, -riseH, -riseH + ey * 0.4, -riseH + ey + grav],
-                opacity: [0, 1, 1, 0],
-                rotate: [0, spin * 0.25, spin * 0.65, spin],
-                scale: [0.5, 1, 1, 0.85],
-              }}
-              transition={{ duration: dur, delay: dly, times: [0, 0.4, 0.55, 1], ease: 'easeOut' }}
-            />
+            <div key={`wave${wi}`}>
+              {/* 팡! 순간 섬광 */}
+              <motion.div
+                style={{ position: 'absolute', left: '50%', bottom: baseBottom, width: 100, height: 100, marginLeft: wave.ox - 50, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.98) 0%, rgba(255,236,170,0.6) 32%, rgba(255,236,170,0) 68%)', zIndex: 4, pointerEvents: 'none' }}
+                initial={{ scale: 0.2, opacity: 0 }}
+                animate={{ scale: [0.2, 1.7, 2.1], opacity: [0, 0.95, 0] }}
+                transition={{ duration: 0.5, delay: wave.delay, ease: 'easeOut' }}
+              />
+              {/* 사방으로 힘차게 터지는 색종이 */}
+              {Array.from({ length: wave.n }).map((_, i) => {
+                const seed = wi * 50 + i
+                const ang = (i / wave.n) * Math.PI * 2 + (rnd(seed) - 0.5) * 0.5
+                const speed = wave.sp * (0.6 + rnd(seed + 5) * 0.6) // 강하게, 다양하게
+                const ex = Math.cos(ang) * speed
+                const ey = Math.sin(ang) * speed // 음수=위
+                const grav = 90 + rnd(seed + 9) * 140 // 터진 뒤 떨어짐
+                const dur = 1.1 + rnd(seed + 7) * 0.7
+                const dly = wave.delay + rnd(seed + 3) * 0.05
+                const w = 4 + Math.round(rnd(seed + 11) * 4) // 색종이 폭 4~8px
+                const len = 5 + Math.round(rnd(seed + 13) * 7)
+                const spin = (rnd(seed + 15) < 0.5 ? -1 : 1) * (300 + rnd(seed + 17) * 380)
+                const color = CONFETTI[(i + wi * 3) % CONFETTI.length]
+                return (
+                  <motion.span
+                    key={`c${wi}_${i}`}
+                    style={{ position: 'absolute', left: '50%', bottom: baseBottom, width: w, height: len, marginLeft: wave.ox - w / 2, borderRadius: 1, background: color, boxShadow: '0 1px 2px rgba(0,0,0,0.2)', zIndex: 3, pointerEvents: 'none' }}
+                    initial={{ x: 0, y: 0, opacity: 0, rotate: 0, scale: 0.5 }}
+                    animate={{
+                      x: [0, ex * 0.85, ex, ex],
+                      y: [0, ey * 0.85, ey, ey + grav],
+                      opacity: [0, 1, 1, 0],
+                      rotate: [0, spin * 0.4, spin * 0.8, spin],
+                      scale: [0.5, 1.15, 1, 0.8],
+                    }}
+                    transition={{ duration: dur, delay: dly, times: [0, 0.18, 0.5, 1], ease: 'easeOut' }}
+                  />
+                )
+              })}
+            </div>
           )
         })}
 
