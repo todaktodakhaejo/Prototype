@@ -66,19 +66,30 @@ function GoldClasp({ w = 34, h = 22, silver = false }: { w?: number; h?: number;
   )
 }
 
-// 닫힌 보석함(정면 + 살짝 보이는 윗면 + 광택/음영/여밈선/금속림/코너) — 사실적 입체감
+// 영롱한 진주 — 좌상 하이라이트 + 무지갯빛 음영
+function Pearl({ size = 9 }: { size?: number }) {
+  return (
+    <div
+      style={{
+        width: size,
+        height: size,
+        borderRadius: '50%',
+        background: 'radial-gradient(circle at 34% 28%, #ffffff 0%, #fdf6ff 26%, #efe4f0 56%, #d6c4dd 82%, #c2afca 100%)',
+        boxShadow: '0 1px 2px rgba(80,60,90,0.4), inset 0 -1.5px 2px rgba(120,90,130,0.34), inset 1px 1px 1.5px rgba(255,255,255,0.85)',
+      }}
+    />
+  )
+}
+
+// 닫힌 보석함(정면 + 살짝 보이는 윗면 + 광택/음영/여밈선/금속림/진주) — 사실적 입체감
 // 부모(absolute, w178 h120)를 채우며 윗면은 위로 삐져나오게 그린다(부모 overflow:visible).
 function ClosedBoxInner({ night }: { night: boolean }) {
   const boxBg = night ? CREAM_BOX : LEATHER
   const topBg = night ? CREAM_TOP : NAVY_TOP
   const metal = night ? GOLD : SILVER
-  const metalSolid = night ? '#cf9f3e' : '#a9b3bf'
   const bodyShadow = night
     ? '0 20px 34px rgba(150,120,70,0.34), inset 0 2px 0 rgba(255,255,255,0.85), inset 0 -12px 22px rgba(170,140,90,0.2)'
     : '0 22px 40px rgba(20,26,45,0.55), inset 0 2px 0 rgba(255,255,255,0.22), inset 0 -14px 26px rgba(0,0,0,0.46)'
-  const corner = (s: React.CSSProperties) => (
-    <div style={{ position: 'absolute', width: 16, height: 16, borderColor: metalSolid, opacity: 0.85, boxShadow: '0 0 2px rgba(0,0,0,0.3)', ...s }} />
-  )
   return (
     <>
       {/* 뚜껑 윗면(두께) — 살짝 내려다본 사다리꼴(뒤가 좁음) */}
@@ -107,10 +118,14 @@ function ClosedBoxInner({ night }: { night: boolean }) {
         {/* 뚜껑·본체 여밈선 + 금속 트림 */}
         <div style={{ position: 'absolute', left: 0, right: 0, top: 40, height: 2, background: night ? 'rgba(150,120,80,0.35)' : 'rgba(0,0,0,0.4)', boxShadow: '0 1px 0 rgba(255,255,255,0.34)' }} />
         <div style={{ position: 'absolute', left: 14, right: 14, top: 39, height: 1, background: metal, opacity: 0.5 }} />
-        {/* 앞 하단 코너 프로텍터 */}
-        {corner({ left: 7, bottom: 7, borderLeft: `3px solid`, borderBottom: `3px solid`, borderRadius: '0 0 0 11px' })}
-        {corner({ right: 7, bottom: 7, borderRight: `3px solid`, borderBottom: `3px solid`, borderRadius: '0 0 11px 0' })}
       </div>
+
+      {/* 진주 장식(영롱하게 반짝) — 뚜껑 앞 라인에 박힘 */}
+      {[-46, -23, 0, 23, 46].map((dx, i) => (
+        <div key={`pearl${i}`} style={{ position: 'absolute', left: '50%', bottom: 93, marginLeft: dx - (i === 2 ? 5 : 4) }}>
+          <Pearl size={i === 2 ? 10 : 8} />
+        </div>
+      ))}
 
       {/* 클래스프(여밈선 위 중앙) */}
       <div style={{ position: 'absolute', left: '50%', bottom: 69, marginLeft: -17 }}>

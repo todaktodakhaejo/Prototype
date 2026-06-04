@@ -41,25 +41,44 @@ export default function MoodScale({ title, onSubmit, reserveBottom }: Props) {
         aria-label="기분 점수 (0~10)"
       />
 
-      {/* 양 끝 캡션 — 폴라리티 오인 방지 */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          width: '100%',
-          color: 'var(--on-bg)',
-          opacity: 0.75,
-          fontSize: 12,
-          lineHeight: 1.4,
-        }}
-      >
-        <span style={{ textAlign: 'left' }}>
-          0<br />
+      {/* 양 끝 캡션 — 폴라리티 오인 방지. 배경 무관하게 또렷하도록 진한 알약 + 굵게 */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+        <span
+          style={{
+            display: 'inline-flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            gap: 1,
+            color: '#fff',
+            fontSize: 14,
+            fontWeight: 700,
+            lineHeight: 1.25,
+            background: 'rgba(28,20,38,0.5)',
+            padding: '6px 13px',
+            borderRadius: 13,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+          }}
+        >
+          <span style={{ fontSize: 12, fontWeight: 600, opacity: 0.85 }}>0</span>
           {MOOD_LOW_LABEL}
         </span>
-        <span style={{ textAlign: 'right' }}>
-          {MOOD_MAX}
-          <br />
+        <span
+          style={{
+            display: 'inline-flex',
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            gap: 1,
+            color: '#fff',
+            fontSize: 14,
+            fontWeight: 700,
+            lineHeight: 1.25,
+            background: 'rgba(28,20,38,0.5)',
+            padding: '6px 13px',
+            borderRadius: 13,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+          }}
+        >
+          <span style={{ fontSize: 12, fontWeight: 600, opacity: 0.85 }}>{MOOD_MAX}</span>
           {MOOD_HIGH_LABEL}
         </span>
       </div>
