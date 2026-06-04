@@ -269,13 +269,20 @@ function playSample(
 
 // ── 공(말랑이): 끈적·물기 가득한 슬라임 결(음정 있는 '보잉'=탱탱볼 느낌을 빼고 젖은 노이즈 스퀄치로) ──
 // 꾹 누름: 슬라임이 끈적하게 눌리는 촉촉 스쿼시(저역 노이즈가 천천히 죄어들며 '슈읍')
+// 그냥 만질 때(누름/탭) — 촉촉 슬라임
 export function sfxPress() {
   if (!enabled) return
-  // 꾹 누르는 순간 '약간 터지는' 전용 소리(squelch). 없으면 slime, 그것도 없으면 합성.
-  if (playSample('squelch', { gain: 1, dur: 0.5, solo: true })) return
   if (playSample('slime', { rate: 0.9, gain: 1, dur: 0.42, randomStart: true, solo: true })) return
   noise(0.24, { filter: 'lowpass', freq: 820, sweepTo: 220, q: 1.2, peak: 0.18, attack: 0.025 })
   noise(0.1, { filter: 'lowpass', freq: 420, sweepTo: 180, q: 1, peak: 0.09, attack: 0.008, delay: 0.04 })
+}
+// 꾹 눌러 다음으로 넘어가는 순간(롱프레스 완료) — '약간 터지는' squelch
+export function sfxSquelch() {
+  if (!enabled) return
+  if (playSample('squelch', { gain: 1, dur: 0.7, solo: true })) return
+  // 합성 fallback: 터지는 듯한 젖은 팝
+  noise(0.2, { filter: 'lowpass', freq: 950, sweepTo: 280, q: 1.4, peak: 0.2, attack: 0.004 })
+  tone(180, 0.12, { type: 'sine', peak: 0.1, attack: 0.003, glideTo: 90 })
 }
 // 조물딱(문지름): 짧고 가벼운 물기 스퀄치(자주 울리므로 여리게)
 export function sfxRub() {

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValue, useVelocity, useSpring, useTransform } from 'framer-motion'
 import { LONG_PRESS_MS } from '../constants'
 import { hapticPress, hapticRelease, hapticRubTick, hapticWallHit, stopVibration } from '../haptics'
+import { sfxSquelch } from '../sfx'
 
 // 문지름 햅틱: 이동 누적거리 이만큼마다 1펄스 (작을수록 촘촘 = 빠를수록 빈도↑)
 const RUB_STEP_PX = 14
@@ -236,6 +237,7 @@ export default function JellyBall({ onLongPress, onPressStart, onPlayActive, fai
     timerRef.current = window.setTimeout(() => {
       timerRef.current = null
       setPressing(false)
+      sfxSquelch() // 꾹 눌러 다음으로 넘어가는 '터지는' 순간에만 squelch
       closeActive() // 진입 직전까지의 누름 시간 회수
       onLongPress?.()
     }, LONG_PRESS_MS)
