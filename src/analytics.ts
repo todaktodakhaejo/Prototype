@@ -11,6 +11,8 @@
 //        websocket은 상태 서버가 필요하고 모바일에서 끊겨 유실되기 쉬워 집계형 KPI엔 부적합.
 // ─────────────────────────────────────────────────────────────
 
+import { phCapture } from './posthog'
+
 const LS_ROUNDS = 'heulim.kpi.rounds'
 const LS_UID = 'heulim.kpi.uid'
 const MAX_STORED = 500 // localStorage 무한 증가 방지
@@ -78,7 +80,7 @@ function persistentUid(): string {
 
 // ── 세션/라운드 상태 (모듈 싱글턴) ──
 const SESSION_ID = uuid()
-const UID = persistentUid()
+export const UID = persistentUid() // 익명 기기 ID — PostHog distinct_id로도 사용
 
 interface CurrentRound {
   roundIndex: number
@@ -240,7 +242,8 @@ export function endRound(force?: RoundType): RoundSummary | null {
   }
   current = null
   appendRound(summary)
-  sendRound(summary)
+  sendRound(summary) // 구글시트(병행)
+  phCapture('kpi_round', summary as unknown as Record<string, unknown>) // PostHog(병행)
   // 테스트 중 즉시 확인용
   try {
     // eslint-disable-next-line no-console

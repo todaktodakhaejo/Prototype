@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from './store'
 import { useTimeOfDay } from './hooks/useTimeOfDay'
+import { phCapture } from './posthog'
 import Onboarding from './screens/Onboarding'
 import MoodPre from './screens/MoodPre'
 import Home from './screens/Home'
@@ -31,6 +33,11 @@ export default function App() {
   const step = useStore((s) => s.step)
   const tod = useTimeOfDay()
   const Screen = SCREENS[step]
+
+  // 화면 전환마다 PostHog screen_view 이벤트(퍼널/리텐션 분석용)
+  useEffect(() => {
+    phCapture('screen_view', { step })
+  }, [step])
 
   return (
     <>
