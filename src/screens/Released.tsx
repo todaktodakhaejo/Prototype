@@ -7,9 +7,11 @@ import { RELEASE_PAUSE_MS, RELEASED_TITLE, RELEASED_TITLE_BALL, RELEASED_SUBTITL
 // 공놀이만 한 경로(ball_only)는 '환기'가 아니므로 다른 멘트를 보여준다.
 export default function Released() {
   const afterReleased = useStore((s) => s.afterReleased)
-  const postRoundType = useStore((s) => s.postRoundType)
   const [showMsg, setShowMsg] = useState(false)
-  const title = postRoundType === 'ball_only' ? RELEASED_TITLE_BALL : RELEASED_TITLE
+  // 완료 멘트는 '진입 시점' 경로로 고정한다. afterReleased가 다음 라운드로 넘어가며
+  // postRoundType을 null로 리셋하는데, 이 화면이 크로스페이드로 빠져나가는 동안 아직 마운트돼 있어
+  // 구독값이 바뀌면 멘트가 기본값('환기가 끝났어요')으로 잠깐 바뀌는 잔상이 생긴다. → mount 시 1회 고정.
+  const [title] = useState(() => (useStore.getState().postRoundType === 'ball_only' ? RELEASED_TITLE_BALL : RELEASED_TITLE))
 
   useEffect(() => {
     const t1 = setTimeout(() => setShowMsg(true), RELEASE_PAUSE_MS)
