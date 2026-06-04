@@ -68,6 +68,7 @@ export function unlockAudio(): void {
   const c = audio()
   if (!c) return
   if (c.state === 'suspended') c.resume().catch(() => {})
+  preloadSamples() // public/sfx/*.mp3 있으면 미리 로드(없으면 합성 유지)
   if (!unlocked) {
     unlocked = true
     try {
@@ -152,21 +153,74 @@ function noise(dur: number, o: NoiseOpts = {}) {
   src.stop(t0 + dur + 0.03)
 }
 
+// ── 하이브리드: public/sfx/<name>.mp3 있으면 '진짜 음원' 재생, 없으면 아래 합성으로 자동 대체 ──
+// 넣을 수 있는 파일(있으면 그 소리, 없으면 합성):
+//   slime.mp3(말랑이) · fire.mp3(장작, 루프) · firework.mp3(폭죽) · paper.mp3(종이접기) · shred.mp3(파쇄) · type.mp3(타자)
+const SAMPLES = ['slime', 'fire', 'firework', 'paper', 'shred', 'type'] as const
+type SampleName = (typeof SAMPLES)[number]
+const buffers: Partial<Record<SampleName, AudioBuffer | null>> = {} // undefined=미시도 / null=없음 / AudioBuffer=로드됨
+let preloaded = false
+
+function preloadSamples() {
+  const c = audio()
+  if (!c || preloaded) return
+  preloaded = true
+  const base = (import.meta as unknown as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '/'
+  SAMPLES.forEach((name) => {
+    fetch(`${base}sfx/${name}.mp3`)
+      .then((r) => {
+        if (!r.ok) {
+          buffers[name] = null
+          return null
+        }
+        return r.arrayBuffer()
+      })
+      .then((ab) => (ab ? c.decodeAudioData(ab) : null))
+      .then((buf) => {
+        buffers[name] = buf ?? null
+      })
+      .catch(() => {
+        buffers[name] = null
+      })
+  })
+}
+
+// 샘플 재생(있을 때만). loop면 정지용 소스 반환.
+function playSample(name: SampleName, opts: { rate?: number; gain?: number; loop?: boolean } = {}): AudioBufferSourceNode | null {
+  const c = audio()
+  const buf = buffers[name]
+  if (!c || !master || !buf) return null
+  const { rate = 1, gain = 1, loop = false } = opts
+  const src = c.createBufferSource()
+  src.buffer = buf
+  src.loop = loop
+  src.playbackRate.value = rate
+  const g = c.createGain()
+  g.gain.value = gain
+  src.connect(g)
+  g.connect(master)
+  src.start()
+  return src
+}
+
 // ── 공(말랑이): 끈적·물기 가득한 슬라임 결(음정 있는 '보잉'=탱탱볼 느낌을 빼고 젖은 노이즈 스퀄치로) ──
 // 꾹 누름: 슬라임이 끈적하게 눌리는 촉촉 스쿼시(저역 노이즈가 천천히 죄어들며 '슈읍')
 export function sfxPress() {
   if (!enabled) return
+  if (playSample('slime', { rate: 0.9, gain: 1 })) return
   noise(0.24, { filter: 'lowpass', freq: 820, sweepTo: 220, q: 1.2, peak: 0.18, attack: 0.025 })
   noise(0.1, { filter: 'lowpass', freq: 420, sweepTo: 180, q: 1, peak: 0.09, attack: 0.008, delay: 0.04 })
 }
 // 조물딱(문지름): 짧고 가벼운 물기 스퀄치(자주 울리므로 여리게)
 export function sfxRub() {
   if (!enabled) return
+  if (playSample('slime', { rate: 1.35, gain: 0.5 })) return
   noise(0.06, { filter: 'lowpass', freq: 560 + rnd() * 260, sweepTo: 320 + rnd() * 120, q: 1.1, peak: 0.06, attack: 0.004 })
 }
 // 놓음: 끈적하게 떨어지며 늘어나는 슈러읍(suction) — 보잉 아님
 export function sfxRelease() {
   if (!enabled) return
+  if (playSample('slime', { rate: 1.1, gain: 0.95 })) return
   noise(0.18, { filter: 'lowpass', freq: 460, sweepTo: 1020, q: 1.1, peak: 0.13, attack: 0.02 })
   noise(0.07, { filter: 'bandpass', freq: 1300, q: 1, peak: 0.05, attack: 0.004, delay: 0.05 })
 }
@@ -174,16 +228,24 @@ export function sfxRelease() {
 export function sfxWall(strength = 0.5) {
   if (!enabled) return
   const s = clamp(strength)
+  if (playSample('slime', { rate: 0.8, gain: 0.7 + s * 0.4 })) return
   noise(0.12, { filter: 'lowpass', freq: 540, sweepTo: 160, q: 1.2, peak: 0.09 + s * 0.13, attack: 0.002 })
   tone(70, 0.1, { type: 'sine', peak: 0.05 + s * 0.09, attack: 0.002 })
 }
 
 // ── 태우기: 장작 ASMR = 낮은 우르릉 + 공기 쉬익(hiss) 두 겹 bed + 타닥 크래클 ─────
 let fireNodes: { src: AudioBufferSourceNode; g: GainNode; lfo: OscillatorNode }[] = []
+let fireSample: AudioBufferSourceNode | null = null
 export function sfxFireStart() {
   if (!enabled) return
   const c = audio()
-  if (!c || !master || fireNodes.length) return
+  if (!c || !master || fireNodes.length || fireSample) return
+  // fire.mp3 있으면 진짜 장작소리를 잔잔히 루프
+  const s = playSample('fire', { loop: true, gain: 0.8 })
+  if (s) {
+    fireSample = s
+    return
+  }
   const layer = (type: BiquadFilterType, freq: number, q: number, peak: number, lfoHz: number, lfoDepth: number) => {
     const src = c.createBufferSource()
     src.buffer = getNoise(c)
@@ -214,7 +276,16 @@ export function sfxFireStart() {
 }
 export function stopFire() {
   const c = audio()
-  if (!fireNodes.length || !c) return
+  if (!c) return
+  if (fireSample) {
+    try {
+      fireSample.stop(c.currentTime + 0.4)
+    } catch {
+      /* noop */
+    }
+    fireSample = null
+  }
+  if (!fireNodes.length) return
   fireNodes.forEach(({ src, g, lfo }) => {
     try {
       g.gain.cancelScheduledValues(c.currentTime)
@@ -241,12 +312,14 @@ export function sfxBurn() {
 // 갈기: 진짜 종이가 갈리는 소리 — 모터 저역 그르릉 + 종이 찢기는 거친 중역(지직)
 export function sfxShredGrind() {
   if (!enabled) return
+  if (playSample('shred', { rate: 0.9 + rnd() * 0.3, gain: 0.5 })) return
   noise(0.1, { filter: 'lowpass', freq: 360 + rnd() * 120, q: 0.7, peak: 0.05, attack: 0.006 }) // 모터 그르릉
   noise(0.07, { filter: 'bandpass', freq: 1500 + rnd() * 900, q: 1.4, peak: 0.07, attack: 0.003 }) // 종이 찢기는 지직
 }
 // 폭죽: 불꽃놀이 — '펑'(저음 붐) + 터지는 노이즈 + 차차차 흩어지는 불꽃 알갱이(길게)
 export function sfxShredBurst() {
   if (!enabled) return
+  if (playSample('firework', { gain: 1 })) return
   tone(160, 0.3, { type: 'sine', peak: 0.34, attack: 0.002, glideTo: 42 }) // 펑(붐)
   noise(0.18, { filter: 'lowpass', freq: 2600, sweepTo: 240, q: 0.8, peak: 0.28, attack: 0.001 }) // 터지는 순간
   for (let k = 0; k < 16; k++) {
@@ -259,6 +332,7 @@ export function sfxShredBurst() {
 // 종이 접힘: 종이 구겨지는 바삭바삭(불규칙한 아주 짧은 광대역 알갱이 다발 — 스윕·공명 없이 = 용수철 느낌 제거)
 export function sfxPaperFold() {
   if (!enabled) return
+  if (playSample('paper', { gain: 1 })) return
   // 사부작 알갱이 다발 — 짧고 무작위로 촘촘히(구김 텍스처)
   for (let k = 0; k < 26; k++) {
     noise(0.006 + rnd() * 0.012, { filter: 'highpass', freq: 2600 + rnd() * 1800, q: 0.4, peak: 0.04 + rnd() * 0.035, attack: 0.001, delay: rnd() * 0.85 })
@@ -313,6 +387,7 @@ export function sfxHaloShimmer() {
 export function sfxType(soft = false) {
   if (!enabled) return
   const v = soft ? 0.55 : 1
+  if (playSample('type', { rate: 0.95 + rnd() * 0.15, gain: v })) return
   noise(0.02, { filter: 'bandpass', freq: 2300 + rnd() * 700, q: 2.6, peak: 0.16 * v, attack: 0.001 })
   tone(150 + rnd() * 50, 0.045, { type: 'triangle', peak: 0.12 * v, attack: 0.002 })
 }
