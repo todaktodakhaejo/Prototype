@@ -28,8 +28,23 @@ export default function MoodScale({ title, onSubmit, reserveBottom }: Props) {
         {title}
       </p>
 
-      {/* 현재 선택값 (크게) */}
-      <div className="serif" style={{ color: 'var(--on-bg)', fontSize: 46, lineHeight: 1 }}>
+      {/* 현재 선택값 (크게) — Instrument Serif의 올드스타일 숫자(높이 들쭉날쭉) 회피:
+          Gowun Batang + 라이닝/고정폭 숫자 + 가운데 고정 박스로 자리·정렬 안정화 */}
+      <div
+        style={{
+          color: 'var(--on-bg)',
+          fontFamily: 'var(--batang)',
+          fontSize: 46,
+          fontWeight: 700,
+          lineHeight: 1,
+          fontVariantNumeric: 'lining-nums tabular-nums',
+          minWidth: 64,
+          height: 50,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         {value}
       </div>
 
