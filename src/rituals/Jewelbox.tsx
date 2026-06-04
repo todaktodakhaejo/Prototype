@@ -118,14 +118,23 @@ function ClosedBoxInner({ night }: { night: boolean }) {
         {/* 뚜껑·본체 여밈선 + 금속 트림 */}
         <div style={{ position: 'absolute', left: 0, right: 0, top: 40, height: 2, background: night ? 'rgba(150,120,80,0.35)' : 'rgba(0,0,0,0.4)', boxShadow: '0 1px 0 rgba(255,255,255,0.34)' }} />
         <div style={{ position: 'absolute', left: 14, right: 14, top: 39, height: 1, background: metal, opacity: 0.5 }} />
-      </div>
-
-      {/* 진주 장식(영롱하게 반짝) — 뚜껑 앞 라인에 박힘 */}
-      {[-46, -23, 0, 23, 46].map((dx, i) => (
-        <div key={`pearl${i}`} style={{ position: 'absolute', left: '50%', bottom: 93, marginLeft: dx - (i === 2 ? 5 : 4) }}>
-          <Pearl size={i === 2 ? 10 : 8} />
+        {/* 하단부 X자 교차 퀼트 패턴 + 교점마다 진주 */}
+        <div style={{ position: 'absolute', left: 0, right: 0, top: 42, bottom: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+          <div style={{ position: 'absolute', inset: 0, opacity: 0.6, backgroundImage: 'repeating-linear-gradient(45deg, rgba(150,118,76,0.34) 0 1.2px, transparent 1.2px 19.8px), repeating-linear-gradient(-45deg, rgba(150,118,76,0.34) 0 1.2px, transparent 1.2px 19.8px)' }} />
+          {(() => {
+            const pts: { x: number; y: number }[] = []
+            ;[8, 22, 36, 50, 64].forEach((y, r) => {
+              const off = (r % 2) * 14
+              for (let x = -70 + off; x <= 72; x += 28) pts.push({ x, y })
+            })
+            return pts.map((p, i) => (
+              <div key={`qp${i}`} style={{ position: 'absolute', left: '50%', top: p.y, marginLeft: p.x - 3 }}>
+                <Pearl size={6} />
+              </div>
+            ))
+          })()}
         </div>
-      ))}
+      </div>
 
       {/* 클래스프(여밈선 위 중앙) */}
       <div style={{ position: 'absolute', left: '50%', bottom: 69, marginLeft: -17 }}>
@@ -155,7 +164,7 @@ function Gem({ size = 96, tone = 'clear' }: { size?: number; tone?: 'clear' | 'g
   const c =
     tone === 'gold'
       ? { table: '#fff6c8', crown: '#ffe084', girdle: '#eabb52', pavL: '#ffdc78', pavC: '#fffbe6', pavR: '#dca63f', glow: 'rgba(255,216,108,0.95)', f1: 'rgba(178,236,150,0.3)', f2: 'rgba(255,228,132,0.32)' }
-      : { table: '#eef5fd', crown: '#cfe0f1', girdle: '#bcd3ea', pavL: '#b6cde6', pavC: '#e3effb', pavR: '#a6c1df', glow: 'rgba(190,225,255,0.85)', f1: 'rgba(120,210,180,0.22)', f2: 'rgba(180,150,230,0.22)' }
+      : { table: '#f5faff', crown: '#d6e8fb', girdle: '#bcd6f0', pavL: '#bcd7f1', pavC: '#ecf5ff', pavR: '#a9c8ec', glow: 'rgba(180,216,255,0.92)', f1: 'rgba(150,200,255,0.28)', f2: 'rgba(200,224,255,0.26)' }
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden style={{ filter: `drop-shadow(0 0 10px ${c.glow})` }}>
       <polygon points="36,12 64,12 74,38 26,38" fill={c.table} />
@@ -200,7 +209,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
 
   const boxBg = night ? CREAM_BOX : LEATHER
   const innerSatin = night ? SATIN_NIGHT : SATIN
-  const gemTone: 'clear' | 'gold' = night ? 'gold' : 'clear'
+  const gemTone: 'clear' | 'gold' = 'clear' // 하늘빛 도는 흰 다이아몬드
 
   useEffect(
     () => () => {

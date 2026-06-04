@@ -41,44 +41,14 @@ export default function MoodScale({ title, onSubmit, reserveBottom }: Props) {
         aria-label="기분 점수 (0~10)"
       />
 
-      {/* 양 끝 캡션 — 폴라리티 오인 방지. 배경 무관하게 또렷하도록 진한 알약 + 굵게 */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
-        <span
-          style={{
-            display: 'inline-flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start',
-            gap: 1,
-            color: '#fff',
-            fontSize: 14,
-            fontWeight: 700,
-            lineHeight: 1.25,
-            background: 'rgba(28,20,38,0.5)',
-            padding: '6px 13px',
-            borderRadius: 13,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
-          }}
-        >
-          <span style={{ fontSize: 12, fontWeight: 600, opacity: 0.85 }}>0</span>
+      {/* 양 끝 캡션 — 폴라리티 오인 방지. 박스 없이 글씨만 굵고 크게(배경별 대비색 --on-bg 사용) */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%', color: 'var(--on-bg)' }}>
+        <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start', gap: 1, fontSize: 15, fontWeight: 800, lineHeight: 1.25, textShadow: '0 1px 2px rgba(0,0,0,0.22)' }}>
+          <span style={{ fontSize: 13, fontWeight: 700, opacity: 0.8 }}>0</span>
           {MOOD_LOW_LABEL}
         </span>
-        <span
-          style={{
-            display: 'inline-flex',
-            flexDirection: 'column',
-            alignItems: 'flex-end',
-            gap: 1,
-            color: '#fff',
-            fontSize: 14,
-            fontWeight: 700,
-            lineHeight: 1.25,
-            background: 'rgba(28,20,38,0.5)',
-            padding: '6px 13px',
-            borderRadius: 13,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
-          }}
-        >
-          <span style={{ fontSize: 12, fontWeight: 600, opacity: 0.85 }}>{MOOD_MAX}</span>
+        <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1, fontSize: 15, fontWeight: 800, lineHeight: 1.25, textShadow: '0 1px 2px rgba(0,0,0,0.22)' }}>
+          <span style={{ fontSize: 13, fontWeight: 700, opacity: 0.8 }}>{MOOD_MAX}</span>
           {MOOD_HIGH_LABEL}
         </span>
       </div>
