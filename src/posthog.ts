@@ -5,7 +5,9 @@
 import posthog from 'posthog-js'
 
 const env = (import.meta as unknown as { env?: Record<string, string | undefined> }).env ?? {}
-const KEY = env.VITE_POSTHOG_KEY
+// phc_… 는 브라우저에 노출되도록 설계된 '공개 클라이언트 토큰'이라 코드에 둬도 안전.
+// (필요하면 Vercel 환경변수 VITE_POSTHOG_KEY/HOST 로 덮어쓸 수 있음)
+const KEY = env.VITE_POSTHOG_KEY || 'phc_rL4xbEAoGxPxbfgE7ZLvs77zDYBABEu6CPARPL56YD9B'
 const HOST = env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com'
 
 export const POSTHOG_ENABLED = !!KEY
