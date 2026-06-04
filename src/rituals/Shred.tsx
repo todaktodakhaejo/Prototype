@@ -61,8 +61,8 @@ export default function Shred({ text, onDone }: RitualProps) {
   // 본체가 '드래그 방향을 그대로 따라' 기울고 이동(스프링) — 고정 키프레임 반복(부자연) 대신 직접 조작.
   const dragX = useMotionValue(0)
   const dragRot = useMotionValue(0)
-  const bodyX = useSpring(dragX, { stiffness: 240, damping: 14, mass: 0.7 })
-  const bodyRot = useSpring(dragRot, { stiffness: 240, damping: 14, mass: 0.7 })
+  const bodyX = useSpring(dragX, { stiffness: 170, damping: 12, mass: 0.9 })
+  const bodyRot = useSpring(dragRot, { stiffness: 170, damping: 12, mass: 0.9 })
   const lastMoveTs = useRef(0)
 
   // 손가락이 멈추면(최근 이동 없음) 목표를 0으로 감쇠 → 스프링이 중앙으로 부드럽게 복귀(seamless)
@@ -74,9 +74,9 @@ export default function Shred({ text, onDone }: RitualProps) {
     }
     let raf = 0
     const tick = () => {
-      if (Date.now() - lastMoveTs.current > 55) {
-        dragX.set(dragX.get() * 0.8)
-        dragRot.set(dragRot.get() * 0.8)
+      if (Date.now() - lastMoveTs.current > 60) {
+        dragX.set(dragX.get() * 0.86)
+        dragRot.set(dragRot.get() * 0.86)
       }
       raf = requestAnimationFrame(tick)
     }
@@ -91,10 +91,10 @@ export default function Shred({ text, onDone }: RitualProps) {
       const dx = p.x - last.current.x
       const d = Math.abs(dx) + Math.abs(p.y - last.current.y)
       setProgress((v) => Math.min(1, v + d / GRIND_DIST))
-      // 드래그한 방향·속도 그대로 본체가 따라감(끝으로 갈수록 더 크게 반응)
-      const gain = 1.0 + progress * 0.7
-      dragX.set(clamp(dragX.get() * 0.45 + dx * gain, -98, 98))
-      dragRot.set(clamp(dragRot.get() * 0.45 + dx * 0.17 * gain, -14, 14))
+      // 드래그한 방향·속도 그대로 본체가 따라감(크게 반응, 직전값을 이어받아 출렁임 유지)
+      const gain = 2.6 + progress * 1.8
+      dragX.set(clamp(dragX.get() * 0.6 + dx * gain, -112, 112))
+      dragRot.set(clamp(dragRot.get() * 0.6 + dx * 0.24 * gain, -16, 16))
       lastMoveTs.current = Date.now()
       // 갈리는 동안 잘게 끊기는 진동 — 이동 누적거리마다 한 펄스
       grindAcc.current += d

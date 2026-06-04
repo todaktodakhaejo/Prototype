@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { MOOD_MAX, MOOD_LOW_LABEL, MOOD_HIGH_LABEL } from '../constants'
+import { sfxMoodTick } from '../sfx'
 
 interface Props {
   title: string
@@ -40,7 +41,11 @@ export default function MoodScale({ title, onSubmit, reserveBottom }: Props) {
         max={MOOD_MAX}
         step={1}
         value={value}
-        onChange={(e) => setValue(Number(e.target.value))}
+        onChange={(e) => {
+          const v = Number(e.target.value)
+          if (v !== value) sfxMoodTick(v) // 값 바뀔 때 작고 부드러운 틱
+          setValue(v)
+        }}
         aria-label="기분 점수 (0~10)"
       />
 

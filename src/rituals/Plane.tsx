@@ -5,6 +5,7 @@ import Gauge from './Gauge'
 import { useTimeOfDay } from '../hooks/useTimeOfDay'
 import { rotatingMessage, PLANE_MESSAGES } from '../constants'
 import { hapticTension, hapticLaunch, stopVibration } from '../haptics'
+import { sfxPaperFold } from '../sfx'
 
 const PULL_HAPTIC_PX = 12 // 당기는 긴장감 진동 1펄스당 당김 변화량(px)
 
@@ -322,7 +323,10 @@ export default function Plane({ text, onDone }: RitualProps) {
       {/* paper: 종이(글) — 탭하면 비행기로 접힘 */}
       {phase === 'paper' && (
         <motion.div
-          onTap={() => setPhase('folding')}
+          onTap={() => {
+            sfxPaperFold() // 종이 사그락사그락
+            setPhase('folding')
+          }}
           whileTap={{ scale: 0.97 }}
           style={{
             position: 'absolute',

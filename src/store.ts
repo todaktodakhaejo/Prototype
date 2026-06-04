@@ -20,11 +20,10 @@ function readCount(): number {
   }
 }
 
-// 라운드 시작점 — 온보딩 전이면 온보딩, 그 외엔 '무조건' 기분척도(MOOD_PRE)부터.
-//   KPI 플래그와 무관하게 시작을 결정론적으로 고정한다(공이 먼저 뜨는 사례 방지).
+// 라운드 시작점 — 누가 어떤 상태로 열든 '무조건' 기분척도(MOOD_PRE)부터.
+//   온보딩(말랑이) 화면을 첫 화면으로 두지 않는다(테스터가 공/말랑이로 시작하는 사례 제거).
 //   kpi.startRound()은 KPI 비활성 시 내부에서 no-op이라 항상 호출해도 안전.
 function entryStep(): Step {
-  if (!readBool(LS_ONBOARDED)) return 'ONBOARDING'
   kpi.startRound()
   return 'MOOD_PRE'
 }

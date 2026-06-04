@@ -1,9 +1,17 @@
 import { useStore } from '../store'
+import { sfxType } from '../sfx'
 
 export default function Write() {
   const draftText = useStore((s) => s.draftText)
   const setDraft = useStore((s) => s.setDraft)
   const goPickRitual = useStore((s) => s.goPickRitual)
+
+  // 실제 입력 순간에 맞춰 타자기 소리(글자 추가=또렷 / 삭제=여리게)
+  const onType = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const v = e.target.value
+    if (v.length !== draftText.length) sfxType(v.length < draftText.length)
+    setDraft(v)
+  }
 
   return (
     <>
@@ -14,7 +22,7 @@ export default function Write() {
       <textarea
         autoFocus
         value={draftText}
-        onChange={(e) => setDraft(e.target.value)}
+        onChange={onType}
         placeholder="아무도 보지 않아요. 마구 적어 내려가도 괜찮아요."
         style={{
           width: '100%',

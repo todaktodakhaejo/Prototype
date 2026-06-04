@@ -4,6 +4,7 @@ import type { RitualProps } from './index'
 import Gauge from './Gauge'
 import { rotatingMessage, BURN_MESSAGES } from '../constants'
 import { hapticBurnTick, stopVibration } from '../haptics'
+import { sfxFireStart, stopFire } from '../sfx'
 
 // 타오르는 진동 간격: 아래(느림)→위(잦음). 진행도 0→1에서 이 사이로 좁혀진다.
 const BURN_GAP_SLOW_MS = 300 // 막 붙었을 때(아래) — 드문드문
@@ -120,10 +121,11 @@ export default function Burn({ text, onDone }: RitualProps) {
     if (!lit || !pressing || done) return
     let id = 0
     let alive = true
+    sfxFireStart() // 지속되는 장작 불소리(bed) — 타는 동안
     const loop = () => {
       if (!alive) return
       const p = Math.max(0, Math.min(1, progressRef.current))
-      hapticBurnTick()
+      hapticBurnTick() // 진동 + 타닥 크래클
       const gap = Math.round(BURN_GAP_SLOW_MS - p * (BURN_GAP_SLOW_MS - BURN_GAP_FAST_MS))
       id = window.setTimeout(loop, gap)
     }
@@ -132,6 +134,7 @@ export default function Burn({ text, onDone }: RitualProps) {
       alive = false
       window.clearTimeout(id)
       stopVibration()
+      stopFire() // 떼거나 끝나면 불소리 잦아듦
     }
   }, [lit, pressing, done])
 
