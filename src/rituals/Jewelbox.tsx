@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, type PanInfo } from 'framer-motion'
 import type { RitualProps } from './index'
-import { useTimeOfDay } from '../hooks/useTimeOfDay'
 import { rotatingMessage, JEWELBOX_MESSAGES } from '../constants'
 import { hapticJewelStore, hapticHeartbeat, stopVibration } from '../haptics'
 
@@ -119,7 +118,7 @@ function ClosedBoxInner({ night }: { night: boolean }) {
 function Gem({ size = 96, tone = 'clear' }: { size?: number; tone?: 'clear' | 'gold' }) {
   const c =
     tone === 'gold'
-      ? { table: '#ffe49a', crown: '#f0c860', girdle: '#cf9f3e', pavL: '#e6bd5c', pavC: '#fff0b0', pavR: '#b9882c', glow: 'rgba(255,196,70,0.95)', f1: 'rgba(255,180,70,0.3)', f2: 'rgba(255,150,40,0.25)' }
+      ? { table: '#fff6c8', crown: '#ffe084', girdle: '#eabb52', pavL: '#ffdc78', pavC: '#fffbe6', pavR: '#dca63f', glow: 'rgba(255,216,108,0.95)', f1: 'rgba(178,236,150,0.3)', f2: 'rgba(255,228,132,0.32)' }
       : { table: '#eef5fd', crown: '#cfe0f1', girdle: '#bcd3ea', pavL: '#b6cde6', pavC: '#e3effb', pavR: '#a6c1df', glow: 'rgba(190,225,255,0.85)', f1: 'rgba(120,210,180,0.22)', f2: 'rgba(180,150,230,0.22)' }
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden style={{ filter: `drop-shadow(0 0 10px ${c.glow})` }}>
@@ -153,9 +152,8 @@ const NEW_SEAT_Y = 188 // 새 보석이 꽂히는 중앙 자리(센터 기준 �
 
 export default function Jewelbox({ text, onDone }: RitualProps) {
   const [msg] = useState(() => rotatingMessage('jewelbox', JEWELBOX_MESSAGES))
-  // 어두운/노을 배경(밤·새벽·노을) → 크림 보석함 + 골드 보석 / 그 외(일출·낮) → 네이비 벨벳 + 화이트 다이아 + 실버 클래스프
-  const tod = useTimeOfDay()
-  const night = tod === 'night' || tod === 'pre-dawn' || tod === 'dusk'
+  // 시간대와 무관하게 크림 보석함 + 골드 보석 + 골드 클래스프로 통일
+  const night = true
   const [stored, setStored] = useState(false)
   const [open, setOpen] = useState(false)
   const [closing, setClosing] = useState(false) // 뚜껑이 닫히기 시작(열린-뚜껑·내부 정리)
