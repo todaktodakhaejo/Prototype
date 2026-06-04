@@ -18,7 +18,7 @@ const WAVES = [
   { ox: 14, n: 22, delay: 0.66, sp: 152, up: 108 },
   { ox: -4, n: 24, delay: 0.98, sp: 160, up: 114 },
 ]
-const GRIND_DIST = 3400 // 이만큼(px) 문질러야 다 갈림 (더 오래 문지르도록 — 너무 빨리 안 끝나게)
+const GRIND_DIST = 5400 // 이만큼(px) 문질러야 다 갈림 (게이지 더 천천히 — 더 많이 흔들어야 완전 파쇄)
 
 const rnd = (n: number) => {
   const x = Math.sin(n * 12.9898) * 43758.5453

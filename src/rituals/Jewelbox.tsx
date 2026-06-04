@@ -249,6 +249,8 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
 
   return (
     <div style={{ position: 'relative', width: 240, height: 300, touchAction: 'none' }}>
+      {/* 캡션은 고정, 종이·보석함(및 모든 효과)만 함께 아래로 내려 캡션과 간격 확보 */}
+      <div style={{ position: 'absolute', inset: 0, transform: 'translateY(24px)' }}>
       {/* 후광 (닫힌 뒤 뾰로롱) */}
       <motion.div
         style={{ position: 'absolute', left: '50%', top: '66%', width: 280, height: 280, marginLeft: -140, marginTop: -140, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,250,233,0.98) 0%, rgba(255,239,190,0.6) 30%, rgba(231,201,122,0.4) 50%, rgba(231,201,122,0) 72%)', pointerEvents: 'none' }}
@@ -456,6 +458,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
         </>
       )}
 
+      </div>
       {/* 상단 행위 안내 캡션 */}
       {!stored && (
         <div style={{ position: 'absolute', top: -44, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>

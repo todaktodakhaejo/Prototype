@@ -32,29 +32,26 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* 중앙: 위로 멘트 + 공 */}
-      <AnimatePresence>
-        {!cleared && (
-          <motion.p
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 0.9, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 1 }}
-            className="serif"
-            style={{
-              color: 'var(--on-bg)',
-              fontSize: 18,
-              lineHeight: 1.8,
-              marginBottom: 48,
-              whiteSpace: 'pre-line',
-              maxWidth: 300,
-              textAlign: 'center',
-            }}
-          >
-            {message}
-          </motion.p>
-        )}
-      </AnimatePresence>
+      {/* 중앙: 위로 멘트 + 공.
+          멘트 자리를 고정 높이로 '예약'해 둠 → 멘트가 사라져도(opacity만 변함) 공이 위로 튀지 않음. */}
+      <div style={{ height: 92, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+        <motion.p
+          className="serif"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: cleared ? 0 : 0.9, y: cleared ? -6 : 0 }}
+          transition={{ duration: cleared ? 0.6 : 1 }}
+          style={{
+            color: 'var(--on-bg)',
+            fontSize: 18,
+            lineHeight: 1.8,
+            whiteSpace: 'pre-line',
+            maxWidth: 300,
+            textAlign: 'center',
+          }}
+        >
+          {message}
+        </motion.p>
+      </div>
 
       <JellyBall
         onPressStart={() => setCleared(true)}
