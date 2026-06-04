@@ -5,7 +5,7 @@ import Gauge from './Gauge'
 import { useTimeOfDay } from '../hooks/useTimeOfDay'
 import { rotatingMessage, PLANE_MESSAGES } from '../constants'
 import { hapticTension, hapticLaunch, stopVibration } from '../haptics'
-import { sfxPaperFold } from '../sfx'
+import { sfxPaperFold, sfxStarTwinkle } from '../sfx'
 
 const PULL_HAPTIC_PX = 12 // 당기는 긴장감 진동 1펄스당 당김 변화량(px)
 
@@ -269,6 +269,7 @@ export default function Plane({ text, onDone }: RitualProps) {
   // 별이 반짝인 뒤 마무리
   useEffect(() => {
     if (phase !== 'star') return
+    sfxStarTwinkle() // 별이 되어 찬란하게 반짝
     const t = setTimeout(onDone, 3000) // 별빛 + 구름들이 떠오르는 동안 머무름
     return () => clearTimeout(t)
   }, [phase, onDone])

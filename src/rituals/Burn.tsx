@@ -4,7 +4,7 @@ import type { RitualProps } from './index'
 import Gauge from './Gauge'
 import { rotatingMessage, BURN_MESSAGES } from '../constants'
 import { hapticBurnTick, stopVibration } from '../haptics'
-import { sfxFireStart, stopFire } from '../sfx'
+import { sfxFireStart, stopFire, sfxSoftWind } from '../sfx'
 
 // 타오르는 진동 간격: 아래(느림)→위(잦음). 진행도 0→1에서 이 사이로 좁혀진다.
 const BURN_GAP_SLOW_MS = 300 // 막 붙었을 때(아래) — 드문드문
@@ -143,6 +143,8 @@ export default function Burn({ text, onDone }: RitualProps) {
     if (progress >= 1 && !fired.current) {
       fired.current = true
       setDone(true)
+      stopFire() // 불소리 잦아듦
+      sfxSoftWind() // 잿가루가 바람에 날려와 쌓이는 부드러운 바람
       const t = setTimeout(onDone, HOLD_MSG * 1000)
       return () => clearTimeout(t)
     }

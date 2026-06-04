@@ -139,9 +139,10 @@ export default function Shred({ text, onDone }: RitualProps) {
       onPointerLeave={stop}
       onPointerCancel={stop}
     >
-      {/* 종이(글) — 슬롯 높이에서 클립. 문지른 만큼 투입구로 빨려 들어감 */}
+      {/* 종이(글) — 기계 위에 얹혀 투입구(슬롯)로 빨려 들어가는 연출.
+          본체보다 위(zIndex 3)에 두고 슬롯 입구(높이 132)에서 클립 → 슬롯 속으로 사라지는 느낌. */}
       <div
-        style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 140, overflow: 'hidden', zIndex: 1, pointerEvents: 'none' }}
+        style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 132, overflow: 'hidden', zIndex: 3, pointerEvents: 'none' }}
       >
         <div
           style={{
@@ -163,11 +164,15 @@ export default function Shred({ text, onDone }: RitualProps) {
             overflow: 'hidden',
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-word',
-            transform: `translateY(${fed}px)`,
+            transformOrigin: '50% 0%',
+            // 투입구로 끌려 들어가며 살짝 좁아짐(빨려드는 느낌)
+            transform: `translateY(${fed}px) scaleX(${1 - progress * 0.1})`,
           }}
         >
           {text}
         </div>
+        {/* 슬롯 입구 그림자 — 종이가 어둠(투입구) 속으로 들어가는 느낌 */}
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 20, background: 'linear-gradient(0deg, rgba(18,16,22,0.92) 0%, rgba(18,16,22,0) 100%)', pointerEvents: 'none' }} />
       </div>
 
       {/* 파쇄기 본체 — 드래그 방향을 그대로 따라 기울고 이동(스프링), 멈추면 중앙 복귀 */}
@@ -184,6 +189,7 @@ export default function Shred({ text, onDone }: RitualProps) {
           background: 'linear-gradient(180deg, #4a4754 0%, #2c2a34 100%)',
           border: '1px solid rgba(255,255,255,0.12)',
           boxShadow: '0 18px 34px rgba(0,0,0,0.4)',
+          touchAction: 'none', // 본체를 잡고 흔들어도 브라우저가 가로채지 않게(드래그 추종 보장)
           x: bodyX,
           rotate: bodyRot,
         }}

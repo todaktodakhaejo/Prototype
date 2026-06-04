@@ -152,110 +152,134 @@ function noise(dur: number, o: NoiseOpts = {}) {
   src.stop(t0 + dur + 0.03)
 }
 
-// ── 공(말랑이): 물방울 + 슬라임 = 몰랑몰랑 ──────────────────────
-// 누름: 위에서 톡 떨어지는 물방울(피치 하강) + 촉촉한 슬라임 눌림
+// ── 공(말랑이): 동작별로 다르되 모두 '물기 가득한 슬라임/물방울' 결 ──
+// 꾹 누름: 슬라임이 천천히 눌리는 촉촉한 스쿼시(저역 노이즈 스웰 + 낮은 피치 하강)
 export function sfxPress() {
   if (!enabled) return
-  tone(880, 0.2, { type: 'sine', peak: 0.26, attack: 0.004, glideTo: 360 })
-  noise(0.14, { filter: 'lowpass', freq: 700, sweepTo: 300, q: 0.8, peak: 0.12, attack: 0.006 })
+  noise(0.26, { filter: 'lowpass', freq: 760, sweepTo: 240, q: 0.9, peak: 0.16, attack: 0.03 })
+  tone(300, 0.24, { type: 'sine', peak: 0.12, attack: 0.02, glideTo: 150 })
 }
-// 뗌: 슬라임이 손에서 몰랑 떨어지는 느낌(피치 살짝 상승 + 촉촉)
-export function sfxRelease() {
-  if (!enabled) return
-  tone(300, 0.22, { type: 'sine', peak: 0.2, attack: 0.01, glideTo: 520 })
-  noise(0.1, { filter: 'lowpass', freq: 520, peak: 0.08, attack: 0.006 })
-}
-// 문지름: 촉촉한 슬라임 브러시(아주 여리게)
+// 조물딱(문지름): 짧고 가벼운 물기 스퀄치(자주 울리므로 여리게)
 export function sfxRub() {
   if (!enabled) return
-  noise(0.08, { filter: 'lowpass', freq: 480 + rnd() * 160, q: 0.6, peak: 0.05, attack: 0.006 })
+  noise(0.07, { filter: 'lowpass', freq: 560 + rnd() * 220, q: 0.9, peak: 0.055, attack: 0.004, sweepTo: 380 })
+  if (rnd() < 0.5) tone(520 + rnd() * 160, 0.06, { type: 'sine', peak: 0.03, attack: 0.003 })
 }
-// 벽 충돌: 푹신한 쿠션 thud(저역, 세기 비례)
+// 튕김(놓아서 통통): 탱글한 물방울 보잉(피치 상승) + 촉촉
+export function sfxRelease() {
+  if (!enabled) return
+  tone(260, 0.26, { type: 'sine', peak: 0.22, attack: 0.006, glideTo: 760 })
+  noise(0.12, { filter: 'lowpass', freq: 900, sweepTo: 500, q: 0.8, peak: 0.08, attack: 0.004 })
+}
+// 벽 충돌: 물컹 부딪는 젖은 스플랫(세기 비례, 저역)
 export function sfxWall(strength = 0.5) {
   if (!enabled) return
   const s = clamp(strength)
-  tone(120 + s * 40, 0.2, { type: 'sine', peak: 0.1 + s * 0.16, attack: 0.003, glideTo: 70 })
-  noise(0.1, { filter: 'lowpass', freq: 240, peak: 0.05 + s * 0.08 })
+  noise(0.12, { filter: 'lowpass', freq: 600, sweepTo: 180, q: 0.9, peak: 0.08 + s * 0.12, attack: 0.002 })
+  tone(180, 0.16, { type: 'sine', peak: 0.08 + s * 0.14, attack: 0.002, glideTo: 90 })
 }
 
-// ── 태우기: 장작 타는 소리 = 지속 불소리(bed) + 타닥 크래클 ─────
-let fire: { src: AudioBufferSourceNode; g: GainNode; lfo: OscillatorNode } | null = null
+// ── 태우기: 장작 ASMR = 낮은 우르릉 + 공기 쉬익(hiss) 두 겹 bed + 타닥 크래클 ─────
+let fireNodes: { src: AudioBufferSourceNode; g: GainNode; lfo: OscillatorNode }[] = []
 export function sfxFireStart() {
   if (!enabled) return
   const c = audio()
-  if (!c || !master || fire) return
-  const src = c.createBufferSource()
-  src.buffer = getNoise(c)
-  src.loop = true
-  const lp = c.createBiquadFilter()
-  lp.type = 'lowpass'
-  lp.frequency.value = 760
-  lp.Q.value = 0.5
-  const g = c.createGain()
-  g.gain.setValueAtTime(0.0001, c.currentTime)
-  g.gain.exponentialRampToValueAtTime(0.07, c.currentTime + 0.5) // 서서히 번지는 불소리
-  // 불꽃 일렁임(flicker) — gain을 미세하게 흔듦
-  const lfo = c.createOscillator()
-  lfo.type = 'sine'
-  lfo.frequency.value = 6.5
-  const lfoGain = c.createGain()
-  lfoGain.gain.value = 0.03
-  lfo.connect(lfoGain)
-  lfoGain.connect(g.gain)
-  src.connect(lp)
-  lp.connect(g)
-  g.connect(master)
-  src.start()
-  lfo.start()
-  fire = { src, g, lfo }
+  if (!c || !master || fireNodes.length) return
+  const layer = (type: BiquadFilterType, freq: number, q: number, peak: number, lfoHz: number, lfoDepth: number) => {
+    const src = c.createBufferSource()
+    src.buffer = getNoise(c)
+    src.loop = true
+    const f = c.createBiquadFilter()
+    f.type = type
+    f.frequency.value = freq
+    f.Q.value = q
+    const g = c.createGain()
+    g.gain.setValueAtTime(0.0001, c.currentTime)
+    g.gain.exponentialRampToValueAtTime(peak, c.currentTime + 0.5)
+    const lfo = c.createOscillator()
+    lfo.type = 'sine'
+    lfo.frequency.value = lfoHz
+    const lg = c.createGain()
+    lg.gain.value = lfoDepth
+    lfo.connect(lg)
+    lg.connect(g.gain)
+    src.connect(f)
+    f.connect(g)
+    g.connect(master!)
+    src.start()
+    lfo.start()
+    fireNodes.push({ src, g, lfo })
+  }
+  layer('lowpass', 300, 0.6, 0.06, 3.2, 0.022) // 낮게 우르릉 타오르는 몸체
+  layer('bandpass', 1500, 1.0, 0.045, 8.5, 0.02) // 공기 쉬익(hiss)
 }
 export function stopFire() {
   const c = audio()
-  if (!fire || !c) return
-  const { src, g, lfo } = fire
-  try {
-    g.gain.cancelScheduledValues(c.currentTime)
-    g.gain.setValueAtTime(Math.max(0.0002, g.gain.value), c.currentTime)
-    g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + 0.4)
-    src.stop(c.currentTime + 0.45)
-    lfo.stop(c.currentTime + 0.45)
-  } catch {
-    /* noop */
-  }
-  fire = null
+  if (!fireNodes.length || !c) return
+  fireNodes.forEach(({ src, g, lfo }) => {
+    try {
+      g.gain.cancelScheduledValues(c.currentTime)
+      g.gain.setValueAtTime(Math.max(0.0002, g.gain.value), c.currentTime)
+      g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + 0.4)
+      src.stop(c.currentTime + 0.45)
+      lfo.stop(c.currentTime + 0.45)
+    } catch {
+      /* noop */
+    }
+  })
+  fireNodes = []
 }
-// 타닥 — 장작 크래클(낮고 둥근 노이즈 팝 + 가끔 나무 울림, 랜덤). 타자기처럼 안 들리게 lowpass.
+// 타닥 — 장작 크래클: 둥근 팝 + 가끔 톡 튀는 스냅 + 낮은 나무 울림(밀도 높여 더 '불'답게)
 export function sfxBurn() {
   if (!enabled) return
-  noise(0.04, { filter: 'lowpass', freq: 1300 + rnd() * 900, q: 1.1, peak: 0.09, attack: 0.002 })
-  if (rnd() < 0.45) noise(0.025, { filter: 'lowpass', freq: 900 + rnd() * 700, q: 1, peak: 0.06, attack: 0.002, delay: 0.02 + rnd() * 0.05 })
-  if (rnd() < 0.3) tone(70 + rnd() * 50, 0.1, { type: 'triangle', peak: 0.07, attack: 0.004 })
+  noise(0.038, { filter: 'lowpass', freq: 1200 + rnd() * 800, q: 1.1, peak: 0.085, attack: 0.002 })
+  if (rnd() < 0.6) noise(0.018, { filter: 'bandpass', freq: 2200 + rnd() * 1400, q: 2, peak: 0.06, attack: 0.001, delay: 0.015 + rnd() * 0.05 }) // 톡 튀는 스냅
+  if (rnd() < 0.4) noise(0.03, { filter: 'lowpass', freq: 800 + rnd() * 500, q: 1, peak: 0.05, attack: 0.002, delay: 0.04 + rnd() * 0.06 })
+  if (rnd() < 0.28) tone(64 + rnd() * 44, 0.12, { type: 'triangle', peak: 0.07, attack: 0.004 }) // 낮은 나무 울림
 }
 
 // ── 파쇄기 ──────────────────────────────────────────────────
-// 갈기: 부들부들 부드러운 저역(날카롭지 않게)
+// 갈기: 진짜 종이가 갈리는 소리 — 모터 저역 그르릉 + 종이 찢기는 거친 중역(지직)
 export function sfxShredGrind() {
   if (!enabled) return
-  noise(0.1, { filter: 'lowpass', freq: 540 + rnd() * 240, q: 0.5, peak: 0.06, attack: 0.008 })
+  noise(0.1, { filter: 'lowpass', freq: 360 + rnd() * 120, q: 0.7, peak: 0.05, attack: 0.006 }) // 모터 그르릉
+  noise(0.07, { filter: 'bandpass', freq: 1500 + rnd() * 900, q: 1.4, peak: 0.07, attack: 0.003 }) // 종이 찢기는 지직
 }
-// 폭죽: 진짜 '펑' — 저음 붐(피치 급강하) + 노이즈 버스트 + 차르르 잔불
+// 폭죽: 불꽃놀이 — '펑'(저음 붐) + 터지는 노이즈 + 차차차 흩어지는 불꽃 알갱이(길게)
 export function sfxShredBurst() {
   if (!enabled) return
-  tone(150, 0.3, { type: 'sine', peak: 0.34, attack: 0.002, glideTo: 44 }) // 펑(붐)
-  noise(0.16, { filter: 'lowpass', freq: 2200, sweepTo: 280, q: 0.8, peak: 0.26, attack: 0.001 })
-  for (let k = 0; k < 8; k++) {
-    noise(0.022, { filter: 'bandpass', freq: 1500 + rnd() * 2600, q: 2.2, peak: 0.05, attack: 0.002, delay: 0.08 + k * 0.05 + rnd() * 0.03 })
+  tone(160, 0.3, { type: 'sine', peak: 0.34, attack: 0.002, glideTo: 42 }) // 펑(붐)
+  noise(0.18, { filter: 'lowpass', freq: 2600, sweepTo: 240, q: 0.8, peak: 0.28, attack: 0.001 }) // 터지는 순간
+  for (let k = 0; k < 16; k++) {
+    // 사방으로 흩어지며 차차차 타는 불꽃 알갱이(밝은 고역, 길게 흩날림)
+    noise(0.02 + rnd() * 0.015, { filter: 'bandpass', freq: 2000 + rnd() * 3200, q: 2.6, peak: 0.05, attack: 0.002, delay: 0.06 + k * 0.045 + rnd() * 0.04 })
   }
 }
 
 // ── 날리기 ──────────────────────────────────────────────────
-// 종이 접힘: 사그락사그락 — 불규칙한 미세 노이즈 알갱이 다수
+// 종이 접힘: A4 사부작 — 넓은 대역 노이즈 스트로크가 겹치며 스윽스윽(고립된 클릭 아님)
 export function sfxPaperFold() {
   if (!enabled) return
-  const n = 14
-  for (let k = 0; k < n; k++) {
-    noise(0.014 + rnd() * 0.01, { filter: 'bandpass', freq: 2400 + rnd() * 3000, q: 3, peak: 0.045 + rnd() * 0.03, attack: 0.002, delay: rnd() * 0.7 })
+  // 길게 스윽 쓸리는 종이 결 스트로크 5~6개를 겹쳐 부드럽게
+  for (let k = 0; k < 6; k++) {
+    noise(0.1 + rnd() * 0.08, { filter: 'highpass', freq: 1200 + rnd() * 900, q: 0.5, peak: 0.05 + rnd() * 0.025, attack: 0.02, delay: k * 0.13 + rnd() * 0.05 })
   }
+  // 접히는 순간 또렷한 접힘 두어 번(살짝 도드라지게)
+  noise(0.05, { filter: 'highpass', freq: 1800, q: 0.5, peak: 0.07, attack: 0.004, delay: 0.18 })
+  noise(0.05, { filter: 'highpass', freq: 1600, q: 0.5, peak: 0.06, attack: 0.004, delay: 0.5 })
+}
+// 잿가루 될 때: 부드러운 바람 한 줄기
+export function sfxSoftWind() {
+  if (!enabled) return
+  noise(1.4, { filter: 'bandpass', freq: 460, sweepTo: 820, q: 0.9, peak: 0.06, attack: 0.5 })
+  noise(1.2, { filter: 'lowpass', freq: 700, sweepTo: 520, q: 0.6, peak: 0.035, attack: 0.45, delay: 0.1 })
+}
+// 비행기가 별이 되어 반짝일 때: 찬란한 반짝(밝은 고음 벨이 쏟아지고 빛 스웰)
+export function sfxStarTwinkle() {
+  if (!enabled) return
+  const notes = [1568, 2093, 2637, 3136, 2349, 1760]
+  notes.forEach((f, i) => tone(f, 0.7 - i * 0.04, { type: 'triangle', peak: 0.13 - i * 0.012, attack: 0.004, delay: i * 0.06 }))
+  tone(784, 0.95, { type: 'sine', peak: 0.08, attack: 0.06, delay: 0.02 }) // 빛 스웰
 }
 // 당김: 여린 상승 긴장음
 export function sfxTension(power = 0.5) {
@@ -289,9 +313,9 @@ export function sfxHaloShimmer() {
 // 타자: 키 한 번 — 또렷한 클릭(밴드패스) + 낮은 thunk. 키마다 살짝 다른 피치(진짜 타자기 느낌). del=여리게.
 export function sfxType(soft = false) {
   if (!enabled) return
-  const v = soft ? 0.5 : 1
-  noise(0.018, { filter: 'bandpass', freq: 2300 + rnd() * 700, q: 2.6, peak: 0.07 * v, attack: 0.001 })
-  tone(150 + rnd() * 50, 0.04, { type: 'triangle', peak: 0.05 * v, attack: 0.002 })
+  const v = soft ? 0.55 : 1
+  noise(0.02, { filter: 'bandpass', freq: 2300 + rnd() * 700, q: 2.6, peak: 0.16 * v, attack: 0.001 })
+  tone(150 + rnd() * 50, 0.045, { type: 'triangle', peak: 0.12 * v, attack: 0.002 })
 }
 // 기분 척도: 값 바뀔 때 작고 부드러운 나무 틱(값 높을수록 살짝 높은 음)
 export function sfxMoodTick(value = 0) {
