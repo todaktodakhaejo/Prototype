@@ -28,6 +28,11 @@ export const RITUAL_AGAIN_TITLE = '환기가 끝났어요.\n더 해볼까요?'
 export const RITUAL_AGAIN_MORE = '환기 더 하기'
 export const RITUAL_AGAIN_END = '오늘은 여기까지 할래요'
 
+// 완료(RELEASED) 화면 멘트 — 환기까지 한 경우 / 공놀이만 한 경우 구분
+export const RELEASED_TITLE = '환기가 끝났어요' // 환기(의식)까지 마친 경로
+export const RELEASED_TITLE_BALL = '마음을 토닥였어요' // 공놀이만 한 경로(환기 아님)
+export const RELEASED_SUBTITLE = '처음으로 돌아가요'
+
 // ── 의식 완료 멘트 (의식별 3종, 할 때마다 번갈아 노출) ──
 export const BURN_MESSAGES = [
   '어느덧 작은 한 줌이 되었네요',
