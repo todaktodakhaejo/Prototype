@@ -64,41 +64,37 @@ export default function StartupNotice() {
             backdropFilter: 'blur(6px)',
             WebkitBackdropFilter: 'blur(6px)',
             fontFamily: 'var(--batang)',
-            fontSize: 11.5,
-            lineHeight: 1.5,
+            fontSize: 11,
+            lineHeight: 1.38,
             textAlign: 'left',
           }}
         >
           <button
             onClick={() => setDismissed(true)}
             aria-label="닫기"
-            style={{ position: 'absolute', top: 8, right: 10, border: 'none', background: 'none', cursor: 'pointer', color: 'var(--ink-mute)', fontSize: 17, lineHeight: 1 }}
+            style={{ position: 'absolute', top: 6, right: 9, border: 'none', background: 'none', cursor: 'pointer', color: 'var(--ink-mute)', fontSize: 16, lineHeight: 1 }}
           >
             ×
           </button>
 
-          <p style={{ fontWeight: 700, marginBottom: 4 }}>📳 진동(햅틱) 안내</p>
-          <p>이 앱은 손끝에 전해지는 진동이 중요한 경험이에요.</p>
-
-          <p style={{ marginTop: 6 }}>
-            <b>📴 무음 · 방해금지 · 절전 모드는 꼭 꺼 주세요.</b>
+          <p style={{ fontWeight: 700, marginBottom: 3 }}>📳 진동(햅틱) 안내</p>
+          <p>
+            <b>무음 · 방해금지 · 절전 모드를 꺼 주세요.</b>
           </p>
-
-          <p style={{ marginTop: 6 }}>
-            ✅ 진동은 <b>안드로이드</b>의 <b>크롬 · 삼성인터넷 · 엣지</b>에서만 느껴져요.
+          <p style={{ marginTop: 4 }}>
+            ✅ <b>안드로이드</b> 크롬 · 삼성인터넷 · 엣지에서만 진동이 느껴져요.
           </p>
-
-          <p style={{ marginTop: 6, color: '#c0246a' }}>
-            <b>⚠️ 아이폰(아이폰은 크롬을 써도 안 돼요) · 데스크톱 사파리 · 파이어폭스 · 카카오톡 등 앱 속 브라우저에서는 진동이 작동하지 않아요.</b>
+          <p style={{ marginTop: 4, color: '#c0246a' }}>
+            <b>⚠️ 아이폰은 크롬을 써도 안 돼요. 사파리 · 파이어폭스 · 카톡 등 인앱 브라우저도 미지원.</b>
           </p>
 
           <button
             onClick={testVibe}
-            style={{ marginTop: 8, padding: '5px 12px', borderRadius: 999, border: 'none', background: 'var(--jelly-pink, #f4b8c7)', color: '#5a2238', fontFamily: 'var(--batang)', fontSize: 11.5, fontWeight: 700, cursor: 'pointer' }}
+            style={{ marginTop: 7, padding: '4px 11px', borderRadius: 999, border: 'none', background: 'var(--jelly-pink, #f4b8c7)', color: '#5a2238', fontFamily: 'var(--batang)', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
           >
             🔔 진동 느껴보기
           </button>
-          {vibeMsg && <p style={{ marginTop: 6, fontSize: 11, color: 'var(--ink-mute)' }}>{vibeMsg}</p>}
+          {vibeMsg && <p style={{ marginTop: 5, fontSize: 10.5, color: 'var(--ink-mute)' }}>{vibeMsg}</p>}
         </motion.div>
       )}
     </AnimatePresence>

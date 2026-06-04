@@ -18,8 +18,10 @@ export default function MoodScale({ title, onSubmit, reserveBottom }: Props) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      // reserveBottom: 시작화면 안내 말풍선(--notice-h)만큼 + 여유를 하단에 비워 [확인] 버튼이 말풍선과 겹치지 않게
-      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22, width: '100%', maxWidth: 340, paddingBottom: reserveBottom ? 'calc(var(--notice-h, 0px) + 40px)' : 0 }}
+      // reserveBottom: 시작화면 안내 말풍선과 [확인] 버튼이 겹치지 않게 하단 여백 확보.
+      //   .screen이 가운데 정렬이라 paddingBottom의 '절반'만큼 콘텐츠가 위로 올라간다 → 과도하게 위로
+      //   치우치지 않도록 말풍선 높이의 약 절반만 확보(겹침 방지엔 충분).
+      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22, width: '100%', maxWidth: 340, paddingBottom: reserveBottom ? 'calc(var(--notice-h, 0px) * 0.5 + 16px)' : 0 }}
     >
       <p className="serif" style={{ color: 'var(--on-bg)', fontSize: 18, lineHeight: 1.5, maxWidth: 320, whiteSpace: 'pre-line' }}>
         {title}
