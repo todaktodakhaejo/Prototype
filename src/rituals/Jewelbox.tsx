@@ -120,7 +120,7 @@ function ClosedBoxInner({ night }: { night: boolean }) {
         <div style={{ position: 'absolute', left: 14, right: 14, top: 39, height: 1, background: metal, opacity: 0.5 }} />
         {/* 하단부 X자 교차 퀼트 패턴 + 교점마다 진주 */}
         <div style={{ position: 'absolute', left: 0, right: 0, top: 42, bottom: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-          <div style={{ position: 'absolute', inset: 0, opacity: 0.6, backgroundImage: 'repeating-linear-gradient(45deg, rgba(150,118,76,0.34) 0 1.2px, transparent 1.2px 19.8px), repeating-linear-gradient(-45deg, rgba(150,118,76,0.34) 0 1.2px, transparent 1.2px 19.8px)' }} />
+          <div style={{ position: 'absolute', inset: 0, opacity: 0.22, backgroundImage: 'repeating-linear-gradient(45deg, rgba(150,118,76,0.16) 0 1px, transparent 1px 19.8px), repeating-linear-gradient(-45deg, rgba(150,118,76,0.16) 0 1px, transparent 1px 19.8px)' }} />
           {(() => {
             const pts: { x: number; y: number }[] = []
             ;[8, 22, 36, 50, 64].forEach((y, r) => {
@@ -128,8 +128,8 @@ function ClosedBoxInner({ night }: { night: boolean }) {
               for (let x = -70 + off; x <= 72; x += 28) pts.push({ x, y })
             })
             return pts.map((p, i) => (
-              <div key={`qp${i}`} style={{ position: 'absolute', left: '50%', top: p.y, marginLeft: p.x - 3 }}>
-                <Pearl size={6} />
+              <div key={`qp${i}`} style={{ position: 'absolute', left: '50%', top: p.y, marginLeft: p.x - 2.5, opacity: 0.4 }}>
+                <Pearl size={5} />
               </div>
             ))
           })()}
