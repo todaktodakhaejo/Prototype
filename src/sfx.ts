@@ -156,7 +156,7 @@ function noise(dur: number, o: NoiseOpts = {}) {
 // ── 하이브리드: public/sfx/<name>.mp3 있으면 '진짜 음원' 재생, 없으면 아래 합성으로 자동 대체 ──
 // 넣을 수 있는 파일(있으면 그 소리, 없으면 합성):
 //   slime.mp3(말랑이) · fire.mp3(장작, 루프) · firework.mp3(폭죽) · paper.mp3(종이접기) · shred.mp3(파쇄) · type.mp3(타자)
-const SAMPLES = ['slime', 'fire', 'firework', 'paper', 'shred', 'type'] as const
+const SAMPLES = ['slime', 'squelch', 'fire', 'firework', 'paper', 'shred', 'type'] as const
 type SampleName = (typeof SAMPLES)[number]
 const buffers: Partial<Record<SampleName, AudioBuffer | null>> = {} // undefined=미시도 / null=없음 / AudioBuffer=로드됨
 let preloaded = false
@@ -253,6 +253,8 @@ function playSample(
 // 꾹 누름: 슬라임이 끈적하게 눌리는 촉촉 스쿼시(저역 노이즈가 천천히 죄어들며 '슈읍')
 export function sfxPress() {
   if (!enabled) return
+  // 꾹 누르는 순간 '약간 터지는' 전용 소리(squelch). 없으면 slime, 그것도 없으면 합성.
+  if (playSample('squelch', { gain: 1, dur: 0.5, solo: true })) return
   if (playSample('slime', { rate: 0.9, gain: 1, dur: 0.42, randomStart: true, solo: true })) return
   noise(0.24, { filter: 'lowpass', freq: 820, sweepTo: 220, q: 1.2, peak: 0.18, attack: 0.025 })
   noise(0.1, { filter: 'lowpass', freq: 420, sweepTo: 180, q: 1, peak: 0.09, attack: 0.008, delay: 0.04 })
