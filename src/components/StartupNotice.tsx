@@ -53,11 +53,11 @@ export default function StartupNotice() {
             left: '50%',
             bottom: 12,
             zIndex: 50,
-            // 가로로 넓혀 줄바꿈을 줄임 → 세로 높이가 짧아져 시작 질문이 덜 위로 치우침
-            width: 'min(95vw, 416px)',
+            // 화면을 꽉 채우지 않게 적당한 폭 + 내부 여백 최소화(오른쪽 빈 공간 줄임)
+            width: 'min(82vw, 326px)',
             maxHeight: '40vh',
             overflowY: 'auto',
-            padding: '10px 26px 11px 14px',
+            padding: '9px 18px 10px 12px',
             borderRadius: 14,
             background: 'rgba(255,255,255,0.95)',
             color: 'var(--ink)',
