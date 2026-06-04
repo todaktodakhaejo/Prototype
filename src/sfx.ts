@@ -177,6 +177,26 @@ function detectOnset(buf: AudioBuffer): number {
   return 0
 }
 
+// 가장 큰 소리(임팩트=뿌직) 지점 직전을 찾는다 — 트리거 즉시 그 임팩트가 터지게
+function detectPeak(buf: AudioBuffer): number {
+  try {
+    const d = buf.getChannelData(0)
+    const step = Math.max(1, Math.floor(buf.sampleRate / 4000))
+    let max = 0
+    let idx = 0
+    for (let i = 0; i < d.length; i += step) {
+      const a = Math.abs(d[i])
+      if (a > max) {
+        max = a
+        idx = i
+      }
+    }
+    return Math.max(0, idx / buf.sampleRate - 0.02) // 정점 살짝 전부터
+  } catch {
+    return 0
+  }
+}
+
 function preloadSamples() {
   const c = audio()
   if (!c || preloaded) return
@@ -194,7 +214,8 @@ function preloadSamples() {
       .then((ab) => (ab ? c.decodeAudioData(ab) : null))
       .then((buf) => {
         buffers[name] = buf ?? null
-        if (buf) onset[name] = detectOnset(buf) // 앞 무음 길이 기록 → 재생 시 건너뜀
+        // 일반 샘플은 앞 무음만 스킵 / squelch는 '뿌직' 임팩트 지점부터 시작(전환과 딱 맞게)
+        if (buf) onset[name] = name === 'squelch' ? detectPeak(buf) : detectOnset(buf)
       })
       .catch(() => {
         buffers[name] = null
@@ -279,7 +300,7 @@ export function sfxPress() {
 // 꾹 눌러 다음으로 넘어가는 순간(롱프레스 완료) — '약간 터지는' squelch
 export function sfxSquelch() {
   if (!enabled) return
-  if (playSample('squelch', { gain: 1, dur: 0.7, solo: true })) return
+  if (playSample('squelch', { gain: 1, dur: 0.45, solo: true })) return
   // 합성 fallback: 터지는 듯한 젖은 팝
   noise(0.2, { filter: 'lowpass', freq: 950, sweepTo: 280, q: 1.4, peak: 0.2, attack: 0.004 })
   tone(180, 0.12, { type: 'sine', peak: 0.1, attack: 0.003, glideTo: 90 })
