@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, useMotionValue, useSpring } from 'framer-motion'
+import { motion, type PanInfo } from 'framer-motion'
 import type { RitualProps } from './index'
 import Gauge from './Gauge'
 import { rotatingMessage, SHRED_MESSAGES } from '../constants'
@@ -19,13 +19,11 @@ const WAVES = [
   { ox: -4, n: 24, delay: 0.98, sp: 160, up: 114 },
 ]
 const GRIND_DIST = 3400 // 이만큼(px) 문질러야 다 갈림 (더 오래 문지르도록 — 너무 빨리 안 끝나게)
-const TAP_BUMP = 0.025 // 탭/클릭 한 번마다 조금씩 갈림
 
 const rnd = (n: number) => {
   const x = Math.sin(n * 12.9898) * 43758.5453
   return x - Math.floor(x)
 }
-const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
 
 // 파쇄기 — 사용자가 손가락을 좌우로 '마구 문질러' 종이를 갈아 넣는다(직접 행위).
 //  세게/많이 문지를수록 본체가 격하게 떨리고 종이가 빨려 들어간다. 다 갈리면 팝콘처럼 터짐.
@@ -34,7 +32,6 @@ export default function Shred({ text, onDone }: RitualProps) {
   const [progress, setProgress] = useState(0)
   const [grinding, setGrinding] = useState(false)
   const [done, setDone] = useState(false)
-  const last = useRef<{ x: number; y: number } | null>(null)
   const fired = useRef(false)
   const grindAcc = useRef(0) // 갈기 햅틱용 이동 누적거리
 
@@ -58,91 +55,36 @@ export default function Shred({ text, onDone }: RitualProps) {
   // 화면 이탈 시 진동 정리
   useEffect(() => () => stopVibration(), [])
 
-  // 본체가 '드래그 방향을 그대로 따라' 기울고 이동(스프링) — 고정 키프레임 반복(부자연) 대신 직접 조작.
-  const dragX = useMotionValue(0)
-  const dragRot = useMotionValue(0)
-  const bodyX = useSpring(dragX, { stiffness: 170, damping: 12, mass: 0.9 })
-  const bodyRot = useSpring(dragRot, { stiffness: 170, damping: 12, mass: 0.9 })
-  const lastMoveTs = useRef(0)
-
-  // 손가락이 멈추면(최근 이동 없음) 목표를 0으로 감쇠 → 스프링이 중앙으로 부드럽게 복귀(seamless)
-  useEffect(() => {
-    if (!grinding) {
-      dragX.set(0)
-      dragRot.set(0)
-      return
-    }
-    let raf = 0
-    const tick = () => {
-      if (Date.now() - lastMoveTs.current > 60) {
-        dragX.set(dragX.get() * 0.86)
-        dragRot.set(dragRot.get() * 0.86)
-      }
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [grinding, dragX, dragRot])
-
-  const onMove = (e: React.PointerEvent) => {
-    if (!grinding || done) return
-    const p = { x: e.clientX, y: e.clientY }
-    if (last.current) {
-      const dx = p.x - last.current.x
-      const d = Math.abs(dx) + Math.abs(p.y - last.current.y)
-      setProgress((v) => Math.min(1, v + d / GRIND_DIST))
-      // 드래그한 방향·속도 그대로 본체가 따라감(크게 반응, 직전값을 이어받아 출렁임 유지)
-      const gain = 2.6 + progress * 1.8
-      dragX.set(clamp(dragX.get() * 0.6 + dx * gain, -112, 112))
-      dragRot.set(clamp(dragRot.get() * 0.6 + dx * 0.24 * gain, -16, 16))
-      lastMoveTs.current = Date.now()
-      // 갈리는 동안 잘게 끊기는 진동 — 이동 누적거리마다 한 펄스
-      grindAcc.current += d
-      if (grindAcc.current >= GRIND_HAPTIC_PX) {
-        grindAcc.current = 0
-        hapticShredTick()
-      }
-    }
-    last.current = p
-  }
-
-  const start = (e: React.PointerEvent) => {
+  // 파쇄기 유닛을 직접 끌면 그 방향으로 따라 흔들리고(달달달) 놓으면 중앙 복귀(Framer drag).
+  //  끄는 거리만큼 종이가 갈려 들어가고(progress), 거리 누적마다 갈리는 진동.
+  const onGrindDrag = (_e: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
     if (done) return
-    // 포인터 캡처: 손가락/마우스가 요소 밖으로 나가도 move가 계속 잡힘(연속 드래그)
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId)
-    } catch {
-      /* noop */
+    const d = Math.abs(info.delta.x) + Math.abs(info.delta.y)
+    if (d <= 0) return
+    setProgress((v) => Math.min(1, v + d / GRIND_DIST))
+    grindAcc.current += d
+    if (grindAcc.current >= GRIND_HAPTIC_PX) {
+      grindAcc.current = 0
+      hapticShredTick()
     }
-    setGrinding(true)
-    last.current = { x: e.clientX, y: e.clientY }
-    setProgress((v) => Math.min(1, v + TAP_BUMP)) // 탭만 해도 조금씩 갈림
-  }
-  const stop = (e: React.PointerEvent) => {
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId)
-    } catch {
-      /* noop */
-    }
-    setGrinding(false)
-    last.current = null
   }
 
   const fed = progress * 138 // 종이가 슬롯으로 들어간 정도(px) — progress=1에서 정확히 다 들어가도록(게이지와 싱크)
 
   return (
-    <div
-      style={{ position: 'relative', width: 240, height: 280, marginTop: 34, touchAction: 'none', cursor: done ? 'default' : 'grab' }}
-      onPointerDown={start}
-      onPointerMove={onMove}
-      onPointerUp={stop}
-      onPointerLeave={stop}
-      onPointerCancel={stop}
-    >
-      {/* 파쇄기 유닛 — 본체·슬롯·종이가 '한 덩어리'로 함께 흔들림(따로 놀지 않게).
-          드래그 방향을 그대로 따라 기울고 이동(스프링), 멈추면 중앙 복귀. 어디를 잡아도 흔들림. */}
+    <div style={{ position: 'relative', width: 240, height: 280, marginTop: 34 }}>
+      {/* 파쇄기 유닛 — 본체·슬롯·종이가 '한 덩어리'. 직접 끌면 그 방향으로 달달달 흔들리고 놓으면 중앙 복귀. */}
       <motion.div
-        style={{ position: 'absolute', inset: 0, touchAction: 'none', transformOrigin: '50% 82%', x: bodyX, rotate: bodyRot }}
+        drag={!done}
+        dragSnapToOrigin
+        dragConstraints={{ left: -64, right: 64, top: -32, bottom: 32 }}
+        dragElastic={0.5}
+        dragMomentum={false}
+        onDragStart={() => setGrinding(true)}
+        onDrag={onGrindDrag}
+        onDragEnd={() => setGrinding(false)}
+        whileDrag={{ cursor: 'grabbing' }}
+        style={{ position: 'absolute', inset: 0, touchAction: 'none', cursor: done ? 'default' : 'grab' }}
       >
         {/* 종이(글) — 기계 위에 얹혀 투입구(슬롯)로 빨려 들어감. 슬롯 입구(높이 132)에서 클립. */}
         <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 132, overflow: 'hidden', zIndex: 3, pointerEvents: 'none' }}>
@@ -172,8 +114,6 @@ export default function Shred({ text, onDone }: RitualProps) {
           >
             {text}
           </div>
-          {/* 슬롯 입구 그림자 — 종이가 어둠(투입구) 속으로 들어가는 느낌 */}
-          <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 20, background: 'linear-gradient(0deg, rgba(18,16,22,0.92) 0%, rgba(18,16,22,0) 100%)', pointerEvents: 'none' }} />
         </div>
 
         {/* 본체 */}

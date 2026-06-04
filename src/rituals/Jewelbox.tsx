@@ -202,7 +202,11 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
   const [stored, setStored] = useState(false)
   const [open, setOpen] = useState(false)
   const [closing, setClosing] = useState(false) // 뚜껑이 닫히기 시작(열린-뚜껑·내부 정리)
-  const [storedColors] = useState(() => pickPastels(4, night))
+  const [storedColors] = useState(() => {
+    const a = pickPastels(4, night)
+    a[1] = '#f7c2d6' // 보석 하나는 연핑크로 고정
+    return a
+  })
   const fired = useRef(false)
   const doneRef = useRef(false)
   const timers = useRef<number[]>([])
