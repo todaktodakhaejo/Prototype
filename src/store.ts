@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import type { Step, RitualId } from './types'
 import * as kpi from './analytics'
-import { KPI_ENABLED } from './analytics'
 
 const LS_ONBOARDED = 'heulim.onboarded'
 const LS_COUNT = 'heulim.releaseCount'
@@ -21,14 +20,13 @@ function readCount(): number {
   }
 }
 
-// 라운드 시작점 — KPI 모드면 공놀이 전 기분(MOOD_PRE)부터, 아니면 홈
+// 라운드 시작점 — 온보딩 전이면 온보딩, 그 외엔 '무조건' 기분척도(MOOD_PRE)부터.
+//   KPI 플래그와 무관하게 시작을 결정론적으로 고정한다(공이 먼저 뜨는 사례 방지).
+//   kpi.startRound()은 KPI 비활성 시 내부에서 no-op이라 항상 호출해도 안전.
 function entryStep(): Step {
   if (!readBool(LS_ONBOARDED)) return 'ONBOARDING'
-  if (KPI_ENABLED) {
-    kpi.startRound()
-    return 'MOOD_PRE'
-  }
-  return 'HOME'
+  kpi.startRound()
+  return 'MOOD_PRE'
 }
 
 interface AppState {
@@ -71,9 +69,9 @@ export const useStore = create<AppState>((set, get) => {
         /* noop */
       }
     }
-    if (KPI_ENABLED) kpi.startRound()
+    kpi.startRound()
     set({
-      step: KPI_ENABLED ? 'MOOD_PRE' : 'HOME',
+      step: 'MOOD_PRE', // 다음 라운드도 항상 기분척도부터
       draftText: '', // 흘려보냈으니 텍스트 폐기 (저장하지 않음)
       selectedRitual: null,
       postRoundType: null,
@@ -97,8 +95,8 @@ export const useStore = create<AppState>((set, get) => {
       } catch {
         /* noop */
       }
-      if (KPI_ENABLED) kpi.startRound()
-      set({ onboarded: true, step: KPI_ENABLED ? 'MOOD_PRE' : 'HOME' })
+      kpi.startRound()
+      set({ onboarded: true, step: 'MOOD_PRE' })
     },
 
     // 기분 pre는 공놀이 시작 전(공통)에 물음 → 응답하면 홈(공놀이)으로
@@ -113,7 +111,7 @@ export const useStore = create<AppState>((set, get) => {
       if (get().draftText.trim().length > 0) {
         set({ step: 'RITUAL_PICK' }) // 허브로 복귀 (공놀이 더 하다 돌아온 경우)
       } else {
-        set({ step: KPI_ENABLED ? 'RITUAL_PROMPT' : 'WRITE' })
+        set({ step: 'RITUAL_PROMPT' }) // 항상 분기 팝업(환기할지/여기까지)
       }
     },
 
@@ -150,7 +148,7 @@ export const useStore = create<AppState>((set, get) => {
       set({
         ritualsThisSession: get().ritualsThisSession + 1,
         selectedRitual: null,
-        step: KPI_ENABLED ? 'RITUAL_AGAIN' : 'RELEASED',
+        step: 'RITUAL_AGAIN', // 항상 '더 할지/여기까지' 분기 → 후속 기분질문 유도
       })
     },
 
@@ -171,14 +169,10 @@ export const useStore = create<AppState>((set, get) => {
       set({ step: 'RELEASED' })
     },
 
-    // 완료 화면 여운 종료 후 — KPI면 처음(공놀이 전 기분 pre)으로, 아니면 홈 리셋
+    // 완료 화면 여운 종료 후 — 항상 처음(공놀이 전 기분 pre)으로 되돌아간다
     afterReleased: () => {
-      if (KPI_ENABLED) {
-        kpi.startRound()
-        set({ step: 'MOOD_PRE', draftText: '', selectedRitual: null, postRoundType: null, ritualsThisSession: 0 })
-      } else {
-        resetForNext(true)
-      }
+      kpi.startRound()
+      set({ step: 'MOOD_PRE', draftText: '', selectedRitual: null, postRoundType: null, ritualsThisSession: 0 })
     },
 
     resetHome: () => resetForNext(true),
