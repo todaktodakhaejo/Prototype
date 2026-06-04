@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useMotionValue, useSpring } from 'framer-motion'
 import type { RitualProps } from './index'
 import Gauge from './Gauge'
 import { rotatingMessage, SHRED_MESSAGES } from '../constants'
@@ -25,6 +25,7 @@ const rnd = (n: number) => {
   const x = Math.sin(n * 12.9898) * 43758.5453
   return x - Math.floor(x)
 }
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
 
 // 파쇄기 — 사용자가 손가락을 좌우로 '마구 문질러' 종이를 갈아 넣는다(직접 행위).
 //  세게/많이 문지를수록 본체가 격하게 떨리고 종이가 빨려 들어간다. 다 갈리면 팝콘처럼 터짐.
@@ -57,12 +58,44 @@ export default function Shred({ text, onDone }: RitualProps) {
   // 화면 이탈 시 진동 정리
   useEffect(() => () => stopVibration(), [])
 
+  // 본체가 '드래그 방향을 그대로 따라' 기울고 이동(스프링) — 고정 키프레임 반복(부자연) 대신 직접 조작.
+  const dragX = useMotionValue(0)
+  const dragRot = useMotionValue(0)
+  const bodyX = useSpring(dragX, { stiffness: 240, damping: 14, mass: 0.7 })
+  const bodyRot = useSpring(dragRot, { stiffness: 240, damping: 14, mass: 0.7 })
+  const lastMoveTs = useRef(0)
+
+  // 손가락이 멈추면(최근 이동 없음) 목표를 0으로 감쇠 → 스프링이 중앙으로 부드럽게 복귀(seamless)
+  useEffect(() => {
+    if (!grinding) {
+      dragX.set(0)
+      dragRot.set(0)
+      return
+    }
+    let raf = 0
+    const tick = () => {
+      if (Date.now() - lastMoveTs.current > 55) {
+        dragX.set(dragX.get() * 0.8)
+        dragRot.set(dragRot.get() * 0.8)
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [grinding, dragX, dragRot])
+
   const onMove = (e: React.PointerEvent) => {
     if (!grinding || done) return
     const p = { x: e.clientX, y: e.clientY }
     if (last.current) {
-      const d = Math.abs(p.x - last.current.x) + Math.abs(p.y - last.current.y)
+      const dx = p.x - last.current.x
+      const d = Math.abs(dx) + Math.abs(p.y - last.current.y)
       setProgress((v) => Math.min(1, v + d / GRIND_DIST))
+      // 드래그한 방향·속도 그대로 본체가 따라감(끝으로 갈수록 더 크게 반응)
+      const gain = 1.0 + progress * 0.7
+      dragX.set(clamp(dragX.get() * 0.45 + dx * gain, -98, 98))
+      dragRot.set(clamp(dragRot.get() * 0.45 + dx * 0.17 * gain, -14, 14))
+      lastMoveTs.current = Date.now()
       // 갈리는 동안 잘게 끊기는 진동 — 이동 누적거리마다 한 펄스
       grindAcc.current += d
       if (grindAcc.current >= GRIND_HAPTIC_PX) {
@@ -96,10 +129,6 @@ export default function Shred({ text, onDone }: RitualProps) {
   }
 
   const fed = progress * 138 // 종이가 슬롯으로 들어간 정도(px) — progress=1에서 정확히 다 들어가도록(게이지와 싱크)
-  // 좌우로 거세게 휘청이며 점점 더 격하게(끝으로 갈수록 폭·속도 증가) — 팅글이 확 느껴지도록 크게
-  const amp = 22 + progress * 78 // 좌우 흔들림 폭 22→100px (확실히 큰 좌우 이동)
-  const rot = 3 + progress * 9 // 회전 폭 3→12deg
-  const shakeDur = Math.max(0.07, 0.34 - progress * 0.25) // 더 빨라짐(격렬)
 
   return (
     <div
@@ -141,7 +170,7 @@ export default function Shred({ text, onDone }: RitualProps) {
         </div>
       </div>
 
-      {/* 파쇄기 본체 — 가는 동안 격하게 흔들림 */}
+      {/* 파쇄기 본체 — 드래그 방향을 그대로 따라 기울고 이동(스프링), 멈추면 중앙 복귀 */}
       <motion.div
         style={{
           position: 'absolute',
@@ -155,16 +184,9 @@ export default function Shred({ text, onDone }: RitualProps) {
           background: 'linear-gradient(180deg, #4a4754 0%, #2c2a34 100%)',
           border: '1px solid rgba(255,255,255,0.12)',
           boxShadow: '0 18px 34px rgba(0,0,0,0.4)',
+          x: bodyX,
+          rotate: bodyRot,
         }}
-        animate={
-          grinding
-            ? {
-                x: [0, -amp, amp, -amp, amp, -amp, amp * 0.8, -amp * 0.8, amp * 0.4, 0],
-                rotate: [0, -rot, rot, -rot, rot, -rot * 0.8, rot * 0.6, -rot * 0.4, 0],
-              }
-            : { x: 0, rotate: 0 }
-        }
-        transition={grinding ? { duration: shakeDur, repeat: Infinity, ease: 'linear' } : { duration: 0.15 }}
       >
         <div
           style={{
