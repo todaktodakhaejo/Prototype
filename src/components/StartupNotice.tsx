@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useStore } from '../store'
+import { isSfxEnabled, setSfxEnabled, sfxTest } from '../sfx'
 
 // 중앙 하단에서 잔잔하게 나오는 이용 환경 안내 말풍선.
 //  '시작 화면'(매 라운드 시작 기분질문 MOOD_PRE)에서만 보인다 → 온보딩 등 다른 화면의 버튼과 겹칠 일이 없음.
@@ -16,6 +17,13 @@ export default function StartupNotice() {
 
   const canVibrate = typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function'
   const [vibeMsg, setVibeMsg] = useState('')
+  const [sfxOn, setSfxOn] = useState(isSfxEnabled())
+  const toggleSfx = () => {
+    const next = !sfxOn
+    setSfxEnabled(next)
+    setSfxOn(next)
+    if (next) sfxTest() // 켤 때 부드러운 3음으로 확인
+  }
 
   // 말풍선 높이를 측정해 --notice-h로 노출(보이면 실제 높이, 숨으면 0) → 본문이 그만큼 비켜남
   const ref = useRef<HTMLDivElement>(null)
@@ -136,13 +144,24 @@ export default function StartupNotice() {
           <p style={{ marginTop: 4, color: '#c0246a' }}>
             <b>⚠️ 아이폰(크롬 포함) · 사파리 · 파이어폭스 · 카톡 등 인앱 브라우저에서는 진동이 지원되지 않는 점 양해 부탁드립니다.</b>
           </p>
+          <p style={{ marginTop: 4 }}>
+            🔊 진동에 맞춰 <b>잔잔한 효과음</b>도 함께해요 — <b>아이폰도 소리는 납니다</b>(벨소리·볼륨 ON).
+          </p>
 
-          <button
-            onClick={testVibe}
-            style={{ marginTop: 7, padding: '4px 11px', borderRadius: 999, border: 'none', background: 'var(--jelly-pink, #f4b8c7)', color: '#5a2238', fontFamily: 'var(--batang)', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
-          >
-            🔔 진동 느껴보기
-          </button>
+          <div style={{ display: 'flex', gap: 6, marginTop: 7, flexWrap: 'wrap' }}>
+            <button
+              onClick={testVibe}
+              style={{ padding: '4px 11px', borderRadius: 999, border: 'none', background: 'var(--jelly-pink, #f4b8c7)', color: '#5a2238', fontFamily: 'var(--batang)', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+            >
+              🔔 진동 느껴보기
+            </button>
+            <button
+              onClick={toggleSfx}
+              style={{ padding: '4px 11px', borderRadius: 999, border: 'none', background: sfxOn ? 'var(--jelly-pink, #f4b8c7)' : 'rgba(40,30,50,0.14)', color: sfxOn ? '#5a2238' : 'var(--ink-mute)', fontFamily: 'var(--batang)', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+            >
+              {sfxOn ? '🔊 소리 켜짐' : '🔇 소리 꺼짐'}
+            </button>
+          </div>
           {vibeMsg && <p style={{ marginTop: 5, fontSize: 10.5, color: 'var(--ink-mute)' }}>{vibeMsg}</p>}
         </motion.div>
       )}
