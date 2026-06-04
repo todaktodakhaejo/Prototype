@@ -191,7 +191,7 @@ function detectPeak(buf: AudioBuffer): number {
         idx = i
       }
     }
-    return Math.max(0, idx / buf.sampleRate - 0.02) // 정점 살짝 전부터
+    return Math.max(0, idx / buf.sampleRate - 0.035) // 정점보다 조금 더 앞에서(즉시 터지게)
   } catch {
     return 0
   }
@@ -300,7 +300,7 @@ export function sfxPress() {
 // 꾹 눌러 다음으로 넘어가는 순간(롱프레스 완료) — '약간 터지는' squelch
 export function sfxSquelch() {
   if (!enabled) return
-  if (playSample('squelch', { gain: 1, dur: 0.45, solo: true })) return
+  if (playSample('squelch', { gain: 1, dur: 0.34, solo: true })) return
   // 합성 fallback: 터지는 듯한 젖은 팝
   noise(0.2, { filter: 'lowpass', freq: 950, sweepTo: 280, q: 1.4, peak: 0.2, attack: 0.004 })
   tone(180, 0.12, { type: 'sine', peak: 0.1, attack: 0.003, glideTo: 90 })
