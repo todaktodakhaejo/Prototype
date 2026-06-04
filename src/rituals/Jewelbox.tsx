@@ -463,7 +463,7 @@ export default function Jewelbox({ text, onDone }: RitualProps) {
       {!stored && (
         <div style={{ position: 'absolute', top: -44, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 10, pointerEvents: 'none' }}>
           <span style={{ background: 'rgba(30,22,40,0.55)', color: '#fff', fontSize: 13, padding: '6px 14px', borderRadius: 999, whiteSpace: 'nowrap' }}>
-            💎 종이를 보석함으로 끌어내려 담아보세요
+            💎 종이를 보석함으로 끌어당겨 담아보세요
           </span>
         </div>
       )}
