@@ -97,6 +97,14 @@ export default function Burn({ text, onDone }: RitualProps) {
     if (hx >= 0 && hx <= PAPER_W && hy >= 0 && hy <= PAPER_H) ignite()
   }
 
+  // 불소리(bed)는 '성냥으로 불이 붙는 순간(lit)'부터 시작 → 다 타면(done) 멈춤. 누름 여부와 무관.
+  useEffect(() => {
+    if (lit && !done) {
+      sfxFireStart()
+      return () => stopFire()
+    }
+  }, [lit, done])
+
   // 점화된 뒤 '꾹 누르고 있는 동안만' 타오름 (떼면 멈춤, 다시 누르면 이어서)
   useEffect(() => {
     if (!lit || !pressing || done) return
@@ -121,7 +129,6 @@ export default function Burn({ text, onDone }: RitualProps) {
     if (!lit || !pressing || done) return
     let id = 0
     let alive = true
-    sfxFireStart() // 지속되는 장작 불소리(bed) — 타는 동안
     const loop = () => {
       if (!alive) return
       const p = Math.max(0, Math.min(1, progressRef.current))
@@ -134,7 +141,6 @@ export default function Burn({ text, onDone }: RitualProps) {
       alive = false
       window.clearTimeout(id)
       stopVibration()
-      stopFire() // 떼거나 끝나면 불소리 잦아듦
     }
   }, [lit, pressing, done])
 

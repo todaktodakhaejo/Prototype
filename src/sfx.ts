@@ -43,7 +43,7 @@ function audio(): AudioContext | null {
       if (!AC) return null
       ctx = new AC()
       master = ctx.createGain()
-      master.gain.value = 0.32
+      master.gain.value = 0.62 // 노멀 볼륨에서도 잘 들리게
       const warmth = ctx.createBiquadFilter()
       warmth.type = 'lowpass'
       warmth.frequency.value = 6200
@@ -152,31 +152,30 @@ function noise(dur: number, o: NoiseOpts = {}) {
   src.stop(t0 + dur + 0.03)
 }
 
-// ── 공(말랑이): 동작별로 다르되 모두 '물기 가득한 슬라임/물방울' 결 ──
-// 꾹 누름: 슬라임이 천천히 눌리는 촉촉한 스쿼시(저역 노이즈 스웰 + 낮은 피치 하강)
+// ── 공(말랑이): 끈적·물기 가득한 슬라임 결(음정 있는 '보잉'=탱탱볼 느낌을 빼고 젖은 노이즈 스퀄치로) ──
+// 꾹 누름: 슬라임이 끈적하게 눌리는 촉촉 스쿼시(저역 노이즈가 천천히 죄어들며 '슈읍')
 export function sfxPress() {
   if (!enabled) return
-  noise(0.26, { filter: 'lowpass', freq: 760, sweepTo: 240, q: 0.9, peak: 0.16, attack: 0.03 })
-  tone(300, 0.24, { type: 'sine', peak: 0.12, attack: 0.02, glideTo: 150 })
+  noise(0.24, { filter: 'lowpass', freq: 820, sweepTo: 220, q: 1.2, peak: 0.18, attack: 0.025 })
+  noise(0.1, { filter: 'lowpass', freq: 420, sweepTo: 180, q: 1, peak: 0.09, attack: 0.008, delay: 0.04 })
 }
 // 조물딱(문지름): 짧고 가벼운 물기 스퀄치(자주 울리므로 여리게)
 export function sfxRub() {
   if (!enabled) return
-  noise(0.07, { filter: 'lowpass', freq: 560 + rnd() * 220, q: 0.9, peak: 0.055, attack: 0.004, sweepTo: 380 })
-  if (rnd() < 0.5) tone(520 + rnd() * 160, 0.06, { type: 'sine', peak: 0.03, attack: 0.003 })
+  noise(0.06, { filter: 'lowpass', freq: 560 + rnd() * 260, sweepTo: 320 + rnd() * 120, q: 1.1, peak: 0.06, attack: 0.004 })
 }
-// 튕김(놓아서 통통): 탱글한 물방울 보잉(피치 상승) + 촉촉
+// 놓음: 끈적하게 떨어지며 늘어나는 슈러읍(suction) — 보잉 아님
 export function sfxRelease() {
   if (!enabled) return
-  tone(260, 0.26, { type: 'sine', peak: 0.22, attack: 0.006, glideTo: 760 })
-  noise(0.12, { filter: 'lowpass', freq: 900, sweepTo: 500, q: 0.8, peak: 0.08, attack: 0.004 })
+  noise(0.18, { filter: 'lowpass', freq: 460, sweepTo: 1020, q: 1.1, peak: 0.13, attack: 0.02 })
+  noise(0.07, { filter: 'bandpass', freq: 1300, q: 1, peak: 0.05, attack: 0.004, delay: 0.05 })
 }
-// 벽 충돌: 물컹 부딪는 젖은 스플랫(세기 비례, 저역)
+// 벽 충돌: 물컹 부딪는 젖은 스플랫 + 낮은 sub 충격(보잉 없는 thud)
 export function sfxWall(strength = 0.5) {
   if (!enabled) return
   const s = clamp(strength)
-  noise(0.12, { filter: 'lowpass', freq: 600, sweepTo: 180, q: 0.9, peak: 0.08 + s * 0.12, attack: 0.002 })
-  tone(180, 0.16, { type: 'sine', peak: 0.08 + s * 0.14, attack: 0.002, glideTo: 90 })
+  noise(0.12, { filter: 'lowpass', freq: 540, sweepTo: 160, q: 1.2, peak: 0.09 + s * 0.13, attack: 0.002 })
+  tone(70, 0.1, { type: 'sine', peak: 0.05 + s * 0.09, attack: 0.002 })
 }
 
 // ── 태우기: 장작 ASMR = 낮은 우르릉 + 공기 쉬익(hiss) 두 겹 bed + 타닥 크래클 ─────
@@ -257,16 +256,16 @@ export function sfxShredBurst() {
 }
 
 // ── 날리기 ──────────────────────────────────────────────────
-// 종이 접힘: A4 사부작 — 넓은 대역 노이즈 스트로크가 겹치며 스윽스윽(고립된 클릭 아님)
+// 종이 접힘: 종이 구겨지는 바삭바삭(불규칙한 아주 짧은 광대역 알갱이 다발 — 스윕·공명 없이 = 용수철 느낌 제거)
 export function sfxPaperFold() {
   if (!enabled) return
-  // 길게 스윽 쓸리는 종이 결 스트로크 5~6개를 겹쳐 부드럽게
-  for (let k = 0; k < 6; k++) {
-    noise(0.1 + rnd() * 0.08, { filter: 'highpass', freq: 1200 + rnd() * 900, q: 0.5, peak: 0.05 + rnd() * 0.025, attack: 0.02, delay: k * 0.13 + rnd() * 0.05 })
+  // 사부작 알갱이 다발 — 짧고 무작위로 촘촘히(구김 텍스처)
+  for (let k = 0; k < 26; k++) {
+    noise(0.006 + rnd() * 0.012, { filter: 'highpass', freq: 2600 + rnd() * 1800, q: 0.4, peak: 0.04 + rnd() * 0.035, attack: 0.001, delay: rnd() * 0.85 })
   }
-  // 접히는 순간 또렷한 접힘 두어 번(살짝 도드라지게)
-  noise(0.05, { filter: 'highpass', freq: 1800, q: 0.5, peak: 0.07, attack: 0.004, delay: 0.18 })
-  noise(0.05, { filter: 'highpass', freq: 1600, q: 0.5, peak: 0.06, attack: 0.004, delay: 0.5 })
+  // 접는 큰 동작 두 번 — 살짝 길게 쓸리는 결(여전히 광대역, 저음 없음)
+  noise(0.07, { filter: 'highpass', freq: 1700, q: 0.4, peak: 0.06, attack: 0.006, delay: 0.16 })
+  noise(0.07, { filter: 'highpass', freq: 1700, q: 0.4, peak: 0.055, attack: 0.006, delay: 0.5 })
 }
 // 잿가루 될 때: 부드러운 바람 한 줄기
 export function sfxSoftWind() {
