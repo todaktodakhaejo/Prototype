@@ -185,12 +185,29 @@ function preloadSamples() {
   })
 }
 
-// 샘플 재생(있을 때만). loop면 정지용 소스 반환.
-function playSample(name: SampleName, opts: { rate?: number; gain?: number; loop?: boolean } = {}): AudioBufferSourceNode | null {
+// 같은 종류 소리가 겹쳐 쌓이지 않게(연속 동작용) — 직전 보이스를 끊는다
+const voices: Partial<Record<SampleName, AudioBufferSourceNode>> = {}
+
+// 샘플 재생(있을 때만).
+//  loop=true면 계속(불소리 등, 정지용 소스 반환).
+//  그 외엔 dur만큼만 '짧게' 재생 후 페이드 정지 → 인터랙션 순간에만 톡(음악처럼 흐르지 않음).
+//  randomStart=긴 녹음에서 매번 다른 구간을 집어 단조롭지 않게. solo=직전 같은 소리를 끊어 겹침 방지.
+function playSample(
+  name: SampleName,
+  opts: { rate?: number; gain?: number; loop?: boolean; dur?: number; randomStart?: boolean; solo?: boolean } = {},
+): AudioBufferSourceNode | null {
   const c = audio()
   const buf = buffers[name]
   if (!c || !master || !buf) return null
-  const { rate = 1, gain = 1, loop = false } = opts
+  const { rate = 1, gain = 1, loop = false, dur, randomStart = false, solo = false } = opts
+  if (solo && voices[name]) {
+    try {
+      voices[name]!.stop()
+    } catch {
+      /* noop */
+    }
+    voices[name] = undefined
+  }
   const src = c.createBufferSource()
   src.buffer = buf
   src.loop = loop
@@ -199,7 +216,26 @@ function playSample(name: SampleName, opts: { rate?: number; gain?: number; loop
   g.gain.value = gain
   src.connect(g)
   g.connect(master)
-  src.start()
+  const span = dur ?? 0.2
+  const startAt = randomStart ? rnd() * Math.max(0, buf.duration - span - 0.05) : 0
+  const t0 = c.currentTime
+  src.start(t0, Math.min(startAt, Math.max(0, buf.duration - 0.06)))
+  if (!loop && dur) {
+    const end = t0 + dur
+    try {
+      g.gain.setValueAtTime(gain, Math.max(t0 + 0.001, end - 0.045))
+      g.gain.linearRampToValueAtTime(0.0001, end) // 끝에서 살짝 페이드(클릭 방지)
+    } catch {
+      /* noop */
+    }
+    src.stop(end + 0.02)
+  }
+  if (solo) {
+    voices[name] = src
+    src.onended = () => {
+      if (voices[name] === src) voices[name] = undefined
+    }
+  }
   return src
 }
 
@@ -207,20 +243,20 @@ function playSample(name: SampleName, opts: { rate?: number; gain?: number; loop
 // 꾹 누름: 슬라임이 끈적하게 눌리는 촉촉 스쿼시(저역 노이즈가 천천히 죄어들며 '슈읍')
 export function sfxPress() {
   if (!enabled) return
-  if (playSample('slime', { rate: 0.9, gain: 1 })) return
+  if (playSample('slime', { rate: 0.9, gain: 1, dur: 0.42, randomStart: true, solo: true })) return
   noise(0.24, { filter: 'lowpass', freq: 820, sweepTo: 220, q: 1.2, peak: 0.18, attack: 0.025 })
   noise(0.1, { filter: 'lowpass', freq: 420, sweepTo: 180, q: 1, peak: 0.09, attack: 0.008, delay: 0.04 })
 }
 // 조물딱(문지름): 짧고 가벼운 물기 스퀄치(자주 울리므로 여리게)
 export function sfxRub() {
   if (!enabled) return
-  if (playSample('slime', { rate: 1.35, gain: 0.5 })) return
+  if (playSample('slime', { rate: 1.35, gain: 0.5, dur: 0.16, randomStart: true, solo: true })) return
   noise(0.06, { filter: 'lowpass', freq: 560 + rnd() * 260, sweepTo: 320 + rnd() * 120, q: 1.1, peak: 0.06, attack: 0.004 })
 }
 // 놓음: 끈적하게 떨어지며 늘어나는 슈러읍(suction) — 보잉 아님
 export function sfxRelease() {
   if (!enabled) return
-  if (playSample('slime', { rate: 1.1, gain: 0.95 })) return
+  if (playSample('slime', { rate: 1.1, gain: 0.95, dur: 0.4, randomStart: true, solo: true })) return
   noise(0.18, { filter: 'lowpass', freq: 460, sweepTo: 1020, q: 1.1, peak: 0.13, attack: 0.02 })
   noise(0.07, { filter: 'bandpass', freq: 1300, q: 1, peak: 0.05, attack: 0.004, delay: 0.05 })
 }
@@ -228,7 +264,7 @@ export function sfxRelease() {
 export function sfxWall(strength = 0.5) {
   if (!enabled) return
   const s = clamp(strength)
-  if (playSample('slime', { rate: 0.8, gain: 0.7 + s * 0.4 })) return
+  if (playSample('slime', { rate: 0.8, gain: 0.7 + s * 0.4, dur: 0.28, randomStart: true, solo: true })) return
   noise(0.12, { filter: 'lowpass', freq: 540, sweepTo: 160, q: 1.2, peak: 0.09 + s * 0.13, attack: 0.002 })
   tone(70, 0.1, { type: 'sine', peak: 0.05 + s * 0.09, attack: 0.002 })
 }
@@ -312,14 +348,14 @@ export function sfxBurn() {
 // 갈기: 진짜 종이가 갈리는 소리 — 모터 저역 그르릉 + 종이 찢기는 거친 중역(지직)
 export function sfxShredGrind() {
   if (!enabled) return
-  if (playSample('shred', { rate: 0.9 + rnd() * 0.3, gain: 0.5 })) return
+  if (playSample('shred', { rate: 0.9 + rnd() * 0.3, gain: 0.55, dur: 0.18, randomStart: true, solo: true })) return
   noise(0.1, { filter: 'lowpass', freq: 360 + rnd() * 120, q: 0.7, peak: 0.05, attack: 0.006 }) // 모터 그르릉
   noise(0.07, { filter: 'bandpass', freq: 1500 + rnd() * 900, q: 1.4, peak: 0.07, attack: 0.003 }) // 종이 찢기는 지직
 }
 // 폭죽: 불꽃놀이 — '펑'(저음 붐) + 터지는 노이즈 + 차차차 흩어지는 불꽃 알갱이(길게)
 export function sfxShredBurst() {
   if (!enabled) return
-  if (playSample('firework', { gain: 1 })) return
+  if (playSample('firework', { gain: 1, dur: 1.6 })) return
   tone(160, 0.3, { type: 'sine', peak: 0.34, attack: 0.002, glideTo: 42 }) // 펑(붐)
   noise(0.18, { filter: 'lowpass', freq: 2600, sweepTo: 240, q: 0.8, peak: 0.28, attack: 0.001 }) // 터지는 순간
   for (let k = 0; k < 16; k++) {
@@ -332,7 +368,7 @@ export function sfxShredBurst() {
 // 종이 접힘: 종이 구겨지는 바삭바삭(불규칙한 아주 짧은 광대역 알갱이 다발 — 스윕·공명 없이 = 용수철 느낌 제거)
 export function sfxPaperFold() {
   if (!enabled) return
-  if (playSample('paper', { gain: 1 })) return
+  if (playSample('paper', { gain: 1, dur: 0.85, randomStart: true })) return
   // 사부작 알갱이 다발 — 짧고 무작위로 촘촘히(구김 텍스처)
   for (let k = 0; k < 26; k++) {
     noise(0.006 + rnd() * 0.012, { filter: 'highpass', freq: 2600 + rnd() * 1800, q: 0.4, peak: 0.04 + rnd() * 0.035, attack: 0.001, delay: rnd() * 0.85 })
@@ -387,7 +423,7 @@ export function sfxHaloShimmer() {
 export function sfxType(soft = false) {
   if (!enabled) return
   const v = soft ? 0.55 : 1
-  if (playSample('type', { rate: 0.95 + rnd() * 0.15, gain: v })) return
+  if (playSample('type', { rate: 0.95 + rnd() * 0.15, gain: v, dur: 0.12, randomStart: true, solo: true })) return
   noise(0.02, { filter: 'bandpass', freq: 2300 + rnd() * 700, q: 2.6, peak: 0.16 * v, attack: 0.001 })
   tone(150 + rnd() * 50, 0.045, { type: 'triangle', peak: 0.12 * v, attack: 0.002 })
 }
