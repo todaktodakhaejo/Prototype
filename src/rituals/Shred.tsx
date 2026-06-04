@@ -16,7 +16,7 @@ const WAVES = [
   { ox: 56, oy: 4, n: 22, delay: 0.72, sp: 148 },
   { ox: -12, oy: 26, n: 24, delay: 1.06, sp: 158 },
 ]
-const GRIND_DIST = 2000 // 이만큼(px) 문질러야 다 갈림 (더 오래 문지르도록)
+const GRIND_DIST = 3400 // 이만큼(px) 문질러야 다 갈림 (더 오래 문지르도록 — 너무 빨리 안 끝나게)
 const TAP_BUMP = 0.025 // 탭/클릭 한 번마다 조금씩 갈림
 
 const rnd = (n: number) => {
@@ -94,10 +94,10 @@ export default function Shred({ text, onDone }: RitualProps) {
   }
 
   const fed = progress * 138 // 종이가 슬롯으로 들어간 정도(px) — progress=1에서 정확히 다 들어가도록(게이지와 싱크)
-  // 좌우로 확 휘청이며 점점 더 격하게(끝으로 갈수록 폭·속도 증가)
-  const amp = 12 + progress * 52 // 좌우 흔들림 폭 12→64px (제자리 아닌 확실한 좌우 이동)
-  const rot = 1.5 + progress * 5 // 회전 폭 1.5→6.5deg
-  const shakeDur = Math.max(0.11, 0.4 - progress * 0.26) // 빨라짐
+  // 좌우로 거세게 휘청이며 점점 더 격하게(끝으로 갈수록 폭·속도 증가) — 팅글이 확 느껴지도록 크게
+  const amp = 22 + progress * 78 // 좌우 흔들림 폭 22→100px (확실히 큰 좌우 이동)
+  const rot = 3 + progress * 9 // 회전 폭 3→12deg
+  const shakeDur = Math.max(0.07, 0.34 - progress * 0.25) // 더 빨라짐(격렬)
 
   return (
     <div
@@ -157,8 +157,8 @@ export default function Shred({ text, onDone }: RitualProps) {
         animate={
           grinding
             ? {
-                x: [0, -amp, amp, -amp, amp, -amp * 0.7, amp * 0.7, 0],
-                rotate: [0, -rot, rot, -rot, rot * 0.8, -rot * 0.6, 0],
+                x: [0, -amp, amp, -amp, amp, -amp, amp * 0.8, -amp * 0.8, amp * 0.4, 0],
+                rotate: [0, -rot, rot, -rot, rot, -rot * 0.8, rot * 0.6, -rot * 0.4, 0],
               }
             : { x: 0, rotate: 0 }
         }
