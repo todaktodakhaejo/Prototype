@@ -24,8 +24,32 @@ export function initPostHog(uid?: string): void {
     })
     if (uid) posthog.identify(uid)
     ready = true
+    tagAudience()
   } catch {
     /* 키 오류 등은 조용히 무시 */
+  }
+}
+
+// 내부(나·팀원) 식별: ?internal=1 (또는 ?team=1) 로 한 번 접속하면 그 브라우저는 영구히 '팀'으로 표시.
+//  - 모든 이벤트에 is_team 속성(super property) → 분석 때 is_team!=true 로 진짜 사용자만 봄
+//  - 팀이면 person 속성으로도 박아 그 사람의 '과거 데이터까지' 소급 제외 가능
+function tagAudience() {
+  let internal = false
+  try {
+    if (localStorage.getItem('heulim.internal') === '1') internal = true
+    const p = new URLSearchParams(window.location.search)
+    if (p.get('internal') === '1' || p.get('team') === '1') {
+      internal = true
+      localStorage.setItem('heulim.internal', '1')
+    }
+  } catch {
+    /* noop */
+  }
+  try {
+    posthog.register({ is_team: internal }) // 이후 모든 이벤트에 표식
+    if (internal) posthog.setPersonProperties({ is_team: true }) // person 단위(소급 필터용)
+  } catch {
+    /* noop */
   }
 }
 
